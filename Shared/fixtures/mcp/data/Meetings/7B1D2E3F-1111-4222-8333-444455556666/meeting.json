@@ -1,0 +1,20 @@
+{
+  "createdAt" : 811175400,
+  "duration" : 1800,
+  "formatVersion" : 2,
+  "hasAudio" : true,
+  "hasScreenRecording" : false,
+  "hasSystemAudio" : true,
+  "highlights" : [
+
+  ],
+  "id" : "7B1D2E3F-1111-4222-8333-444455556666",
+  "segments" : [
+
+  ],
+  "speakers" : [
+
+  ],
+  "status" : "transcribing",
+  "title" : "Созвон с дизайнерами"
+}

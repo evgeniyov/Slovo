@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Settings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Settings.GeneralSettingsView"
+             x:DataType="vm:GeneralSettingsViewModel">
+  <StackPanel Spacing="22">
+    <c:SettingsGroup Header="{loc:T settings.group.dictation}">
+      <c:SettingsRow Title="{loc:T settings.general.key}" Detail="{loc:T settings.general.key.detail}">
+        <ComboBox ItemsSource="{Binding KeyChoices}" SelectedItem="{Binding SelectedKey}" />
+      </c:SettingsRow>
+      <Border Classes="Inset" Padding="12,8" Margin="0,0,0,8">
+        <Panel>
+          <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsHotkeyRunning}">
+            <Ellipse Width="9" Height="9" Fill="{DynamicResource Slovo.Success}" IsVisible="{Binding IsKeyDown}" />
+            <Ellipse Width="9" Height="9" Fill="{DynamicResource Slovo.PanelBorder}" IsVisible="{Binding !IsKeyDown}" />
+            <TextBlock Text="{loc:T keytest.passed}" Foreground="{DynamicResource Slovo.Success}" IsVisible="{Binding IsKeyDown}" />
+            <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding !IsKeyDown}">
+              <TextBlock Text="{loc:T keytest.prompt.prefix}" VerticalAlignment="Center" />
+              <Border Classes="Keycap"><TextBlock Text="{Binding KeySymbol}" FontSize="12" /></Border>
+              <TextBlock Text="{loc:T keytest.prompt.suffix}" VerticalAlignment="Center" />
+            </StackPanel>
+          </StackPanel>
+          <TextBlock Classes="Secondary" Text="{loc:T keytest.needsPermission}" IsVisible="{Binding !IsHotkeyRunning}" TextWrapping="Wrap" />
+        </Panel>
+      </Border>
+      <c:SettingsRow Title="{loc:T settings.general.handsFree}" Detail="{loc:T settings.general.handsFree.detail}">
+        <ToggleSwitch IsChecked="{Binding HandsFreeEnabled}" AutomationProperties.Name="{loc:T settings.general.handsFree}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.general.maxLength}" Detail="{loc:T settings.general.maxLength.detail}" IsEnabled="{Binding HandsFreeEnabled}">
+        <ComboBox ItemsSource="{Binding MaxLengthChoices}" SelectedItem="{Binding SelectedMaxLength}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.general.escape}" Detail="{loc:T settings.general.escape.detail}">
+        <ToggleSwitch IsChecked="{Binding EscapeCancels}" AutomationProperties.Name="{loc:T settings.general.escape}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.general.pasteLast}" Detail="{loc:T settings.general.pasteLast.detail}">
+        <ComboBox ItemsSource="{Binding PasteLastChoices}" SelectedItem="{Binding SelectedPasteLast}" />
+      </c:SettingsRow>
+      <Border Classes="Notice" Margin="0,0,0,10" IsVisible="{Binding PasteLastRefused}">
+        <TextBlock Text="{loc:T settings.general.pasteLast.refused}" />
+      </Border>
+    </c:SettingsGroup>
+
+    <c:SettingsGroup Header="{loc:T settings.group.input}">
+      <c:SettingsRow Title="{loc:T settings.general.microphone}" Detail="{loc:T settings.general.microphone.detail}">
+        <ComboBox ItemsSource="{Binding MicrophoneChoices}" SelectedItem="{Binding SelectedMicrophone}" MaxWidth="280" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.general.languageMode}" Detail="{loc:T settings.general.languageMode.detail}">
+        <ComboBox ItemsSource="{Binding LanguageModeChoices}" SelectedItem="{Binding SelectedLanguageMode}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+
+    <c:SettingsGroup Header="{loc:T settings.group.interface}">
+      <c:SettingsRow Title="{loc:T settings.general.language}">
+        <ComboBox ItemsSource="{Binding LanguageChoices}" SelectedItem="{Binding SelectedLanguage}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+  </StackPanel>
+</UserControl>

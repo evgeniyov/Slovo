@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Speech: GigaAM v3, Parakeet TDT v3 and speaker separation run on ONNX Runtime. -->
+    <PackageVersion Include="org.k2fsa.sherpa.onnx" Version="1.13.8" />
+    <!-- Windows audio: microphone and system audio (loopback) through WASAPI. -->
+    <PackageVersion Include="NAudio.Wasapi" Version="3.1.0" />
+    <PackageVersion Include="NAudio.Core" Version="3.1.0" />
+    <!-- Interface. -->
+    <PackageVersion Include="Avalonia" Version="12.1.3" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.3" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.1.3" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.3" />
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.3" />
+    <PackageVersion Include="Avalonia.Skia" Version="12.1.3" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <!-- Tests. -->
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+  </ItemGroup>
+</Project>

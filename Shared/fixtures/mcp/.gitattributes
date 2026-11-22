@@ -1,0 +1,3 @@
+# The recorded replies are compared byte for byte, and transcript cursors hash the size of
+# each meeting.json, so line endings are never converted on checkout.
+* -text

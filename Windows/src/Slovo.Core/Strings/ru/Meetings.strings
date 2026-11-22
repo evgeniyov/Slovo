@@ -1,0 +1,17 @@
+/* Slovo для Windows: строки, заменяющие в Sources/SlovoCore/Resources/ru.lproj/Meetings.strings
+   формулировки про macOS и её Системные настройки. Модуль встреч. Ключи должны совпадать
+   с en/Meetings.strings. */
+
+"meetings.diarization.unsupportedSystem" = "Разделение по спикерам недоступно на этом компьютере";
+
+"meetings.error.systemAudioDenied" = "Системный звук не записывается. Если созвон идёт, проверьте устройство вывода в параметрах звука Windows.";
+"meetings.error.systemAudioUnsupported" = "Для записи системного звука нужна Windows 10 или новее";
+"meetings.error.microphoneDenied" = "Нет доступа к микрофону. Разрешите классическим приложениям доступ к микрофону в параметрах Windows › Конфиденциальность и защита › Микрофон.";
+
+/* Запись экрана в Windows: разрешать в параметрах нечего, но нужна Windows 10 1903 и видеокодер
+   Media Foundation, который в Windows N добавляет пакет Media Feature Pack. */
+"meetings.error.screenRecordingDenied" = "Windows не разрешила Slovo записывать экран";
+"meetings.error.screenRecordingUnsupported" = "Для записи экрана нужна Windows 10 версии 1903 или новее";
+"meetings.error.screenRecordingNoEncoder" = "Для записи экрана нужен видеокодер Windows. В Windows N установите Media Feature Pack в Параметрах › Приложения › Дополнительные компоненты.";
+"meetings.error.screenRecordingEncoderFailed" = "Видеокодер не запустился (%@)";
+"meetings.error.appAudioFailed" = "Не удалось записать звук приложения: %@";

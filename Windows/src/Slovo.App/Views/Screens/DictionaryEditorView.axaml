@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Screens"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Screens.DictionaryEditorView"
+             x:DataType="vm:DictionaryEditorViewModel"
+             Width="460">
+  <StackPanel Spacing="14">
+    <TextBlock Classes="SectionTitle" Text="{Binding Title}" />
+    <StackPanel Orientation="Horizontal">
+      <RadioButton Classes="Segment" GroupName="DictionaryKind" IsChecked="{Binding IsTerm}" Content="{loc:T dictionary.kind.term}" />
+      <RadioButton Classes="Segment" GroupName="DictionaryKind" IsChecked="{Binding IsReplacement}" Content="{loc:T dictionary.kind.replacement}" />
+    </StackPanel>
+    <StackPanel Spacing="6" IsVisible="{Binding IsTerm}">
+      <TextBlock Classes="SectionLabel" Text="{loc:T dictionary.editor.term}" />
+      <TextBox Text="{Binding Text}" PlaceholderText="Kubernetes" />
+      <TextBlock Classes="Caption" Text="{loc:T dictionary.editor.term.hint}" TextWrapping="Wrap" />
+    </StackPanel>
+    <StackPanel Spacing="6" IsVisible="{Binding IsReplacement}">
+      <TextBlock Classes="SectionLabel" Text="{loc:T dictionary.editor.from}" />
+      <TextBox Text="{Binding Text}" PlaceholderText="гитхаб" />
+      <TextBlock Classes="SectionLabel" Text="{loc:T dictionary.editor.to}" Margin="0,6,0,0" />
+      <TextBox Text="{Binding Replacement}" PlaceholderText="GitHub" />
+      <TextBlock Classes="Caption" Text="{loc:T dictionary.editor.replacement.hint}" TextWrapping="Wrap" />
+    </StackPanel>
+    <Border Classes="Notice" IsVisible="{Binding IsDuplicate}">
+      <TextBlock Text="{loc:T dictionary.editor.duplicate}" />
+    </Border>
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+      <Button Classes="Secondary" Content="{loc:T common.cancel}" Command="{Binding CancelCommand}" IsCancel="True" />
+      <Button Classes="Primary" Content="{loc:T common.save}" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

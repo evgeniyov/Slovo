@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The status bar flattens whatever it is given to a white silhouette, so the mark is
+     drawn as plain round-capped strokes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:strokeColor="@android:color/white" android:strokeWidth="2.2"
+        android:strokeLineCap="round" android:pathData="M4,9.5 L4,14.5" />
+    <path android:strokeColor="@android:color/white" android:strokeWidth="2.2"
+        android:strokeLineCap="round" android:pathData="M8,7.5 L8,16.5" />
+    <path android:strokeColor="@android:color/white" android:strokeWidth="2.2"
+        android:strokeLineCap="round" android:pathData="M12,5 L12,19" />
+    <path android:strokeColor="@android:color/white" android:strokeWidth="2.2"
+        android:strokeLineCap="round" android:pathData="M16,7.5 L16,16.5" />
+    <path android:strokeColor="@android:color/white" android:strokeWidth="2.2"
+        android:strokeLineCap="round" android:pathData="M20,9.5 L20,14.5" />
+</vector>

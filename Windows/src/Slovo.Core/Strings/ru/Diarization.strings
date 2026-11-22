@@ -1,0 +1,5 @@
+/* Windows overrides and additions for the speaker model (pyannote segmentation and a speaker
+   embedding model on sherpa-onnx). Owned by the engines module. */
+
+"diarization.error.unsupportedSystem" = "Разделение по спикерам недоступно на этом компьютере";
+"diarization.error.sherpaRejected" = "sherpa-onnx не принял файлы модели в папке %@";

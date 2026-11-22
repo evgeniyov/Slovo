@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Slovo" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/on_accent</item>
+        <item name="android:colorBackground">@color/window</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <!-- The screen paints its own background behind the bars and pads itself off the
+             insets, so the bars stay transparent on the versions that still colour them. -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Slovo.Dialog</item>
+    </style>
+
+    <!-- Deleting is the only destructive thing the app does, so it asks first — in the
+         same palette, not in the stock dialog colours. -->
+    <style name="Theme.Slovo.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/panel</item>
+        <item name="colorSurfaceContainerHigh">@color/panel</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorPrimary">@color/accent_text</item>
+    </style>
+</resources>

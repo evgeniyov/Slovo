@@ -1,0 +1,52 @@
+# Термины-подсказки для движков, которые умеют их учитывать (apple-dictation-vocab).
+# Один термин на строку.
+main
+pull request
+Package.swift
+macOS
+Kubernetes
+GitHub Actions
+GitHub
+API
+JSON
+user id
+ViewModel
+CI
+SwiftUI
+Docker
+Postgres
+CSV
+SQLite
+Claude
+UserDefaults
+AirPods
+AVAudioEngine
+rebase
+README
+Homebrew
+ESLint
+Prettier
+endpoint
+OAuth
+Redis
+TTL
+Telegram
+TestFlight
+roadmap
+Xcode
+signing
+Developer ID
+WebSocket
+OSLog
+Vercel
+GigaAM
+Whisper
+npm
+Option
+PR
+Sonoma
+iOS
+AppKit
+ChatGPT
+OpenAI
+DeepSeek

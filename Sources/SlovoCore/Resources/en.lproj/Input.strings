@@ -1,0 +1,5 @@
+/* Dictation key, paste shortcut, text insertion, permissions. Owned by the input module. */
+
+"input.fn.warning.systemUsage" = "macOS also reacts to the fn key. In Keyboard settings, set “Press 🌐 key to” to “Do Nothing”.";
+"input.fn.warning.wisprFlow" = "Wispr Flow is running and also reacts to fn. Quit it to avoid double dictation.";
+"input.fn.openKeyboardSettings" = "Open Keyboard Settings";

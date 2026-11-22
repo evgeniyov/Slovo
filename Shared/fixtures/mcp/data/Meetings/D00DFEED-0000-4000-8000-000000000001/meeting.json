@@ -1,0 +1,20 @@
+{
+  "createdAt" : 810982800,
+  "duration" : 300,
+  "formatVersion" : 2,
+  "hasAudio" : true,
+  "hasScreenRecording" : false,
+  "hasSystemAudio" : false,
+  "highlights" : [
+
+  ],
+  "id" : "D00DFEED-0000-4000-8000-000000000001",
+  "segments" : [
+
+  ],
+  "speakers" : [
+
+  ],
+  "status" : "recorded",
+  "title" : "Waiting for transcription"
+}

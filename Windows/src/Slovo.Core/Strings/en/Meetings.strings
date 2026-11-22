@@ -1,0 +1,17 @@
+/* Windows replacements for lines of Sources/SlovoCore/Resources/en.lproj/Meetings.strings
+   that name macOS or its System Settings. Owned by the meetings module. Keys must match
+   ru/Meetings.strings. */
+
+"meetings.diarization.unsupportedSystem" = "Speaker separation is not available on this computer";
+
+"meetings.error.systemAudioDenied" = "System audio is silent. If a call is on, check the output device in Windows sound settings.";
+"meetings.error.systemAudioUnsupported" = "Recording system audio needs Windows 10 or later";
+"meetings.error.microphoneDenied" = "Microphone access is off. Turn on microphone access for desktop apps in Windows Settings › Privacy & security › Microphone.";
+
+/* Screen recording on Windows: nothing to allow in Settings, but it needs Windows 10 1903 and the
+   Media Foundation video encoder, which Windows N editions add with the Media Feature Pack. */
+"meetings.error.screenRecordingDenied" = "Windows did not let Slovo record the screen";
+"meetings.error.screenRecordingUnsupported" = "Screen recording needs Windows 10 version 1903 or later";
+"meetings.error.screenRecordingNoEncoder" = "Screen recording needs the Windows video encoder. On Windows N, install the Media Feature Pack in Settings › Apps › Optional features.";
+"meetings.error.screenRecordingEncoderFailed" = "The video encoder did not start (%@)";
+"meetings.error.appAudioFailed" = "The app’s sound could not be recorded: %@";

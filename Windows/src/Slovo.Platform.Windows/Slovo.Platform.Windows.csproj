@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Windows services behind Slovo.Core's interfaces: WASAPI capture (microphone and
+       system audio), the low-level keyboard hook, pasting through SendInput, UI
+       Automation focus checks, the foreground app, autostart and sounds. Compiles on
+       every OS so the whole solution builds on a Mac; runs only on Windows, and
+       PlatformServices.CreateInert stands in elsewhere. Pure logic lives in classes
+       without [SupportedOSPlatform("windows")] so its tests run on any OS. -->
+  <PropertyGroup>
+    <RootNamespace>Slovo.Platform.Windows</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Slovo.Core/Slovo.Core.csproj" />
+    <PackageReference Include="NAudio.Wasapi" />
+    <PackageReference Include="NAudio.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Slovo.Platform.Windows.Tests" />
+  </ItemGroup>
+</Project>

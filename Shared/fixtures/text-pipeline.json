@@ -1,0 +1,1070 @@
+{
+  "_format": [
+    "Golden cases for Slovo's text pipeline (SPEC 4.3 step 2 and 4.5). The macOS app checks them in Tests/SlovoCoreTests/SharedTextPipelineFixtureTests.swift; the Windows port must produce the same `expected` for every case.",
+    "The pipeline turns `input` (a raw engine transcript) into the inserted text in five stages, in this order: snippets, dictionary replacements, dictionary terms (fuzzy correction), auto cleanup (fillers, repetitions, spacing), style.",
+    "cases[].name: a unique id. cases[].input: the transcript.",
+    "context.dictionary: the Dictionary in its stored order, [{\"kind\": \"term\" | \"replacement\", \"text\", \"replacement\"}]. `text` is the term, or the `from` phrase of a replacement; `replacement` is the `to` text (absent for terms).",
+    "context.snippets: [{\"trigger\", \"expansion\"}] in stored order.",
+    "context.cleanup: {\"removeFillers\": bool, \"removeRepetitions\": bool}; both false turns auto cleanup off entirely, spacing fixes included.",
+    "context.style: \"formal\" | \"casual\" | \"veryCasual\" | null; null leaves casing and punctuation as the earlier stages left them.",
+    "context.languageMode: \"mixed\" | \"russian\" | \"english\"; carried for completeness, no stage reads it yet.",
+    "lexicon: the spelling dictionaries used INSTEAD of the system spell checker, {languageCode: [words]} with codes \"ru\" and \"en\". A language absent from the object has no dictionary at all (different from an empty list, which is a dictionary that knows no words). isCorrect(word, language) is true when the list holds `word` exactly or holds its lowercase form: a lowercase entry accepts any casing, a capitalized entry such as \"Москва\" accepts only that casing. Words with Cyrillic letters are checked against \"ru\", words with Latin letters against \"en\".",
+    "expected: {\"text\", \"snippetsApplied\", \"replacementsApplied\", \"termFixesApplied\"}, the pipeline's result and its counters.",
+    "Text semantics to match: positions are extended grapheme clusters (Swift Character); a letter is a cluster whose first scalar is Unicode Alphabetic, a number one whose first scalar has a numeric type; case mapping is full Unicode mapping (ß uppercases to SS, and a mapping that changes the cluster count is skipped); comparisons fold ё to е and ’ to '; strings compare by canonical equivalence, so normalize input to NFC.",
+    "Constants that live in code rather than here: filler lists, abbreviation lists, the borrowed-name list, edit-distance thresholds (0.34, 4 letters) and the spelling-key rules; see Sources/SlovoCore/Text.",
+    "To regenerate `expected` after an intended change: SLOVO_REGENERATE_FIXTURES=1 swift test --filter SharedTextPipelineFixtureTests, then review the diff."
+  ],
+  "version": 1,
+  "cases": [
+    {
+      "name": "snippet/whole-dictation-drops-engine-period",
+      "input": "Мой адрес.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"ул. Примерная, 1","trigger":"мой адрес"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"ул. Примерная, 1"}
+    },
+    {
+      "name": "snippet/inside-keeps-surrounding-text",
+      "input": "Отправь мой адрес, пожалуйста.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"ул. Примерная, 1","trigger":"мой адрес"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"Отправь ул. Примерная, 1, пожалуйста."}
+    },
+    {
+      "name": "snippet/ignores-case-punctuation-and-yo",
+      "input": "Короче, ВСЕ — готово, иду",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"Готово ✅","trigger":"Всё, готово!"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"Короче, Готово ✅, иду"}
+    },
+    {
+      "name": "snippet/every-occurrence-counts",
+      "input": "My email, and again my email",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"me@example.com","trigger":"my email"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":2,"termFixesApplied":0,"text":"me@example.com, and again me@example.com"}
+    },
+    {
+      "name": "snippet/longer-trigger-wins",
+      "input": "мой рабочий адрес и адрес",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"A","trigger":"адрес"},{"expansion":"B","trigger":"рабочий адрес"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":2,"termFixesApplied":0,"text":"мой B и A"}
+    },
+    {
+      "name": "snippet/whole-words-only",
+      "input": "котик и кот",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"🐈","trigger":"кот"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"котик и 🐈"}
+    },
+    {
+      "name": "snippet/not-inside-hyphenated-compound",
+      "input": "IP-адрес сервера",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"Примерск, Примерная 1","trigger":"адрес"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"IP-адрес сервера"}
+    },
+    {
+      "name": "snippet/not-at-end-of-hyphenated-compound",
+      "input": "Запусти тест и бета-тест",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"TEST-EXP","trigger":"тест"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"Запусти TEST-EXP и бета-тест"}
+    },
+    {
+      "name": "snippet/hyphen-is-a-word-break",
+      "input": "Мой IP-адрес сломался",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"192.0.2.1","trigger":"IP адрес"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"Мой 192.0.2.1 сломался"}
+    },
+    {
+      "name": "snippet/spaced-trigger-matches-hyphenated-speech",
+      "input": "Пиши на e-mail сразу",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"me@example.com","trigger":"e mail"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"Пиши на me@example.com сразу"}
+    },
+    {
+      "name": "snippet/hyphenated-trigger",
+      "input": "скажи кое-что важное сейчас",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"!!","trigger":"кое-что важное"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"скажи !! сейчас"}
+    },
+    {
+      "name": "snippet/typographic-apostrophe-in-trigger",
+      "input": "OK let's go now",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"LG","trigger":"let’s go"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"OK LG now"}
+    },
+    {
+      "name": "snippet/typographic-apostrophe-in-speech",
+      "input": "OK let’s go now",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"LG","trigger":"let's go"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"OK LG now"}
+    },
+    {
+      "name": "snippet/final-mark-not-doubled-formal",
+      "input": "подпись. спасибо",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"с уважением, иван.","trigger":"подпись"}],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"с уважением, иван. Спасибо."}
+    },
+    {
+      "name": "snippet/different-mark-after-expansion-stays",
+      "input": "подпись, спасибо",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"с уважением, иван.","trigger":"подпись"}],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"с уважением, иван., спасибо"}
+    },
+    {
+      "name": "snippet/expansion-is-not-restyled",
+      "input": "моя почта",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"ivan@example.com","trigger":"моя почта"}],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"ivan@example.com"}
+    },
+    {
+      "name": "snippet/with-filler-before-it",
+      "input": "Э, пиши на моя почта",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"ivan@example.com","trigger":"моя почта"}],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"Пиши на ivan@example.com"}
+    },
+    {
+      "name": "snippet/casual-keeps-expansion-period",
+      "input": "Спасибо. Подпись.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[{"expansion":"с уважением, иван.","trigger":"подпись"}],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":1,"termFixesApplied":0,"text":"Спасибо. с уважением, иван."}
+    },
+    {
+      "name": "replacement/whole-words-case-insensitive",
+      "input": "Открой Гит   Хаб, котик, кот и ЕЖ. Е-мое!",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"replacement","replacement":"GitHub","text":"гит хаб"},{"kind":"replacement","replacement":"ого","text":"ё-моё"},{"kind":"term","text":"Docker"},{"kind":"replacement","replacement":"кошка","text":"кот"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":3,"snippetsApplied":0,"termFixesApplied":0,"text":"Открой GitHub, котик, кошка и ЕЖ. ого!"}
+    },
+    {
+      "name": "replacement/output-is-not-rescanned",
+      "input": "а и б",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"replacement","replacement":"б","text":"а"},{"kind":"replacement","replacement":"в","text":"б"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":2,"snippetsApplied":0,"termFixesApplied":0,"text":"б и в"}
+    },
+    {
+      "name": "replacement/longer-wins-unchanged-not-counted",
+      "input": "Открой пул реквест в Slovo",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"replacement","replacement":"pool","text":"пул"},{"kind":"replacement","replacement":"pull request","text":"пул реквест"},{"kind":"replacement","replacement":"Slovo","text":"Slovo"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":1,"snippetsApplied":0,"termFixesApplied":0,"text":"Открой pull request в Slovo"}
+    },
+    {
+      "name": "replacement/yo-matches-e",
+      "input": "еж ёж Ёж",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"replacement","replacement":"X","text":"ёж"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":3,"snippetsApplied":0,"termFixesApplied":0,"text":"X X X"}
+    },
+    {
+      "name": "replacement/repeats-after-replacing-collapse",
+      "input": "еж ёж",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"replacement","replacement":"X","text":"ёж"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":2,"snippetsApplied":0,"termFixesApplied":0,"text":"X"}
+    },
+    {
+      "name": "replacement/target-keeps-casing-very-casual",
+      "input": "слово готово.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"replacement","replacement":"Slovo","text":"слово"}],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":1,"snippetsApplied":0,"termFixesApplied":0,"text":"Slovo готово"}
+    },
+    {
+      "name": "replacement/abbreviation-target-does-not-start-sentence",
+      "input": "купи хлеб и тд потом приходи",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"replacement","replacement":"т. д.","text":"тд"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":1,"snippetsApplied":0,"termFixesApplied":0,"text":"Купи хлеб и т. д. потом приходи."}
+    },
+    {
+      "name": "replacement/empty-target-removes-word",
+      "input": "Ну блин ладно",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"replacement","replacement":"","text":"блин"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":1,"snippetsApplied":0,"termFixesApplied":0,"text":"Ну ладно"}
+    },
+    {
+      "name": "replacement/output-not-rewritten-by-terms",
+      "input": "положи в клауд, мистер Смит",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"replacement","replacement":"cloud","text":"клауд"},{"kind":"replacement","replacement":"Mister","text":"мистер"},{"kind":"term","text":"Claude"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":2,"snippetsApplied":0,"termFixesApplied":0,"text":"положи в cloud, Mister Смит"}
+    },
+    {
+      "name": "replacement/symbols-in-from",
+      "input": "я пишу на c++ и с++",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"replacement","replacement":"C++","text":"c++"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":1,"snippetsApplied":0,"termFixesApplied":0,"text":"я пишу на C++ и с++"}
+    },
+    {
+      "name": "replacement/text-around-is-still-corrected",
+      "input": "докер в клауд",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"replacement","replacement":"cloud","text":"клауд"},{"kind":"term","text":"Docker"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":1,"snippetsApplied":0,"termFixesApplied":1,"text":"Docker в cloud"}
+    },
+    {
+      "name": "term/spec/кибернетес",
+      "input": "кибернетес",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Kubernetes"}
+    },
+    {
+      "name": "term/spec/Гитхаб экшенс",
+      "input": "Гитхаб экшенс",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"GitHub Actions"}
+    },
+    {
+      "name": "term/spec/юзер Айди",
+      "input": "юзер Айди",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"user id"}
+    },
+    {
+      "name": "term/spec/постгресс",
+      "input": "постгресс",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Postgres"}
+    },
+    {
+      "name": "term/spec/докер",
+      "input": "докер",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Docker"}
+    },
+    {
+      "name": "term/spec/User Defolts",
+      "input": "User Defolts",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"UserDefaults"}
+    },
+    {
+      "name": "term/spec/ordinary-words-stay",
+      "input": "Проверь деплой, логи, модель и проект",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Проверь деплой, логи, модель и проект"}
+    },
+    {
+      "name": "term/spec/inside-sentences",
+      "input": "Учебный стенд на кибернетис готов. Открой отчёт в Гитхаб экшенс.",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":2,"text":"Учебный стенд на Kubernetes готов. Открой отчёт в GitHub Actions."}
+    },
+    {
+      "name": "term/real-word/master-stays",
+      "input": "Пришёл мастер и починил кран",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"},{"kind":"term","text":"master"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Пришёл мастер и починил кран"}
+    },
+    {
+      "name": "term/real-word/master-at-sentence-start-stays",
+      "input": "Мастер сказал, что всё готово",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"},{"kind":"term","text":"master"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Мастер сказал, что всё готово"}
+    },
+    {
+      "name": "term/real-word/capitalized-title-stays",
+      "input": "Роман «Мастер и Маргарита» прочитал",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"},{"kind":"term","text":"master"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Роман «Мастер и Маргарита» прочитал."}
+    },
+    {
+      "name": "term/real-word/doubled-letter-form-stays",
+      "input": "Нет новых телеграмм",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Нет новых телеграмм"}
+    },
+    {
+      "name": "term/real-word/telegramma-stays",
+      "input": "Отправь телеграмму бабушке",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Отправь телеграмму бабушке"}
+    },
+    {
+      "name": "term/borrowed/telegram",
+      "input": "Скинь телеграм ссылку",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Скинь Telegram ссылку"}
+    },
+    {
+      "name": "term/borrowed/docker-in-sentence",
+      "input": "Запусти докер контейнер",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Запусти Docker контейнер"}
+    },
+    {
+      "name": "term/borrowed/java",
+      "input": "Пишу на джава",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Java"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Пишу на Java"}
+    },
+    {
+      "name": "term/name/capitalized-mid-sentence",
+      "input": "Закашируй ответы в Редис",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Закашируй ответы в Redis"}
+    },
+    {
+      "name": "term/name/lowercase-vegetable-stays",
+      "input": "Купи редис на рынке",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Купи редис на рынке"}
+    },
+    {
+      "name": "term/name/sentence-start-stays",
+      "input": "Редис упал",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Редис упал"}
+    },
+    {
+      "name": "term/name/capital-without-doubled-letter",
+      "input": "Нужно сравнить Гигам и Виспер",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":2,"text":"Нужно сравнить GigaAM и Whisper"}
+    },
+    {
+      "name": "term/real-word/kladu-is-not-claude",
+      "input": "Я кладу ключи на стол",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Я кладу ключи на стол"}
+    },
+    {
+      "name": "term/real-word/versiyu-is-not-vercel",
+      "input": "Обнови версию",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Обнови версию"}
+    },
+    {
+      "name": "term/real-word/skryt-is-not-sqlite",
+      "input": "Скрыть окно",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Скрыть окно"}
+    },
+    {
+      "name": "term/transliterated/eslint-prettier",
+      "input": "Настрой эсленд и Преттер",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":2,"text":"Настрой ESLint и Prettier"}
+    },
+    {
+      "name": "term/transliterated/macos",
+      "input": "Обнови минимальную версию макоз",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Обнови минимальную версию macOS"}
+    },
+    {
+      "name": "term/transliterated/option",
+      "input": "Повесь запись на правый опшен",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Повесь запись на правый Option"}
+    },
+    {
+      "name": "term/latin-in-russian/testflight",
+      "input": "Скинь ссылку на новый билд в Test Flit",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Скинь ссылку на новый билд в TestFlight"}
+    },
+    {
+      "name": "term/latin-in-russian/endpoint",
+      "input": "Этот in point отвечает ошибкой",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Этот endpoint отвечает ошибкой"}
+    },
+    {
+      "name": "term/latin-in-russian/oslog",
+      "input": "Добавь логирование через OS Loc.",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Добавь логирование через OSLog."}
+    },
+    {
+      "name": "term/latin-in-russian/single-word-stays",
+      "input": "Задеплой всё в cloud",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Задеплой всё в cloud"}
+    },
+    {
+      "name": "term/english/json-casing",
+      "input": "send json",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"send JSON"}
+    },
+    {
+      "name": "term/english/common-words-stay",
+      "input": "Choose an option. The cloud is down.",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Choose an option. The cloud is down."}
+    },
+    {
+      "name": "term/english/master-of-science-stays",
+      "input": "Master of Science",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"},{"kind":"term","text":"master"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Master of Science"}
+    },
+    {
+      "name": "term/punctuation-splits-windows",
+      "input": "гитхаб, экшенс",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"GitHub Actions"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"гитхаб, экшенс"}
+    },
+    {
+      "name": "term/longer-term-wins",
+      "input": "юзер дефолтс",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"user id"},{"kind":"term","text":"UserDefaults"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"UserDefaults"}
+    },
+    {
+      "name": "term/short-terms-only-by-spoken-alias",
+      "input": "апи и сиай",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"API"},{"kind":"term","text":"CI"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"API и сиай"}
+    },
+    {
+      "name": "term/exact-term-not-counted",
+      "input": "Запусти Docker",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Запусти Docker"}
+    },
+    {
+      "name": "term/no-dictionaries/short-near-word-stays",
+      "input": "кладу",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"кладу"}
+    },
+    {
+      "name": "term/no-dictionaries/spec-example-still-works",
+      "input": "кибернетес и докер",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":2,"text":"Kubernetes и Docker"}
+    },
+    {
+      "name": "term/cyrillic-only-term-ignored",
+      "input": "кибернетес",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[{"kind":"term","text":"кубернетес"}],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"кибернетес"}
+    },
+    {
+      "name": "cleanup/russian-fillers",
+      "input": "Я э думаю, что это ммм работает",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Я думаю, что это работает"}
+    },
+    {
+      "name": "cleanup/filler-between-commas",
+      "input": "Спасибо, э, до встречи",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Спасибо, до встречи"}
+    },
+    {
+      "name": "cleanup/filler-at-sentence-starts",
+      "input": "Э, давай начнём. Ээ, итак",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Давай начнём. Итак"}
+    },
+    {
+      "name": "cleanup/hyphenated-filler-before-ellipsis",
+      "input": "Ну, э-э... давай",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Ну... давай"}
+    },
+    {
+      "name": "cleanup/english-fillers",
+      "input": "Um, I think uhh we should ship it, hmm.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"I think we should ship it."}
+    },
+    {
+      "name": "cleanup/bracketed-filler",
+      "input": "Erm (um) okay",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Okay"}
+    },
+    {
+      "name": "cleanup/look-alikes-stay",
+      "input": "5 м от дома, мм, hm, umbrella, ум",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"5 м от дома, мм, hm, umbrella, ум"}
+    },
+    {
+      "name": "cleanup/repetitions",
+      "input": "Я я думаю думаю что в общем в общем да",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Я думаю что в общем да"}
+    },
+    {
+      "name": "cleanup/emphasis-with-commas-stays",
+      "input": "Нет, нет, нет!",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Нет, нет, нет!"}
+    },
+    {
+      "name": "cleanup/grammatical-double-stays",
+      "input": "I had had enough.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"I had had enough."}
+    },
+    {
+      "name": "cleanup/numbers-do-not-collapse",
+      "input": "Build 2 2 times",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Build 2 2 times"}
+    },
+    {
+      "name": "cleanup/filler-sentence-at-start",
+      "input": "Э. Давай начнём",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Давай начнём"}
+    },
+    {
+      "name": "cleanup/filler-sentence-in-middle",
+      "input": "Так. Эм. Что дальше?",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Так. Что дальше?"}
+    },
+    {
+      "name": "cleanup/filler-question",
+      "input": "Hmm? What?",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"What?"}
+    },
+    {
+      "name": "cleanup/filler-ellipsis-capitalizes-next",
+      "input": "Um… okay",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Okay"}
+    },
+    {
+      "name": "cleanup/filler-sentence-at-end",
+      "input": "Давай. Э.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Давай."}
+    },
+    {
+      "name": "cleanup/spacing",
+      "input": "  Привет ,мир !  Как дела ?Файл Package.swift ( черновик )  готов",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Привет, мир! Как дела? Файл Package.swift (черновик) готов"}
+    },
+    {
+      "name": "cleanup/spacing-numbers-and-doubles",
+      "input": "Цена 1,5 , время 10:30 ,,  ок ,.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Цена 1,5, время 10:30, ок."}
+    },
+    {
+      "name": "cleanup/emoticons-keep-spaces",
+      "input": "Смайлик :) и всё",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Смайлик :) и всё"}
+    },
+    {
+      "name": "cleanup/dotfiles-and-code",
+      "input": "Добавь в .gitignore папку build и вызови init()",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Добавь в .gitignore папку build и вызови init()"}
+    },
+    {
+      "name": "cleanup/url-query-keeps-no-space",
+      "input": "Открой https://github.com/foo/bar?Page=2 пожалуйста",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Открой https://github.com/foo/bar?Page=2 пожалуйста"}
+    },
+    {
+      "name": "cleanup/url-comma-keeps-no-space",
+      "input": "Ссылка example.com/a,b готова",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Ссылка example.com/a,b готова"}
+    },
+    {
+      "name": "cleanup/email-keeps-no-space",
+      "input": "Напиши на mailto:ivan@example.com?Subject=Hi сегодня",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Напиши на mailto:ivan@example.com?Subject=Hi сегодня"}
+    },
+    {
+      "name": "cleanup/comma-before-word-gets-space",
+      "input": "да,нет",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"да, нет"}
+    },
+    {
+      "name": "cleanup/off-leaves-text",
+      "input": "  так ,  э  ",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":false},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"  так ,  э  "}
+    },
+    {
+      "name": "cleanup/only-repetitions",
+      "input": "Ну э ну ну ладно",
+      "context": {"cleanup":{"removeFillers":false,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Ну э ну ладно"}
+    },
+    {
+      "name": "cleanup/newlines",
+      "input": "строка  \n  вторая",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"строка\nвторая"}
+    },
+    {
+      "name": "formal/sentences-and-final-period",
+      "input": "давай созвонимся завтра. в 10 удобно",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Давай созвонимся завтра. В 10 удобно."}
+    },
+    {
+      "name": "formal/question-and-exclamation",
+      "input": "готово! проверишь?",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Готово! Проверишь?"}
+    },
+    {
+      "name": "formal/colon-becomes-period",
+      "input": "список дел:",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Список дел."}
+    },
+    {
+      "name": "formal/period-after-closing-quote",
+      "input": "он сказал «привет»",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Он сказал «привет»."}
+    },
+    {
+      "name": "formal/terms-keep-inner-casing",
+      "input": "macOS обновилась, GitHub Actions упал",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"macOS"},{"kind":"term","text":"GitHub Actions"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"macOS обновилась, GitHub Actions упал."}
+    },
+    {
+      "name": "formal/dotted-abbreviation",
+      "input": "то есть т.е. завтра",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"То есть т.е. завтра."}
+    },
+    {
+      "name": "formal/abbreviation/t-e",
+      "input": "приходи завтра, т. е. в среду",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Приходи завтра, т. е. в среду."}
+    },
+    {
+      "name": "formal/abbreviation/t-d",
+      "input": "купи хлеб, молоко и т. д. потом приходи",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Купи хлеб, молоко и т. д. потом приходи."}
+    },
+    {
+      "name": "formal/abbreviation/i-t-p",
+      "input": "фрукты, овощи и т. п. бери всё",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Фрукты, овощи и т. п. бери всё."}
+    },
+    {
+      "name": "formal/abbreviation/year",
+      "input": "в 2025 г. мы запустили продукт",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"В 2025 г. мы запустили продукт."}
+    },
+    {
+      "name": "formal/abbreviation/hour",
+      "input": "встретимся в 5 ч. вечера",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Встретимся в 5 ч. вечера."}
+    },
+    {
+      "name": "formal/abbreviation/rubles",
+      "input": "цена 100 руб. за штуку",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Цена 100 руб. за штуку."}
+    },
+    {
+      "name": "formal/abbreviation/street",
+      "input": "живу на ул. примерная",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Живу на ул. примерная."}
+    },
+    {
+      "name": "formal/abbreviation/engine-capital-starts-sentence",
+      "input": "купи хлеб и т. д. Потом обсудим",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Купи хлеб и т. д. Потом обсудим."}
+    },
+    {
+      "name": "formal/abbreviation/english",
+      "input": "Apple Inc. announced it, etc. and more",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Apple Inc. announced it, etc. and more."}
+    },
+    {
+      "name": "formal/percent-and-plus",
+      "input": "рост на 5%",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Рост на 5%."}
+    },
+    {
+      "name": "formal/emoticon-end",
+      "input": "смайлик :)",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Смайлик :)"}
+    },
+    {
+      "name": "formal/link-at-start-keeps-case",
+      "input": "https://github.com/foo это ссылка",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"https://github.com/foo это ссылка."}
+    },
+    {
+      "name": "formal/file-name-at-start",
+      "input": "готово. index.html лежит в корне",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Готово. index.html лежит в корне."}
+    },
+    {
+      "name": "formal/emoji-end-gets-no-period",
+      "input": "отлично 👍",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Отлично 👍"}
+    },
+    {
+      "name": "formal/zwj-emoji",
+      "input": "семья 👨‍👩‍👧 дома",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Семья 👨‍👩‍👧 дома."}
+    },
+    {
+      "name": "formal/yo-at-start",
+      "input": "ёлка стоит",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Ёлка стоит."}
+    },
+    {
+      "name": "formal/decimal-point",
+      "input": "версия 2.0 вышла",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Версия 2.0 вышла."}
+    },
+    {
+      "name": "formal/decimal-comma",
+      "input": "пи равно 3,14 примерно",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Пи равно 3,14 примерно."}
+    },
+    {
+      "name": "formal/newline-starts-sentence",
+      "input": "первая строка\nвторая строка",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Первая строка\nВторая строка."}
+    },
+    {
+      "name": "formal/lowercase-term-not-an-english-word",
+      "input": "npm install и всё",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"npm"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {"en":["install"],"ru":["и","всё"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"npm install и всё."}
+    },
+    {
+      "name": "formal/lowercase-term-that-is-an-english-word",
+      "input": "rebase готов",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"rebase"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {"en":["rebase"],"ru":[]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Rebase готов."}
+    },
+    {
+      "name": "formal/url-in-text-gets-period",
+      "input": "смотри example.com",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Смотри example.com."}
+    },
+    {
+      "name": "casual/drops-last-period-only",
+      "input": "ок. увидимся завтра.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Ок. Увидимся завтра"}
+    },
+    {
+      "name": "casual/question-stays",
+      "input": "Серьёзно?",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Серьёзно?"}
+    },
+    {
+      "name": "casual/ellipsis-stays",
+      "input": "ну ладно...",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Ну ладно..."}
+    },
+    {
+      "name": "casual/dotted-abbreviation-stays",
+      "input": "то есть т.е.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"То есть т.е."}
+    },
+    {
+      "name": "casual/spaced-abbreviation-keeps-period",
+      "input": "купи хлеб и т. д.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Купи хлеб и т. д."}
+    },
+    {
+      "name": "casual/year-abbreviation-keeps-period",
+      "input": "вышел в 2025 г.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Вышел в 2025 г."}
+    },
+    {
+      "name": "casual/single-letter-name-drops-period",
+      "input": "это план Б.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Это план Б"}
+    },
+    {
+      "name": "casual/file-name",
+      "input": "открой Package.swift.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Открой Package.swift"}
+    },
+    {
+      "name": "veryCasual/lowercases-and-drops-periods",
+      "input": "Созвон перенесли. Давай обсудим завтра.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"созвон перенесли давай обсудим завтра"}
+    },
+    {
+      "name": "veryCasual/keeps-other-marks",
+      "input": "Готово! Проверишь?",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"готово! проверишь?"}
+    },
+    {
+      "name": "veryCasual/terms-and-names",
+      "input": "Docker упал. API не отвечает. Маша сказала, что Маша посмотрит. User id пустой. Telegram молчит. I think so.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Docker"},{"kind":"term","text":"user id"}],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Docker упал API не отвечает Маша сказала, что Маша посмотрит user id пустой Telegram молчит I think so"}
+    },
+    {
+      "name": "veryCasual/known-proper-nouns-stay",
+      "input": "Москва большая. Питер красивый.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {"ru":["Москва","Питер","большая","красивый"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Москва большая Питер красивый"}
+    },
+    {
+      "name": "veryCasual/name-that-is-also-a-word",
+      "input": "Маша пришла. Потом ушла.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {"ru":["маша","пришла","потом","ушла"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"маша пришла потом ушла"}
+    },
+    {
+      "name": "veryCasual/english-proper-noun",
+      "input": "London is big. It rains.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {"en":["London","is","big","it","rains"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"London is big it rains"}
+    },
+    {
+      "name": "veryCasual/abbreviation-keeps-period",
+      "input": "Приходи в 5 ч. вечером. Жду.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"приходи в 5 ч. вечером жду"}
+    },
+    {
+      "name": "veryCasual/abbreviation-pair",
+      "input": "Купи хлеб и т. д. Потом приходи.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"купи хлеб и т. д. потом приходи"}
+    },
+    {
+      "name": "veryCasual/quote",
+      "input": "Скажи «Привет.» Ладно",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"скажи «Привет» ладно"}
+    },
+    {
+      "name": "pipeline/filler-term-and-formal",
+      "input": "Э, докер упал. посмотри логи в гитхаб экшенс",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":2,"text":"Docker упал. Посмотри логи в GitHub Actions."}
+    },
+    {
+      "name": "pipeline/term-with-emoji",
+      "input": "Запусти докер 🚀",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":"casual"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Запусти Docker 🚀"}
+    },
+    {
+      "name": "pipeline/term-at-sentence-start-very-casual",
+      "input": "Докер упал.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":"veryCasual"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":1,"text":"Docker упал"}
+    },
+    {
+      "name": "pipeline/english-casual",
+      "input": "um, i think we should ship it.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"english","snippets":[],"style":"casual"},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"I think we should ship it"}
+    },
+    {
+      "name": "pipeline/repeat-in-mixed-speech",
+      "input": "я я запушил в main",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Я запушил в main."}
+    },
+    {
+      "name": "pipeline/no-style-keeps-casing",
+      "input": "привет. как дела",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[],"languageMode":"mixed","snippets":[],"style":null},
+      "lexicon": {},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"привет. как дела"}
+    },
+    {
+      "name": "pipeline/snippet-replacement-term-style",
+      "input": "Э, скинь мой адрес и гит хаб в телеграм",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"},{"kind":"replacement","replacement":"GitHub","text":"гит хаб"}],"languageMode":"mixed","snippets":[{"expansion":"ул. Примерная, 1","trigger":"мой адрес"}],"style":"formal"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":1,"snippetsApplied":1,"termFixesApplied":1,"text":"Скинь ул. Примерная, 1 и GitHub в Telegram."}
+    },
+    {
+      "name": "pipeline/russian-mode",
+      "input": "мастер пришёл",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"},{"kind":"term","text":"master"}],"languageMode":"russian","snippets":[],"style":"formal"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Мастер пришёл."}
+    },
+    {
+      "name": "pipeline/master-in-bundled-style-sentence",
+      "input": "Сделай ребейс на свежий мастер и разреши конфликты.",
+      "context": {"cleanup":{"removeFillers":true,"removeRepetitions":true},"dictionary":[{"kind":"term","text":"Kubernetes"},{"kind":"term","text":"GitHub Actions"},{"kind":"term","text":"user id"},{"kind":"term","text":"Postgres"},{"kind":"term","text":"Docker"},{"kind":"term","text":"UserDefaults"},{"kind":"term","text":"JSON"},{"kind":"term","text":"Redis"},{"kind":"term","text":"Telegram"},{"kind":"term","text":"macOS"},{"kind":"term","text":"ESLint"},{"kind":"term","text":"Prettier"},{"kind":"term","text":"Vercel"},{"kind":"term","text":"Claude"},{"kind":"term","text":"TestFlight"},{"kind":"term","text":"endpoint"},{"kind":"term","text":"OSLog"},{"kind":"term","text":"SQLite"},{"kind":"term","text":"Option"},{"kind":"term","text":"Whisper"},{"kind":"term","text":"GigaAM"},{"kind":"term","text":"npm"},{"kind":"term","text":"rebase"},{"kind":"term","text":"main"},{"kind":"term","text":"README"},{"kind":"term","text":"master"}],"languageMode":"mixed","snippets":[],"style":"formal"},
+      "lexicon": {"en":["a","an","arrived","choose","cloud","docker","down","id","in","is","java","main","master","me","measure","of","option","os","point","radius","read","rebase","restart","run","science","send","story","telegram","test","the","update","user","whisper"],"ru":["Маргарита","Смит","бабушке","в","версию","все","всё","гигам","готово","джава","докер","запусти","и","кладу","ключи","контейнер","кран","купи","логи","мастер","мистер","модель","на","нет","новых","нужно","обнови","окно","опция","ответы","отправь","пишу","посмотри","починил","пришел","пришёл","проверь","проект","проекта","прочитал","радиус","ребус","редис","роман","рынке","сказал","скинь","скрыть","спорта","сравнить","ссылку","стол","телеграм","телеграмм","телеграмма","телеграмму","упал","что","это"]},
+      "expected": {"replacementsApplied":0,"snippetsApplied":0,"termFixesApplied":0,"text":"Сделай ребейс на свежий мастер и разреши конфликты."}
+    }
+  ]
+}

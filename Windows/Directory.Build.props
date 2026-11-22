@@ -1,0 +1,19 @@
+<Project>
+  <!-- Settings every Slovo for Windows project shares. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Company>Slovo</Company>
+    <Product>Slovo</Product>
+    <Version>0.5.1</Version>
+    <Deterministic>true</Deterministic>
+    <SatelliteResourceLanguages>en;ru</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- The repository root, for files shared with the macOS app (string tables, fixtures). -->
+    <SlovoRepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</SlovoRepoRoot>
+  </PropertyGroup>
+</Project>

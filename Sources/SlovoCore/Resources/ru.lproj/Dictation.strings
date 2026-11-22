@@ -1,0 +1,26 @@
+/* Engine and model management, the dictation controller. Owned by the dictation module. */
+
+"dictation.error.modelMissing" = "Модель %@ не скачана";
+"dictation.error.modelDamaged" = "Модель %@ повреждена. Скачайте её заново в Настройках → Распознавание.";
+"dictation.error.modelDownloading" = "Модель %@ ещё скачивается";
+"dictation.error.appleAssetsMissing" = "Apple Dictation недоступна. Включите диктовку: Системные настройки → Клавиатура → Диктовка.";
+"dictation.error.downloadFailed" = "Не удалось скачать %1$@: %2$@";
+"dictation.error.deleteFailed" = "Не удалось удалить %1$@: %2$@";
+"dictation.error.deleteWhileDownloading" = "%@ сейчас скачивается. Отмените скачивание, чтобы удалить модель.";
+"dictation.error.httpStatus" = "сервер ответил кодом %ld";
+"dictation.error.extractFailed" = "Не удалось распаковать %1$@ (код выхода tar %2$ld)";
+"dictation.error.archiveIncomplete" = "Архив %1$@ неполный: %2$@";
+"dictation.error.checksumMismatch" = "скачанный %@ не совпал с контрольной суммой и удалён; скачайте его заново";
+"dictation.error.downloadCut" = "соединение оборвалось раньше, чем %@ скачался целиком; «Скачать заново» продолжит с того же места";
+"dictation.error.appleUnsupported" = "Для Apple Dictation нужна macOS 26 или новее";
+"dictation.error.entryMissing" = "Этой диктовки уже нет в истории";
+"dictation.error.audioMissing" = "Запись этой диктовки больше не хранится";
+"dictation.error.rerunEmpty" = "Движок ничего не расслышал в этой записи";
+"dictation.error.microphoneFailed" = "Не удалось включить микрофон";
+"dictation.error.timedOut" = "Распознавание заняло слишком долго";
+
+"dictation.model.missingFiles" = "Не хватает файлов: %@.";
+"dictation.model.incompleteFiles" = "Файлы скачаны не полностью: %@.";
+"dictation.model.downloadUnfinished" = "Скачивание не завершилось.";
+"dictation.error.partialRecording" = "Часть аудио с микрофона потеряна. Текст диктовки может быть неполным.";
+"dictation.error.partialRecordingCopied" = "Часть аудио с микрофона потеряна. Неполный текст скопирован в буфер обмена.";

@@ -1,0 +1,47 @@
+{
+  "highlights" : [
+
+  ],
+  "segments" : [
+    {
+      "end" : 13,
+      "speaker" : "me",
+      "start" : 0,
+      "text" : "Всем привет, начнём с планов на неделю."
+    },
+    {
+      "end" : 21,
+      "speaker" : "others",
+      "start" : 13,
+      "text" : "Давайте к пятнице соберём прототип. И покажем команде."
+    },
+    {
+      "end" : 40,
+      "speaker" : "me",
+      "start" : 21,
+      "text" : "Договорились."
+    },
+    {
+      "end" : 40,
+      "speaker" : "me",
+      "start" : 40,
+      "text" : "Same moment, microphone first."
+    },
+    {
+      "end" : 3725,
+      "speaker" : "others",
+      "start" : 40,
+      "text" : "Same moment, second track."
+    },
+    {
+      "end" : 3725,
+      "speaker" : "others",
+      "start" : 3725,
+      "text" : "Hello from the end of the hour."
+    }
+  ],
+  "speakers" : [
+
+  ],
+  "title" : "Коворк 15 сентября"
+}

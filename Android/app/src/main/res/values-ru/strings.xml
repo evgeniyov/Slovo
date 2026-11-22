@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Slovo</string>
+    <string name="app_subtitle">Голосовой инбокс</string>
+
+    <string name="mode_note">Заметка</string>
+    <string name="mode_meeting">Встреча</string>
+    <string name="mode_note_hint">Одна мысль, надиктованная на ходу</string>
+    <string name="mode_meeting_hint">Телефон лежит на столе час или два</string>
+
+    <string name="record_note">Записать</string>
+    <string name="record_meeting">Начать встречу</string>
+    <string name="stop">Остановить</string>
+
+    <string name="status_idle">Готово к записи</string>
+    <string name="status_recording_note">Идёт запись заметки</string>
+    <string name="status_recording_meeting">Идёт запись встречи</string>
+    <string name="status_saving">Сохраняю</string>
+
+    <string name="mark_moment">Отметить момент</string>
+    <string name="moments_none">Моментов пока нет</string>
+    <string name="moment_marked">Момент %1$d · %2$s</string>
+    <string name="screen_off_hint">Запись продолжается с выключенным экраном</string>
+
+    <string name="waiting_title">Ждут отправки</string>
+    <string name="waiting_empty_title">Ничего не ждёт</string>
+    <string name="waiting_empty_body">Всё записанное уже на Mac.</string>
+    <string name="folder_hint">Попадут на Mac по кабелю</string>
+
+    <string name="kind_note">Заметка</string>
+    <string name="kind_meeting">Встреча</string>
+    <string name="clip_without_details">описание не сохранилось, Mac заберёт её как обычную заметку</string>
+
+    <string name="clip_delete">Удалить</string>
+    <string name="delete_title">Удалить запись?</string>
+    <string name="delete_body">Она ещё не попала на Mac. Отменить будет нельзя.</string>
+    <string name="delete_failed">Не удалось удалить запись</string>
+    <string name="cancel">Отмена</string>
+
+    <string name="permission_needed">Для записи нужен доступ к микрофону</string>
+    <string name="save_failed">Не удалось сохранить запись</string>
+    <string name="save_without_details">Запись сохранилась, а её описание — нет: Mac заберёт её как обычную заметку</string>
+    <string name="record_failed">Не удалось начать запись</string>
+
+    <string name="notification_channel">Запись</string>
+    <string name="notification_saving">Сохраняю запись</string>
+    <string name="notification_moment">Момент</string>
+
+    <plurals name="moments_count">
+        <item quantity="one">%d момент</item>
+        <item quantity="few">%d момента</item>
+        <item quantity="many">%d моментов</item>
+        <item quantity="other">%d момента</item>
+    </plurals>
+
+    <plurals name="clips_waiting">
+        <item quantity="one">%d запись</item>
+        <item quantity="few">%d записи</item>
+        <item quantity="many">%d записей</item>
+        <item quantity="other">%d записи</item>
+    </plurals>
+</resources>

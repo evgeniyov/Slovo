@@ -1,0 +1,25 @@
+{
+  "createdAt" : 811058400,
+  "duration" : 60,
+  "formatVersion" : 2,
+  "hasAudio" : true,
+  "hasScreenRecording" : false,
+  "hasSystemAudio" : false,
+  "highlights" : [
+    {
+      "createdAt" : 811058412,
+      "id" : "9B1C0000-0000-4000-8000-000000000003",
+      "source" : "recording",
+      "time" : 12
+    }
+  ],
+  "id" : "11111111-2222-4333-8444-555566667777",
+  "segments" : [
+
+  ],
+  "speakers" : [
+
+  ],
+  "status" : "recording",
+  "title" : "Утренний стендап"
+}

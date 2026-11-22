@@ -1,0 +1,396 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Meetings"
+             xmlns:v="using:Slovo.App.Views"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Meetings.MeetingDetailView"
+             x:DataType="vm:MeetingDetailViewModel">
+  <Border Classes="List">
+    <DockPanel>
+      <!-- Header: title, details, actions -->
+      <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="18,14,14,8">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBox Name="TitleBox" Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" BorderThickness="0" Background="Transparent"
+                   Padding="0" PlaceholderText="{loc:T meetings.titlePlaceholder}" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" VerticalAlignment="Top">
+            <!-- "Copy selected" while the speaker filter narrows what is copied; Export always writes the whole meeting. -->
+            <Button Classes="Ghost" Command="{Binding CopyTranscriptCommand}" IsVisible="{Binding IsTranscribed}" ToolTip.Tip="{Binding CopyTranscriptTitle}" AutomationProperties.Name="{Binding CopyTranscriptTitle}">
+              <c:StrokeIcon Icon="{StaticResource Icon.Copy}" Width="14" Height="14" />
+            </Button>
+            <Button Classes="Ghost" Command="{Binding ExportCommand}" IsVisible="{Binding IsTranscribed}" ToolTip.Tip="{loc:T meetings.action.export}" AutomationProperties.Name="{loc:T meetings.action.export}">
+              <c:StrokeIcon Icon="{StaticResource Icon.Export}" Width="14" Height="14" />
+            </Button>
+            <Button Classes="Ghost" ToolTip.Tip="{loc:T common.edit}" AutomationProperties.Name="{loc:T common.edit}">
+              <c:StrokeIcon Icon="{StaticResource Icon.More}" Width="16" Height="16" StrokeWidth="3" />
+              <Button.Flyout>
+                <MenuFlyout>
+                  <!-- Hidden while the meeting records, as on the Mac. -->
+                  <MenuItem Header="{loc:T meetings.reprocess}" Command="{Binding ReprocessCommand}" IsEnabled="{Binding CanTranscribe}"
+                            IsVisible="{Binding !IsRecordingNow}" />
+                  <MenuItem Header="{loc:T meetings.action.finder}" Command="{Binding ShowInExplorerCommand}" />
+                  <Separator />
+                  <!-- Disabled while the meeting records, as on the Mac. -->
+                  <MenuItem Header="{loc:T common.delete}" Command="{Binding DeleteCommand}" />
+                </MenuFlyout>
+              </Button.Flyout>
+            </Button>
+          </StackPanel>
+        </Grid>
+        <TextBlock Classes="Caption" Text="{Binding MetaText}" TextWrapping="Wrap" />
+        <ContentControl Name="PlaybackBar" Content="{Binding Playback}" IsVisible="{Binding Playback.IsVisible}" Margin="-6,2,0,0" />
+      </StackPanel>
+
+      <!-- Screen recording (ScreenRecordingPlayer on macOS): Avalonia has no video view, so it opens in the video player. -->
+      <Border DockPanel.Dock="Top" Classes="ScreenRecording" Margin="18,0,18,10" IsVisible="{Binding HasScreenRecording}">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <c:StrokeIcon Icon="{StaticResource Icon.Screen}" Width="16" Height="16" Foreground="{DynamicResource Slovo.TextSecondary}" Margin="0,0,10,0" />
+          <TextBlock Grid.Column="1" Classes="Secondary" Text="{loc:T meetings.detail.screenRecording}" VerticalAlignment="Center" />
+          <Button Grid.Column="2" Classes="Secondary" Command="{Binding OpenScreenRecordingCommand}"
+                  ToolTip.Tip="{loc:T meetings.screenRecording.open.help}" AutomationProperties.Name="{loc:T meetings.screenRecording.open}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <c:StrokeIcon Icon="{StaticResource Icon.Play}" Width="11" Height="11" />
+              <TextBlock Text="{loc:T meetings.screenRecording.open}" />
+            </StackPanel>
+          </Button>
+        </Grid>
+      </Border>
+
+      <!-- States other than transcribed -->
+      <StackPanel DockPanel.Dock="Top" Margin="18,8" Spacing="10" IsVisible="{Binding IsProcessing}">
+        <TextBlock Classes="Headline" Text="{Binding ProgressText}" />
+        <ProgressBar Value="{Binding ProgressValue}" Maximum="100" />
+        <Button Classes="Secondary" Content="{loc:T common.cancel}" Command="{Binding CancelProcessingCommand}" HorizontalAlignment="Left" />
+      </StackPanel>
+      <StackPanel DockPanel.Dock="Top" Margin="18,8" Spacing="8" IsVisible="{Binding IsRecorded}">
+        <TextBlock Classes="Headline" Text="{loc:T meetings.recorded.title}" />
+        <TextBlock Classes="Secondary" Text="{loc:T meetings.recorded.detail}" TextWrapping="Wrap" />
+        <Button Classes="Primary" Content="{loc:T meetings.transcribe}" Command="{Binding TranscribeCommand}" IsEnabled="{Binding CanTranscribe}" HorizontalAlignment="Left" />
+      </StackPanel>
+      <StackPanel DockPanel.Dock="Top" Margin="18,8" Spacing="8" IsVisible="{Binding IsFailed}">
+        <Border Classes="Error"><TextBlock Text="{Binding FailureText}" /></Border>
+        <Button Classes="Secondary" Content="{loc:T meetings.retry}" Command="{Binding TranscribeCommand}" IsEnabled="{Binding CanTranscribe}" HorizontalAlignment="Left" />
+      </StackPanel>
+      <TextBlock DockPanel.Dock="Top" Margin="18,8" Classes="Secondary" Text="{loc:T meetings.recording.title}" IsVisible="{Binding IsRecordingNow}" />
+
+      <!-- Transcribed: notices, speakers, tabs -->
+      <DockPanel IsVisible="{Binding IsTranscribed}">
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="18,0,18,8">
+          <Border Classes="Notice" IsVisible="{Binding ShowsSpeakerModelNotice}">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{loc:T meetings.diarization.modelMissing.notice}" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="Link" Content="{loc:T meetings.diarization.openSettings}" Command="{Binding OpenSpeakerSettingsCommand}" />
+            </Grid>
+          </Border>
+          <!-- What speaker separation could not do, with the way to fix it. -->
+          <Border Classes="Notice" IsVisible="{Binding HasDiarizationFailure}">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding DiarizationFailure}" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="Link" Margin="12,0,0,0" Content="{loc:T meetings.retry}" Command="{Binding RetrySpeakersCommand}"
+                      IsVisible="{Binding CanRetrySpeakers}" />
+            </Grid>
+          </Border>
+          <!-- Speakers: «All», then a chip per speaker that toggles the filter, with a pencil for the name and merging. -->
+          <ItemsControl Name="SpeakerBar" ItemsSource="{Binding SpeakerBar}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.DataTemplates>
+              <DataTemplate DataType="vm:AllSpeakersChip">
+                <Button Classes="AllChip" Classes.Selected="{Binding IsSelected}" Margin="0,0,6,6" Content="{loc:T meetings.speakers.all}"
+                        Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).ShowAllSpeakersCommand}" />
+              </DataTemplate>
+              <DataTemplate DataType="vm:SpeakerChipViewModel">
+                <Border Classes="Chip" Classes.Inactive="{Binding !IsActive}" Margin="0,0,6,6">
+                  <Border.ContextFlyout>
+                    <MenuFlyout>
+                      <MenuItem Header="{loc:T meetings.speaker.edit}" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).EditSpeakerCommand}" CommandParameter="{Binding}" />
+                    </MenuFlyout>
+                  </Border.ContextFlyout>
+                  <StackPanel Orientation="Horizontal">
+                    <Button Classes="ChipPart" Padding="10,0,4,0"
+                            Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).ToggleSpeakerCommand}" CommandParameter="{Binding}">
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Ellipse Width="8" Height="8" Fill="{Binding ColorIndex, Converter={x:Static v:ViewConverters.SpeakerBrush}}" />
+                        <TextBlock Text="{Binding Label}" FontSize="12" FontWeight="Medium" />
+                        <TextBlock Classes="Caption" Text="{Binding TalkTime}" VerticalAlignment="Center" FontFeatures="+tnum" />
+                      </StackPanel>
+                    </Button>
+                    <Button Classes="ChipPart" Padding="5,0,8,0" ToolTip.Tip="{loc:T meetings.speaker.edit}" AutomationProperties.Name="{loc:T meetings.speaker.edit}"
+                            Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).EditSpeakerCommand}" CommandParameter="{Binding}">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Edit}" Width="10" Height="10" Foreground="{DynamicResource Slovo.TextSecondary}" />
+                    </Button>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.DataTemplates>
+          </ItemsControl>
+          <!-- Tabs -->
+          <StackPanel Orientation="Horizontal">
+            <RadioButton Classes="Segment" GroupName="MeetingTab" IsChecked="{Binding IsTranscriptTab}" Content="{loc:T meetings.tab.transcript}" />
+            <RadioButton Classes="Segment" GroupName="MeetingTab" IsChecked="{Binding IsHighlightsTab}" Content="{Binding HighlightsTabTitle}" />
+            <RadioButton Classes="Segment" GroupName="MeetingTab" IsChecked="{Binding IsStatisticsTab}" Content="{loc:T meetings.tab.statistics}" />
+            <RadioButton Classes="Segment" GroupName="MeetingTab" IsChecked="{Binding IsClaudeTab}" Content="{loc:T meetings.tab.claudeNotes}" IsVisible="{Binding HasClaudeNotes}" />
+          </StackPanel>
+        </StackPanel>
+
+        <Panel>
+          <!-- Transcript -->
+          <Panel IsVisible="{Binding IsTranscriptTab}">
+            <TextBlock Classes="Secondary" Margin="18,10" Text="{Binding EmptyTranscriptText}" IsVisible="{Binding !HasLines}" />
+            <ListBox Name="TranscriptList" ItemsSource="{Binding Lines}" SelectedItem="{Binding FocusLine, Mode=OneWay}" Background="Transparent" IsVisible="{Binding HasLines}">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:TranscriptLineViewModel">
+                  <Grid ColumnDefinitions="52,22,*" Margin="0,2">
+                    <Grid.ContextFlyout>
+                      <MenuFlyout>
+                        <MenuItem Header="{Binding StarTitle}" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).ToggleStarCommand}" CommandParameter="{Binding}" />
+                        <MenuItem Header="{loc:T meetings.highlight.note}" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).EditNoteCommand}" CommandParameter="{Binding}" />
+                        <MenuItem Header="{loc:T meetings.playback.jump}" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).PlayFromCommand}" CommandParameter="{Binding}" />
+                        <MenuItem Header="{loc:T meetings.line.copy}" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).CopyLineCommand}" CommandParameter="{Binding}" />
+                        <Separator />
+                        <MenuItem Header="{loc:T meetings.line.reassign}" ItemsSource="{Binding ReassignChoices}" IsEnabled="{Binding CanReassign}">
+                          <MenuItem.ItemContainerTheme>
+                            <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="vm:ReassignChoice">
+                              <Setter Property="Header" Value="{Binding Label}" />
+                              <Setter Property="Command" Value="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).ReassignCommand}" />
+                              <Setter Property="CommandParameter" Value="{Binding}" />
+                            </ControlTheme>
+                          </MenuItem.ItemContainerTheme>
+                        </MenuItem>
+                        <MenuItem Header="{loc:T meetings.speaker.rename}" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).RenameLineSpeakerCommand}" CommandParameter="{Binding}" />
+                        <!-- Disabled for a speaker who already counts as «Я». -->
+                        <MenuItem Header="{loc:T meetings.speaker.itsMe}" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).MarkLineAsMeCommand}" CommandParameter="{Binding}" />
+                      </MenuFlyout>
+                    </Grid.ContextFlyout>
+                    <!-- The timestamp and the words play from the line's start, as on the Mac. -->
+                    <Button Classes="Plain" VerticalAlignment="Top" Margin="0,2,0,0"
+                            Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).PlayFromCommand}" CommandParameter="{Binding}"
+                            IsEnabled="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).CanPlay}" ToolTip.Tip="{loc:T meetings.playback.jump}">
+                      <TextBlock Classes="Caption" Text="{Binding Timestamp}" FontFeatures="+tnum" />
+                    </Button>
+                    <Button Grid.Column="1" Classes="Ghost" Padding="2" VerticalAlignment="Top"
+                            Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).ToggleStarCommand}" CommandParameter="{Binding}"
+                            ToolTip.Tip="{Binding StarTitle}" AutomationProperties.Name="{Binding StarTitle}">
+                      <Panel>
+                        <c:StrokeIcon Icon="{StaticResource Icon.Star}" Width="13" Height="13" Filled="True" Foreground="{DynamicResource Slovo.HighlightStar}" IsVisible="{Binding IsStarred}" />
+                        <c:StrokeIcon Icon="{StaticResource Icon.Star}" Width="13" Height="13" Opacity="0.35" IsVisible="{Binding !IsStarred}" />
+                      </Panel>
+                    </Button>
+                    <StackPanel Grid.Column="2" Spacing="3">
+                      <!-- The speaker's name opens their editor; the words play from the line's start. -->
+                      <Button Classes="Plain SpeakerName" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).RenameLineSpeakerCommand}" CommandParameter="{Binding}"
+                              ToolTip.Tip="{loc:T meetings.speaker.rename}">
+                        <TextBlock Text="{Binding SpeakerLabel}" FontSize="12" FontWeight="SemiBold" Foreground="{Binding ColorIndex, Converter={x:Static v:ViewConverters.SpeakerBrush}}" />
+                      </Button>
+                      <Button Classes="Plain" Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).PlayFromCommand}" CommandParameter="{Binding}"
+                              IsEnabled="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).CanPlay}" ToolTip.Tip="{loc:T meetings.playback.jump}">
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                      </Button>
+                      <TextBlock Classes="Caption" Text="{Binding Note}" IsVisible="{Binding HasNote}" Foreground="{DynamicResource Slovo.Warning}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Panel>
+
+          <!-- Important moments -->
+          <DockPanel IsVisible="{Binding IsHighlightsTab}" Margin="18,4">
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" IsVisible="{Binding HasHighlights}">
+              <TextBlock Classes="Caption" FontWeight="Medium" Text="{Binding HighlightsCountText}" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="Link" Content="{loc:T meetings.highlights.copy}" Command="{Binding CopyHighlightsCommand}" />
+            </Grid>
+            <TextBlock DockPanel.Dock="Top" Classes="Secondary" Text="{Binding EmptyHighlightsText}" IsVisible="{Binding !HasHighlights}" TextWrapping="Wrap" />
+            <ScrollViewer>
+              <ItemsControl ItemsSource="{Binding Highlights}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:HighlightRowViewModel">
+                    <Border Classes="Row" Padding="0,10">
+                      <Grid ColumnDefinitions="22,52,*,Auto">
+                        <c:StrokeIcon Icon="{StaticResource Icon.Star}" Width="13" Height="13" Filled="True" Foreground="{DynamicResource Slovo.HighlightStar}" VerticalAlignment="Top" />
+                        <!-- The moment plays from its time and shows its line, as on the Mac. -->
+                        <Button Grid.Column="1" Grid.ColumnSpan="2" Classes="Plain" ToolTip.Tip="{Binding OpenTitle}"
+                                Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).OpenHighlightCommand}" CommandParameter="{Binding}">
+                          <Grid ColumnDefinitions="52,*">
+                            <TextBlock Classes="Caption" Text="{Binding TimeText}" FontFeatures="+tnum" />
+                            <StackPanel Grid.Column="1" Spacing="2">
+                              <TextBlock Text="{Binding SpeakerLabel}" FontSize="11" FontWeight="Medium" IsVisible="{Binding HasSpeaker}"
+                                         Foreground="{Binding SpeakerColorIndex, Converter={x:Static v:ViewConverters.SpeakerBrush}}" />
+                              <TextBlock Text="{Binding Quote}" TextWrapping="Wrap" IsVisible="{Binding HasLine}" />
+                              <TextBlock Classes="Secondary" Text="{loc:T meetings.highlight.noLine}" IsVisible="{Binding !HasLine}" />
+                              <TextBlock Classes="Caption" Text="{Binding Note}" IsVisible="{Binding HasNote}" Foreground="{DynamicResource Slovo.Warning}" TextWrapping="Wrap" />
+                            </StackPanel>
+                          </Grid>
+                        </Button>
+                        <StackPanel Grid.Column="3" Classes="RowActions" Orientation="Horizontal">
+                          <Button Classes="Ghost" ToolTip.Tip="{loc:T meetings.highlight.show}" AutomationProperties.Name="{loc:T meetings.highlight.show}" IsVisible="{Binding HasLine}"
+                                  Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).ShowInTranscriptCommand}" CommandParameter="{Binding}">
+                            <c:StrokeIcon Icon="{StaticResource Icon.ChevronRight}" Width="13" Height="13" />
+                          </Button>
+                          <Button Classes="Ghost" ToolTip.Tip="{loc:T meetings.highlight.note}" AutomationProperties.Name="{loc:T meetings.highlight.note}"
+                                  Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).EditHighlightNoteCommand}" CommandParameter="{Binding}">
+                            <c:StrokeIcon Icon="{StaticResource Icon.Edit}" Width="13" Height="13" />
+                          </Button>
+                          <Button Classes="Ghost" ToolTip.Tip="{loc:T meetings.highlight.delete}" AutomationProperties.Name="{loc:T meetings.highlight.delete}"
+                                  Command="{Binding $parent[UserControl].((vm:MeetingDetailViewModel)DataContext).DeleteHighlightCommand}" CommandParameter="{Binding}">
+                            <c:StrokeIcon Icon="{StaticResource Icon.Trash}" Width="13" Height="13" />
+                          </Button>
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </DockPanel>
+
+          <!-- Statistics: who held the floor and the owner's share, a row per speaker, then speech and pauses. -->
+          <DockPanel IsVisible="{Binding IsStatisticsTab}">
+            <TextBlock DockPanel.Dock="Top" Classes="Secondary" Margin="18,10" Text="{loc:T meetings.transcript.empty}" IsVisible="{Binding !HasStats}" />
+            <StackPanel DockPanel.Dock="Top" Spacing="3" Margin="18,8,18,12" IsVisible="{Binding HasStats}">
+              <TextBlock Classes="Headline" Text="{Binding StatsHeadline}" TextWrapping="Wrap" />
+              <TextBlock Classes="Caption" Text="{Binding StatsCaption}" TextWrapping="Wrap" />
+            </StackPanel>
+            <Border DockPanel.Dock="Top" Classes="Divider" IsVisible="{Binding HasStats}" />
+            <ScrollViewer IsVisible="{Binding HasStats}">
+              <StackPanel Margin="0,4">
+                <ItemsControl ItemsSource="{Binding StatRows}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:StatRow">
+                      <StackPanel Classes="StatRow" Spacing="7" Margin="18,11">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <TextBlock Classes="Medium" Text="{Binding Label}" TextTrimming="CharacterEllipsis"
+                                     Foreground="{Binding ColorIndex, Converter={x:Static v:ViewConverters.SpeakerBrush}}" />
+                          <TextBlock Grid.Column="1" Text="{Binding ShareText}" FontWeight="SemiBold" FontFeatures="+tnum" Margin="8,0,0,0" />
+                        </Grid>
+                        <c:ShareBar Fraction="{Binding Share}" Fill="{Binding ColorIndex, Converter={x:Static v:ViewConverters.SpeakerBrush}}" Track="{DynamicResource Slovo.CalendarEmpty}" />
+                        <TextBlock Classes="Caption" Text="{Binding Detail}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Border Classes="Divider" />
+                <!-- The recording as a whole: how much of it was speech, and the silences inside it. -->
+                <StackPanel Spacing="10" Margin="18,14">
+                  <TextBlock Classes="SectionLabel" Text="{loc:T meetings.stats.meeting}" />
+                  <c:ShareBar Height="8" Fraction="{Binding SpeechShare}" Fill="{DynamicResource Slovo.Accent}" Track="{DynamicResource Slovo.CalendarEmpty}" />
+                  <ItemsControl ItemsSource="{Binding SpeechFigures}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:StatFigure">
+                        <StackPanel Spacing="2" Margin="0,0,22,12">
+                          <TextBlock Classes="Caption" Text="{Binding Title}" />
+                          <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="{Binding Value}" FontSize="15" FontWeight="Medium" FontFeatures="+tnum" />
+                            <TextBlock Classes="Caption" Text="{Binding Caption}" IsVisible="{Binding HasCaption}" FontFeatures="+tnum" VerticalAlignment="Bottom" Margin="0,0,0,2" />
+                          </StackPanel>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </StackPanel>
+            </ScrollViewer>
+          </DockPanel>
+
+          <!-- Claude's notes -->
+          <ScrollViewer IsVisible="{Binding IsClaudeTab}">
+            <StackPanel Spacing="12" Margin="18,6,18,18">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Classes="Caption" Text="{Binding ClaudeWritten}" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Classes="Link" Content="{loc:T meetings.claudeNotes.delete}" Command="{Binding DeleteClaudeNotesCommand}" />
+              </Grid>
+              <Border Classes="Notice"><TextBlock Text="{loc:T meetings.claudeNotes.disclaimer}" /></Border>
+              <SelectableTextBlock Classes="Sample" Text="{Binding ClaudeSummary}" IsVisible="{Binding HasClaudeSummary}" TextWrapping="Wrap" />
+              <StackPanel Spacing="6" IsVisible="{Binding HasClaudeDecisions}">
+                <TextBlock Classes="SectionLabel" Text="{loc:T meetings.claudeNotes.decisions}" />
+                <ItemsControl ItemsSource="{Binding ClaudeDecisions}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String"><TextBlock TextWrapping="Wrap" Margin="0,2"><Run Text="•  " /><Run Text="{Binding}" /></TextBlock></DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+              <StackPanel Spacing="6" IsVisible="{Binding HasClaudeTasks}">
+                <TextBlock Classes="SectionLabel" Text="{loc:T meetings.claudeNotes.tasks}" />
+                <ItemsControl ItemsSource="{Binding ClaudeTasks}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String"><TextBlock TextWrapping="Wrap" Margin="0,2"><Run Text="☐  " /><Run Text="{Binding}" /></TextBlock></DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </Panel>
+      </DockPanel>
+    </DockPanel>
+  </Border>
+  <UserControl.Styles>
+    <!-- Speaker chips: a capsule holding the filter toggle and the pencil; picked speakers stay bright while the others fade. -->
+    <Style Selector="Border.Chip">
+      <Setter Property="Background" Value="{DynamicResource Slovo.InsetBackground}" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Height" Value="28" />
+    </Style>
+    <Style Selector="Border.Chip.Inactive">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="Button.ChipPart">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.ChipPart:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+    </Style>
+    <!-- «All»: dark while every voice is shown, like the Mac's primary capsule. -->
+    <Style Selector="Button.AllChip">
+      <Setter Property="Background" Value="{DynamicResource Slovo.InsetBackground}" />
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.SecondaryButtonText}" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="12,0" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="Medium" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.AllChip:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.SecondaryButtonText}" />
+    </Style>
+    <Style Selector="Button.AllChip.Selected">
+      <Setter Property="Background" Value="{DynamicResource Slovo.PrimaryButtonBackground}" />
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.PrimaryButtonText}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.AllChip.Selected:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource Slovo.PrimaryButtonBackground}" />
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.PrimaryButtonText}" />
+      <Setter Property="Opacity" Value="0.88" />
+    </Style>
+    <Style Selector="Border.ScreenRecording">
+      <Setter Property="Background" Value="{DynamicResource Slovo.InsetBackground}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource Slovo.RowRadius}" />
+      <Setter Property="Padding" Value="12,8" />
+    </Style>
+    <!-- Text that plays when clicked: looks like the text it holds, and takes no tab stop. -->
+    <Style Selector="Button.Plain">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="VerticalContentAlignment" Value="Top" />
+      <Setter Property="Focusable" Value="False" />
+    </Style>
+    <Style Selector="Button.Plain:pointerover /template/ ContentPresenter, Button.Plain:pressed /template/ ContentPresenter, Button.Plain:disabled /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.Plain:disabled">
+      <Setter Property="Cursor" Value="Arrow" />
+    </Style>
+    <!-- A line's speaker name: only as wide as the name, so a click beside it is not taken for a rename. -->
+    <Style Selector="Button.Plain.SpeakerName">
+      <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+  </UserControl.Styles>
+</UserControl>

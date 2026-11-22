@@ -1,0 +1,4 @@
+/* Windows additions to Sources/SlovoCore/Resources/ru.lproj/Input.strings. Owned by the Windows platform module. */
+
+"input.error.hookFailed" = "Slovo не может слушать клавиатуру, поэтому клавиша диктовки не работает. Перезапустите Slovo.";
+"input.warning.elevatedWindow" = "Окно впереди запущено от имени администратора, и Slovo не может в него печатать. Текст скопирован: нажмите Ctrl+V.";

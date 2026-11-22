@@ -1,0 +1,51 @@
+{
+  "highlights" : [
+    {
+      "createdAt" : 0,
+      "id" : "D904C2F6-4F28-8427-A865-02BB0CC53EBD",
+      "source" : "transcript",
+      "time" : 0
+    }
+  ],
+  "segments" : [
+    {
+      "end" : 5,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 0,
+      "text" : "[главная] ★: Отрицательное время."
+    },
+    {
+      "end" : 9,
+      "speaker" : "me",
+      "start" : 5,
+      "text" : "Очень длинный конец."
+    },
+    {
+      "end" : 9,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 9,
+      "text" : "Неизвестный спикер."
+    }
+  ],
+  "speakers" : [
+    {
+      "colorIndex" : 0,
+      "displayName" : "Аня",
+      "id" : "s1",
+      "isMe" : false,
+      "number" : 1,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 1,
+      "displayName" : "Microphone",
+      "id" : "s2",
+      "isMe" : false,
+      "number" : 2,
+      "track" : "microphone"
+    }
+  ],
+  "title" : "Повреждённая встреча"
+}

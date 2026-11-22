@@ -1,0 +1,2 @@
+/* Playback on Windows. */
+"audio.error.playbackFailed" = "Could not play the recording: %@";

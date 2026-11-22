@@ -1,0 +1,97 @@
+{
+  "highlights" : [
+    {
+      "createdAt" : 0,
+      "id" : "7EEA4F4F-6772-84F5-AF5E-FCAF69B43CCF",
+      "source" : "transcript",
+      "time" : 758
+    },
+    {
+      "createdAt" : 0,
+      "id" : "D28444D9-BE93-8364-9BB3-BDB84EB8712E",
+      "source" : "transcript",
+      "time" : 800
+    },
+    {
+      "createdAt" : 0,
+      "id" : "9A7086BD-FE1D-82C8-93E1-5F1CB41014F0",
+      "source" : "transcript",
+      "time" : 900
+    }
+  ],
+  "segments" : [
+    {
+      "end" : 11,
+      "speaker" : "me",
+      "start" : 4,
+      "text" : "Всем привет, начнём с планов на неделю. Сначала релиз."
+    },
+    {
+      "end" : 20,
+      "speaker" : "me",
+      "speakerID" : "s4",
+      "start" : 11,
+      "text" : "Привет!"
+    },
+    {
+      "end" : 758,
+      "speaker" : "me",
+      "speakerID" : "s5",
+      "start" : 20,
+      "text" : "Коллеги, давайте начнём с релиза."
+    },
+    {
+      "end" : 800,
+      "speaker" : "me",
+      "speakerID" : "s5",
+      "start" : 758,
+      "text" : "Давайте к пятнице соберём прототип и покажем его команде, а заодно проверим, как новая схема разделения по спикерам справляется с длинными созвонами и шумом."
+    },
+    {
+      "end" : 900,
+      "speaker" : "me",
+      "speakerID" : "s3",
+      "start" : 800,
+      "text" : "Согласен, ёлка на ресепшене тоже нужна."
+    },
+    {
+      "end" : 3700,
+      "speaker" : "me",
+      "speakerID" : "s4",
+      "start" : 900,
+      "text" : "Со стороны дизайна всё готово."
+    },
+    {
+      "end" : 3700,
+      "speaker" : "me",
+      "start" : 3700,
+      "text" : "Проверим дизайн в понедельник."
+    }
+  ],
+  "speakers" : [
+    {
+      "colorIndex" : 3,
+      "displayName" : "Команда дизайна",
+      "id" : "s4",
+      "isMe" : false,
+      "number" : 4,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 4,
+      "displayName" : "Аня",
+      "id" : "s5",
+      "isMe" : false,
+      "number" : 5,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 2,
+      "id" : "s3",
+      "isMe" : false,
+      "number" : 3,
+      "track" : "microphone"
+    }
+  ],
+  "title" : "Коворк 15 сентября"
+}

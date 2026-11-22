@@ -1,0 +1,89 @@
+<!-- The main window: sidebar on the warm background and the rounded content panel
+     (the macOS MainWindowView). -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Slovo.App.ViewModels"
+        xmlns:c="using:Slovo.App.Controls"
+        xmlns:v="using:Slovo.App.Views"
+        xmlns:loc="using:Slovo.App.Localization"
+        xmlns:vms="using:Slovo.App.ViewModels.Screens"
+        xmlns:vsc="using:Slovo.App.Views.Screens"
+        x:Class="Slovo.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Slovo"
+        Width="1100" Height="720" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Slovo.WindowBackground}"
+        Icon="avares://Slovo/Assets/slovo.ico">
+  <!-- Ctrl+, opens Settings, as ⌘, does on the Mac; the shortcuts sheet lists it. -->
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+OemComma" Command="{Binding OpenSettingsCommand}" />
+  </Window.KeyBindings>
+  <Panel>
+  <Grid ColumnDefinitions="214,*">
+    <!-- Sidebar -->
+    <DockPanel Grid.Column="0" Margin="10,0,10,14">
+      <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="10,18,0,16">
+        <v:AppLogo Width="22" Height="22" />
+        <TextBlock Classes="Logo" Text="Slovo" VerticalAlignment="Center" />
+      </StackPanel>
+      <StackPanel DockPanel.Dock="Bottom" Spacing="2">
+        <ContentControl Content="{Binding Readiness}" Margin="0,0,0,8" IsVisible="{Binding Readiness.IsShown, FallbackValue=False}" />
+        <Button Classes="SidebarRow" Command="{Binding OpenSettingsCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <c:StrokeIcon Icon="{StaticResource Icon.Sliders}" />
+            <TextBlock Text="{loc:T sidebar.settings}" />
+          </StackPanel>
+        </Button>
+        <Button Classes="SidebarRow">
+          <Button.Flyout>
+            <MenuFlyout Placement="TopEdgeAlignedLeft">
+              <MenuItem Header="{loc:T help.shortcuts}" Command="{Binding ShowShortcutsCommand}" />
+              <MenuItem Header="{loc:T help.troubleshooting}" Command="{Binding ShowTroubleshootingCommand}" />
+              <Separator />
+              <MenuItem Header="{loc:T help.openModels}" Command="{Binding OpenModelsFolderCommand}" />
+              <MenuItem Header="{loc:T help.openLogs}" Command="{Binding OpenLogsCommand}" />
+              <Separator />
+              <MenuItem Header="{loc:T help.showOnboarding}" Command="{Binding ShowOnboardingCommand}" />
+            </MenuFlyout>
+          </Button.Flyout>
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <c:StrokeIcon Icon="{StaticResource Icon.Help}" />
+            <TextBlock Text="{loc:T sidebar.help}" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+      <ItemsControl ItemsSource="{Binding SidebarItems}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Spacing="2" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:SidebarItemViewModel">
+            <Button Classes="SidebarRow" Classes.Selected="{Binding IsSelected}"
+                    Command="{Binding $parent[ItemsControl].((vm:MainWindowViewModel)DataContext).SelectCommand}"
+                    CommandParameter="{Binding Screen}">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <c:StrokeIcon Icon="{Binding IconKey, Converter={x:Static v:ViewConverters.IconByKey}}" />
+                <TextBlock Text="{Binding Title}" />
+              </StackPanel>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </DockPanel>
+
+    <!-- Content panel -->
+    <Border Grid.Column="1" Classes="Panel" Margin="0,10,10,10">
+      <ContentControl Content="{Binding CurrentScreen}" />
+    </Border>
+  </Grid>
+  <!-- Sheet over the whole window -->
+  <Border Classes="SheetScrim" IsVisible="{Binding HasSheet}" PointerPressed="OnScrimPressed">
+    <Border Classes="Sheet">
+      <ContentControl Content="{Binding Sheet}" />
+    </Border>
+  </Border>
+  </Panel>
+</Window>

@@ -1,0 +1,120 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Screens"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Screens.InsightsView"
+             x:DataType="vm:InsightsViewModel">
+  <ScrollViewer>
+    <StackPanel Spacing="18" Margin="32,28">
+      <c:PageHeader Title="{loc:T sidebar.insights}" Subtitle="{loc:T insights.subtitle}" />
+      <c:EmptyState Icon="{StaticResource Icon.Chart}" Title="{loc:T common.nothingYet}" Message="{loc:T insights.empty}" IsVisible="{Binding IsEmpty}" />
+      <StackPanel Spacing="16" IsVisible="{Binding !IsEmpty}">
+        <Grid ColumnDefinitions="1.3*,16,*,16,*,16,*">
+          <Border Classes="Card">
+            <StackPanel Spacing="4" HorizontalAlignment="Center">
+              <TextBlock Classes="Medium" Text="{loc:T insights.wpm}" HorizontalAlignment="Center" />
+              <Panel Width="180" Height="100" Margin="0,8,0,0">
+                <c:WpmGauge Value="{Binding Current.WordsPerMinute}" Maximum="200" Track="{DynamicResource Slovo.CalendarEmpty}" Fill="{DynamicResource Slovo.Accent}" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                  <TextBlock Classes="LargeNumber" Text="{Binding Wpm}" HorizontalAlignment="Center" />
+                  <TextBlock Classes="Caption" Text="{loc:T insights.wpm.unit}" HorizontalAlignment="Center" />
+                </StackPanel>
+              </Panel>
+              <TextBlock Classes="Caption" Text="{loc:T insights.wpm.typing}" HorizontalAlignment="Center" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="2" Classes="Card">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="Medium" Text="{loc:T insights.totalWords}" TextWrapping="Wrap" />
+              <TextBlock Classes="LargeNumber" Text="{Binding TotalWords}" Margin="0,14,0,0" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="4" Classes="Card">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="Medium" Text="{loc:T insights.fixes}" TextWrapping="Wrap" />
+              <TextBlock Classes="LargeNumber" Text="{Binding Fixes}" Margin="0,14,0,0" />
+              <TextBlock Classes="Caption" Text="{loc:T insights.fixes.caption}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="6" Classes="Card">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="Medium" Text="{loc:T insights.timeSaved}" TextWrapping="Wrap" />
+              <Viewbox StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,14,0,0">
+                <TextBlock Classes="LargeNumber" Text="{Binding TimeSaved}" />
+              </Viewbox>
+              <TextBlock Classes="Caption" Text="{loc:T insights.timeSaved.caption}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <Border Classes="Card">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto,24,Auto">
+              <StackPanel>
+                <TextBlock Classes="Headline" Text="{loc:T insights.activity}" />
+                <TextBlock Classes="Caption" Text="{loc:T insights.calendar}" />
+              </StackPanel>
+              <StackPanel Grid.Column="1">
+                <TextBlock Classes="Caption" Text="{loc:T insights.currentStreak}" />
+                <TextBlock Classes="StatNumber" FontSize="24" Text="{Binding CurrentStreak}" />
+              </StackPanel>
+              <StackPanel Grid.Column="3">
+                <TextBlock Classes="Caption" Text="{loc:T insights.longestStreak}" />
+                <TextBlock Classes="StatNumber" FontSize="24" Text="{Binding LongestStreak}" />
+              </StackPanel>
+            </Grid>
+            <c:ActivityCalendar Days="{Binding Current.DailyWords}" HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Classes="Caption" Text="{loc:T insights.calendar.less}" />
+              <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource Slovo.CalendarEmpty}" />
+              <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource Slovo.Calendar1}" />
+              <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource Slovo.Calendar2}" />
+              <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource Slovo.Calendar3}" />
+              <Border Width="10" Height="10" CornerRadius="2" Background="{DynamicResource Slovo.Calendar4}" />
+              <TextBlock Classes="Caption" Text="{loc:T insights.calendar.more}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Grid ColumnDefinitions="*,16,*">
+          <Border Classes="Card">
+            <StackPanel Spacing="12">
+              <TextBlock Classes="Headline" Text="{loc:T insights.byCategory}" />
+              <ItemsControl ItemsSource="{Binding Categories}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="10" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:CategoryShareRow">
+                    <StackPanel Spacing="4">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="{Binding Title}" />
+                        <TextBlock Grid.Column="1" Classes="Caption" Text="{Binding Percent}" />
+                      </Grid>
+                      <c:ShareBar Fraction="{Binding Fraction}" Fill="{DynamicResource Slovo.Accent}" Track="{DynamicResource Slovo.CalendarEmpty}" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="2" Classes="Card">
+            <StackPanel Spacing="12">
+              <TextBlock Classes="Headline" Text="{loc:T insights.topApps}" />
+              <ItemsControl ItemsSource="{Binding TopApps}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:TopAppRow">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Grid.Column="1" Classes="Caption" Text="{Binding Words}" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

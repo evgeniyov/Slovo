@@ -1,0 +1,8 @@
+/* Microphone capture, input devices and WAV files. Owned by the dictation module. */
+
+"audio.error.noInputDevice" = "Нет доступного микрофона";
+"audio.error.engineStartFailed" = "Не удалось включить микрофон: %@";
+"audio.error.formatUnsupported" = "Формат звука этого микрофона не поддерживается";
+"audio.error.writeFailed" = "Не удалось сохранить запись: %@";
+"audio.error.readFailed" = "Не удалось прочитать запись %1$@: %2$@";
+"audio.error.unreadableWAV" = "Slovo не может прочитать %@: это не поддерживаемый WAV";

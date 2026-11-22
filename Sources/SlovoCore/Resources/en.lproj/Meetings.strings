@@ -1,0 +1,55 @@
+/* Meeting recording and transcription. Owned by the meetings module. */
+
+"meetings.speaker.me" = "Me";
+"meetings.speaker.others" = "Others";
+/* The microphone's unseparated speech once another speaker is marked «This is me». */
+"meetings.speaker.microphone" = "Microphone";
+"meetings.speaker.numbered" = "Speaker %ld";
+"meetings.defaultTitle" = "Meeting %@";
+"meetings.transcript.empty" = "No speech was recognized.";
+"meetings.transcript.participants" = "Participants: %@";
+"meetings.transcript.highlightsHeading" = "Important moments";
+"meetings.transcript.heading" = "Transcript";
+"meetings.transcript.claudeHeading" = "Claude's notes";
+/* Who wrote the notes and when. They are an account of the meeting, not a record of it. */
+"meetings.transcript.claudeWritten" = "Written by %@ · %@. An account of the meeting, not a transcript.";
+"meetings.transcript.claudeDecisions" = "Decisions";
+"meetings.transcript.claudeTasks" = "Tasks";
+/* The argument is a whole sentence, such as a speaker model error. */
+"meetings.diarization.failed" = "Speakers were not separated. %@";
+"meetings.diarization.unsupportedSystem" = "Speaker separation needs macOS 15 or later";
+"meetings.transcription.cancelled" = "Transcription was cancelled";
+"meetings.transcription.noRecognizedSpeech" = "No speech was recognized. The audio and any existing transcript were kept.";
+"meetings.transcription.interrupted" = "Transcription stopped when Slovo quit";
+
+"meetings.error.systemAudioDenied" = "System audio is silent. Allow System Audio Recording for Slovo in System Settings.";
+"meetings.error.systemAudioUnsupported" = "Recording system audio needs macOS 14.4 or later";
+"meetings.error.screenRecordingDenied" = "Screen recording needs permission. Allow Screen Recording for Slovo in System Settings, then restart Slovo.";
+"meetings.error.screenRecordingUnavailable" = "Screen recording is not available right now";
+"meetings.error.screenRecordingAppNotRunning" = "The chosen app is not running, so its screen recording could not start";
+"meetings.error.tapFailed" = "Could not record system audio: %@";
+"meetings.error.alreadyRecording" = "A meeting is already being recorded";
+"meetings.error.microphoneDenied" = "Microphone access is off. Allow it for Slovo in System Settings.";
+"meetings.error.noMicrophone" = "No microphone is available";
+"meetings.error.microphoneFailed" = "Could not record from the microphone: %@";
+"meetings.error.unsupportedFormat" = "This audio format is not supported";
+"meetings.error.fileFailed" = "Could not write the meeting audio: %@";
+/* The argument is the free space left on the disk. */
+"meetings.error.lowDiskSpace" = "Not enough free space to record a meeting: %@ left. An hour takes about 230 MB. Free up some space and try again.";
+/* The argument is the free space left on the disk. The recording ended by itself and is saved. */
+"meetings.error.lowDiskSpaceWhileRecording" = "The recording stopped because the disk is almost full: %@ left. Everything recorded until then is saved.";
+/* The argument is the underlying Core Audio error. */
+"meetings.error.systemAudioInterrupted" = "System audio stopped (%@). Slovo keeps trying to reconnect it.";
+"meetings.error.appAudioEnded" = "The app's sound stopped together with its screen recording. What was recorded so far is kept.";
+"meetings.error.readFailed" = "Could not read the meeting audio: %@";
+"meetings.error.createFailed" = "Could not create the meeting folder: %@";
+"meetings.error.saveFailed" = "Could not save the meeting: %@";
+"meetings.error.notFound" = "This meeting no longer exists";
+"meetings.error.noAudio" = "The meeting audio is gone, so it cannot be transcribed";
+"meetings.error.stillRecording" = "Stop the recording before transcribing it";
+"meetings.error.alreadyTranscribing" = "This meeting is already being transcribed";
+"meetings.error.transcriptFailed" = "Could not save the transcript: %@";
+"meetings.error.recordDamaged" = "This meeting's files were damaged and could not be restored";
+"meetings.error.mergeAcrossTracks" = "Only speakers from the same source can be merged";
+"meetings.error.speakersOnlyUnavailable" = "Speakers can be recalculated only for meetings transcribed by this version, with audio and the speaker model";
+"meetings.error.fileTooShort" = "This file is too short to be a meeting";

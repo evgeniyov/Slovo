@@ -1,0 +1,4 @@
+/* Windows overrides of SlovoCore's Dictation.strings: only the lines that name macOS. */
+
+"dictation.error.appleAssetsMissing" = "Apple Dictation работает только в Slovo для Mac. Выберите другой движок в Настройках → Распознавание.";
+"dictation.error.appleUnsupported" = "Apple Dictation работает только в Slovo для Mac";

@@ -1,0 +1,139 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.tag.outputs.version }}
+    steps:
+      - name: Read version from tag
+        id: tag
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "::error::Expected a release tag such as v0.5.1."
+            exit 1
+          fi
+          echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+
+  macos:
+    needs: version
+    runs-on: macos-15
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+      VERSION: ${{ needs.version.outputs.number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Select Xcode
+        run: |
+          if [[ ! -x "$DEVELOPER_DIR/usr/bin/xcodebuild" ]]; then
+            echo "::error::Pinned Xcode 26.3 is missing at $DEVELOPER_DIR on the macos-15 runner."
+            exit 1
+          fi
+          xcodebuild -version
+      - name: Resolve packages and repair ONNX Runtime
+        run: |
+          swift package resolve
+          set -- .build/artifacts/onnxruntime-libs/OnnxruntimeMacOS/*.xcframework/macos-*/onnxruntime.framework
+          if [[ ! -d "$1" ]]; then
+            echo "::error::SwiftPM did not extract the macOS ONNX Runtime framework."
+            exit 1
+          fi
+          python3 Scripts/repair_onnxruntime_framework.py
+      - name: Build and verify DMG
+        run: |
+          python3 build.py --dmg --sign-identity -
+          hdiutil verify "Slovo-${VERSION}.dmg"
+          mv "Slovo-${VERSION}.dmg" "Slovo-${VERSION}-macos-arm64.dmg"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: Slovo-${{ env.VERSION }}-macos-arm64.dmg
+          if-no-files-found: error
+
+  windows:
+    needs: version
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.version.outputs.number }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+      AVALONIA_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install NSIS
+        run: |
+          choco install nsis --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'NSIS installation failed' }
+          $compiler = @(${env:ProgramFiles(x86)}, $env:ProgramFiles) |
+            ForEach-Object { Join-Path $_ 'NSIS/makensis.exe' } |
+            Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+            Select-Object -First 1
+          if (-not $compiler) { throw 'makensis.exe was not found in the NSIS installation directory' }
+          (Split-Path -Parent $compiler) >> $env:GITHUB_PATH
+      - name: Publish self-contained Windows app
+        run: dotnet publish Windows/src/Slovo.App -c Release -r win-x64 --self-contained "-p:Version=$env:VERSION" -o dist/Slovo-win-x64
+      - name: Build Windows packages
+        run: python Windows/package/build_release.py dist/Slovo-win-x64 --version $env:VERSION --output dist/release
+      - name: Test Windows packages
+        run: ./Windows/package/test_release.ps1 -PackageDirectory dist/release -Version $env:VERSION
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: dist/release/
+          if-no-files-found: error
+
+  publish:
+    needs: [version, macos, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*-release'
+          merge-multiple: true
+          path: dist/release
+      - name: Compute and verify checksums
+        working-directory: dist/release
+        run: |
+          sha256sum "Slovo-${VERSION}-macos-arm64.dmg" \
+            "Slovo-${VERSION}-win-x64-setup.exe" \
+            "Slovo-${VERSION}-win-x64-portable.zip" > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes_file="docs/releases/${VERSION}.md"
+          notes=(--generate-notes)
+          if [[ -f "$notes_file" ]]; then
+            notes=(--notes-file "$notes_file")
+          fi
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag "${notes[@]}" \
+            "dist/release/Slovo-${VERSION}-macos-arm64.dmg" \
+            "dist/release/Slovo-${VERSION}-win-x64-setup.exe" \
+            "dist/release/Slovo-${VERSION}-win-x64-portable.zip" \
+            dist/release/SHA256SUMS.txt

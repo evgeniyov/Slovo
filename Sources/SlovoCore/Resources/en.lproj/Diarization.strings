@@ -1,0 +1,9 @@
+/* Speaker separation model: loading, download and deletion. Owned by the diarization module. */
+
+"diarization.error.modelMissing" = "The speaker model is not downloaded. Download it in Settings → Meetings.";
+"diarization.error.modelDamaged" = "The speaker model files are damaged. Delete the model and download it again in Settings → Meetings.";
+"diarization.error.loadFailed" = "Could not load the speaker model: %@";
+"diarization.error.downloadFailed" = "Could not download the speaker model: %@";
+"diarization.error.filesMissingAfterDownload" = "The speaker model did not download completely. Try downloading it again.";
+"diarization.error.deleteWhileDownloading" = "The speaker model is still downloading. Cancel the download before deleting the model.";
+"diarization.error.unsupportedSystem" = "Speaker separation needs macOS 15 or later";

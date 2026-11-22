@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels"
+             xmlns:v="using:Slovo.App.Views"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.TroubleshootingView"
+             x:DataType="vm:TroubleshootingViewModel"
+             Width="580">
+  <DockPanel>
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+      <TextBlock Classes="SectionTitle" Text="{loc:T help.troubleshooting}" VerticalAlignment="Center" />
+      <Button Grid.Column="1" Classes="Ghost" Command="{Binding DismissCommand}" ToolTip.Tip="{loc:T common.close}" AutomationProperties.Name="{loc:T common.close}">
+        <c:StrokeIcon Icon="{StaticResource Icon.Close}" />
+      </Button>
+    </Grid>
+    <ScrollViewer MaxHeight="520">
+      <ItemsControl ItemsSource="{Binding Items}">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="10" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:TroubleshootingItem">
+            <Border Classes="Card" Padding="14">
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <c:StrokeIcon Icon="{Binding IconKey, Converter={x:Static v:ViewConverters.IconByKey}}" Width="16" Height="16" Margin="0,2,12,0"
+                              VerticalAlignment="Top" Foreground="{DynamicResource Slovo.AccentText}" />
+                <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,10,0">
+                  <TextBlock Classes="Headline" Text="{Binding Title}" TextWrapping="Wrap" />
+                  <TextBlock Classes="Caption" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  <TextBlock FontSize="11" FontWeight="Medium" Text="{Binding Status}" IsVisible="{Binding HasStatus}" Foreground="{DynamicResource Slovo.Success}" Classes.Problem="{Binding !StatusOk}" />
+                </StackPanel>
+                <Button Grid.Column="2" Classes="Secondary" VerticalAlignment="Top" Content="{Binding ActionTitle}"
+                        Command="{Binding $parent[UserControl].((vm:TroubleshootingViewModel)DataContext).RunCommand}" CommandParameter="{Binding}" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+  <UserControl.Styles>
+    <Style Selector="TextBlock.Problem">
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.Warning}" />
+    </Style>
+  </UserControl.Styles>
+</UserControl>

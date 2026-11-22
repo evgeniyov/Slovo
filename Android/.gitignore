@@ -1,0 +1,9 @@
+.gradle/
+build/
+*.iml
+.idea/
+# Holds this machine's SDK path.
+local.properties
+# The signing key: losing it means uninstall and reinstall on the phone.
+*.jks
+*.keystore

@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Settings"
+             xmlns:vs="using:Slovo.App.Views.Settings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Settings.MeetingsSettingsView"
+             x:DataType="vm:MeetingsSettingsViewModel">
+  <StackPanel Spacing="22">
+    <c:SettingsGroup Header="{loc:T settings.group.recording}">
+      <c:SettingsRow Title="{loc:T settings.meetings.systemAudio}" Detail="{loc:T settings.meetings.systemAudio.detail}">
+        <ToggleSwitch IsChecked="{Binding RecordSystemAudio}" AutomationProperties.Name="{loc:T settings.meetings.systemAudio}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.meetings.screen}" Detail="{loc:T settings.meetings.screen.detail}">
+        <ToggleSwitch IsChecked="{Binding RecordScreen}" AutomationProperties.Name="{loc:T settings.meetings.screen}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.meetings.microphone}" Detail="{loc:T settings.meetings.microphone.detail}">
+        <ToggleSwitch IsChecked="{Binding RecordMicrophone}" AutomationProperties.Name="{loc:T settings.meetings.microphone}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.meetings.microphoneShortcut}" Detail="{loc:T settings.meetings.microphoneShortcut.detail}">
+        <ComboBox ItemsSource="{Binding MicrophoneChoices}" SelectedItem="{Binding SelectedMicrophone}" />
+      </c:SettingsRow>
+      <Border Classes="Notice" Margin="0,0,0,10" IsVisible="{Binding MicrophoneRefused}">
+        <TextBlock Text="{loc:T settings.meetings.markShortcut.refused}" />
+      </Border>
+      <c:SettingsRow Title="{loc:T settings.meetings.engine}" Detail="{loc:T settings.meetings.engine.detail}">
+        <ComboBox ItemsSource="{Binding EngineChoices}" SelectedItem="{Binding SelectedEngine}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+
+    <c:SettingsGroup Header="{loc:T settings.group.speakers}">
+      <c:SettingsRow Title="{loc:T settings.meetings.separate}" Detail="{loc:T settings.meetings.separate.detail}">
+        <ToggleSwitch IsChecked="{Binding SpeakerSeparation}" AutomationProperties.Name="{loc:T settings.meetings.separate}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.meetings.people}" Detail="{loc:T settings.meetings.people.detail}" IsEnabled="{Binding SpeakerSeparation}">
+        <ComboBox ItemsSource="{Binding PeopleChoices}" SelectedItem="{Binding SelectedPeople}" />
+      </c:SettingsRow>
+      <ContentControl Content="{Binding SpeakerModel}">
+        <ContentControl.ContentTemplate>
+          <DataTemplate x:DataType="vm:ModelRowViewModel"><vs:ModelRowView /></DataTemplate>
+        </ContentControl.ContentTemplate>
+      </ContentControl>
+    </c:SettingsGroup>
+
+    <c:SettingsGroup Header="{loc:T settings.group.moments}">
+      <c:SettingsRow Title="{loc:T settings.meetings.markShortcut}" Detail="{loc:T settings.meetings.markShortcut.detail}">
+        <ComboBox ItemsSource="{Binding MarkChoices}" SelectedItem="{Binding SelectedMark}" />
+      </c:SettingsRow>
+      <Border Classes="Notice" Margin="0,0,0,10" IsVisible="{Binding MarkRefused}">
+        <TextBlock Text="{loc:T settings.meetings.markShortcut.refused}" />
+      </Border>
+    </c:SettingsGroup>
+
+    <c:SettingsGroup Header="{loc:T settings.group.storage}">
+      <c:SettingsRow Title="{loc:T settings.meetings.keepAudio}" Detail="{loc:T settings.meetings.keepAudio.detail}">
+        <ComboBox ItemsSource="{Binding KeepAudioChoices}" SelectedItem="{Binding SelectedKeepAudio}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.meetings.inbox}" Detail="{loc:T settings.meetings.inbox.detail}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Classes="Secondary" Content="{loc:T common.open}" Command="{Binding OpenInboxCommand}" />
+          <ToggleSwitch IsChecked="{Binding InboxEnabled}" AutomationProperties.Name="{loc:T settings.meetings.inbox}" />
+        </StackPanel>
+      </c:SettingsRow>
+    </c:SettingsGroup>
+    <TextBlock Classes="Caption" Text="{loc:T meetings.consent.detail}" TextWrapping="Wrap" Margin="2,0,0,0" />
+  </StackPanel>
+</UserControl>

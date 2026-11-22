@@ -1,0 +1,53 @@
+<!-- A permission row (the macOS PermissionRow): icon, what it is for, its status, and a button
+     to Windows Settings while it is not allowed. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Settings"
+             xmlns:v="using:Slovo.App.Views"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Settings.PermissionRowView"
+             x:DataType="vm:PermissionRowViewModel">
+  <UserControl.Styles>
+    <Style Selector="Border.Badge">
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Padding" Value="6,1" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Background" Value="{DynamicResource Slovo.InsetBackground}" />
+    </Style>
+    <Style Selector="Border.Badge > TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+    </Style>
+    <Style Selector="Border.Badge.Success">
+      <Setter Property="Background" Value="{DynamicResource Slovo.SuccessSoft}" />
+    </Style>
+    <Style Selector="Border.Badge.Success > TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.Success}" />
+    </Style>
+    <Style Selector="Border.Badge.Warning">
+      <Setter Property="Background" Value="{DynamicResource Slovo.WarningSoft}" />
+    </Style>
+    <Style Selector="Border.Badge.Warning > TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.Warning}" />
+    </Style>
+  </UserControl.Styles>
+  <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,12">
+    <Border Width="34" Height="34" CornerRadius="9" Margin="0,0,14,0" VerticalAlignment="Center"
+            Background="{DynamicResource Slovo.InsetBackground}">
+      <c:StrokeIcon Icon="{Binding IconKey, Converter={x:Static v:ViewConverters.IconByKey}}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource Slovo.TextPrimary}" />
+    </Border>
+    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center" Margin="0,0,16,0">
+      <TextBlock Classes="Medium" Text="{Binding Title}" TextWrapping="Wrap" />
+      <TextBlock Classes="Caption" Text="{Binding Detail}" TextWrapping="Wrap" />
+    </StackPanel>
+    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+      <Border Classes="Badge" Classes.Success="{Binding IsGranted}" Classes.Warning="{Binding IsMissing}">
+        <TextBlock Text="{Binding StatusText}" />
+      </Border>
+      <Button Classes="Secondary" Content="{loc:T onboarding.permissions.open}" Command="{Binding OpenCommand}"
+              IsVisible="{Binding !IsGranted}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

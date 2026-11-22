@@ -1,0 +1,126 @@
+<!-- Design tokens: the macOS app's Theme.swift, value for value. Views never use literal
+     colours; they use these brushes by name, and both themes are required. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="Slovo.WindowBackground" Color="#F2F0EB" />
+      <SolidColorBrush x:Key="Slovo.SidebarBackground" Color="#F2F0EB" />
+      <SolidColorBrush x:Key="Slovo.PanelBackground" Color="#FBFAF7" />
+      <SolidColorBrush x:Key="Slovo.PanelBorder" Color="#E7E3DA" />
+      <SolidColorBrush x:Key="Slovo.Divider" Color="#EEEAE3" />
+      <SolidColorBrush x:Key="Slovo.FieldBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="Slovo.SidebarSelection" Color="#E7E3DA" />
+      <SolidColorBrush x:Key="Slovo.RowHover" Color="#F5F2EC" />
+      <SolidColorBrush x:Key="Slovo.InsetBackground" Color="#F4F1EB" />
+      <SolidColorBrush x:Key="Slovo.TextPrimary" Color="#1C1B19" />
+      <SolidColorBrush x:Key="Slovo.TextSecondary" Color="#6B675F" />
+      <SolidColorBrush x:Key="Slovo.PrimaryButtonBackground" Color="#161514" />
+      <SolidColorBrush x:Key="Slovo.PrimaryButtonText" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="Slovo.SecondaryButtonBackground" Color="#ECE8E0" />
+      <SolidColorBrush x:Key="Slovo.SecondaryButtonText" Color="#1C1B19" />
+      <SolidColorBrush x:Key="Slovo.Accent" Color="#7C5CFA" />
+      <SolidColorBrush x:Key="Slovo.AccentText" Color="#6A48F0" />
+      <SolidColorBrush x:Key="Slovo.AccentSoft" Color="#1F7C5CFA" />
+      <SolidColorBrush x:Key="Slovo.KeycapFill" Color="#F4A259" />
+      <SolidColorBrush x:Key="Slovo.KeycapBorder" Color="#1C1B19" />
+      <SolidColorBrush x:Key="Slovo.KeycapText" Color="#1C1B19" />
+      <SolidColorBrush x:Key="Slovo.Success" Color="#2E7D4F" />
+      <SolidColorBrush x:Key="Slovo.SuccessSoft" Color="#1F2E7D4F" />
+      <SolidColorBrush x:Key="Slovo.Warning" Color="#9A5806" />
+      <SolidColorBrush x:Key="Slovo.WarningSoft" Color="#33F4A259" />
+      <SolidColorBrush x:Key="Slovo.Destructive" Color="#B42318" />
+      <SolidColorBrush x:Key="Slovo.DestructiveSoft" Color="#17B42318" />
+      <SolidColorBrush x:Key="Slovo.SecondaryAccent" Color="#1B7081" />
+      <SolidColorBrush x:Key="Slovo.CalendarEmpty" Color="#ECE8E0" />
+      <SolidColorBrush x:Key="Slovo.Calendar1" Color="#D9D0FD" />
+      <SolidColorBrush x:Key="Slovo.Calendar2" Color="#B5A4FC" />
+      <SolidColorBrush x:Key="Slovo.Calendar3" Color="#977DFB" />
+      <SolidColorBrush x:Key="Slovo.Calendar4" Color="#7050F0" />
+      <SolidColorBrush x:Key="Slovo.ToggleKnob" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="Slovo.Speaker0" Color="#6A48F0" />
+      <SolidColorBrush x:Key="Slovo.Speaker1" Color="#1B7081" />
+      <SolidColorBrush x:Key="Slovo.Speaker2" Color="#B4461C" />
+      <SolidColorBrush x:Key="Slovo.Speaker3" Color="#2B7338" />
+      <SolidColorBrush x:Key="Slovo.Speaker4" Color="#B02F74" />
+      <SolidColorBrush x:Key="Slovo.Speaker5" Color="#2F62B8" />
+      <SolidColorBrush x:Key="Slovo.Speaker6" Color="#8A5F00" />
+      <SolidColorBrush x:Key="Slovo.Speaker7" Color="#5F6F12" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="Slovo.WindowBackground" Color="#1B1A18" />
+      <SolidColorBrush x:Key="Slovo.SidebarBackground" Color="#1B1A18" />
+      <SolidColorBrush x:Key="Slovo.PanelBackground" Color="#232220" />
+      <SolidColorBrush x:Key="Slovo.PanelBorder" Color="#34322E" />
+      <SolidColorBrush x:Key="Slovo.Divider" Color="#2E2C29" />
+      <SolidColorBrush x:Key="Slovo.FieldBackground" Color="#1B1A18" />
+      <SolidColorBrush x:Key="Slovo.SidebarSelection" Color="#2F2D2A" />
+      <SolidColorBrush x:Key="Slovo.RowHover" Color="#2A2926" />
+      <SolidColorBrush x:Key="Slovo.InsetBackground" Color="#1D1C1A" />
+      <SolidColorBrush x:Key="Slovo.TextPrimary" Color="#EEEAE3" />
+      <SolidColorBrush x:Key="Slovo.TextSecondary" Color="#A39E94" />
+      <SolidColorBrush x:Key="Slovo.PrimaryButtonBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="Slovo.PrimaryButtonText" Color="#161514" />
+      <SolidColorBrush x:Key="Slovo.SecondaryButtonBackground" Color="#34322E" />
+      <SolidColorBrush x:Key="Slovo.SecondaryButtonText" Color="#EEEAE3" />
+      <SolidColorBrush x:Key="Slovo.Accent" Color="#8F74FB" />
+      <SolidColorBrush x:Key="Slovo.AccentText" Color="#AE9BFC" />
+      <SolidColorBrush x:Key="Slovo.AccentSoft" Color="#338F74FB" />
+      <SolidColorBrush x:Key="Slovo.KeycapFill" Color="#F4A259" />
+      <SolidColorBrush x:Key="Slovo.KeycapBorder" Color="#0F0E0D" />
+      <SolidColorBrush x:Key="Slovo.KeycapText" Color="#1C1B19" />
+      <SolidColorBrush x:Key="Slovo.Success" Color="#5CC48A" />
+      <SolidColorBrush x:Key="Slovo.SuccessSoft" Color="#295CC48A" />
+      <SolidColorBrush x:Key="Slovo.Warning" Color="#E9A94B" />
+      <SolidColorBrush x:Key="Slovo.WarningSoft" Color="#24E9A94B" />
+      <SolidColorBrush x:Key="Slovo.Destructive" Color="#F97066" />
+      <SolidColorBrush x:Key="Slovo.DestructiveSoft" Color="#24F97066" />
+      <SolidColorBrush x:Key="Slovo.SecondaryAccent" Color="#5EC4D6" />
+      <SolidColorBrush x:Key="Slovo.CalendarEmpty" Color="#2F2D2A" />
+      <SolidColorBrush x:Key="Slovo.Calendar1" Color="#3F3766" />
+      <SolidColorBrush x:Key="Slovo.Calendar2" Color="#5B4BA3" />
+      <SolidColorBrush x:Key="Slovo.Calendar3" Color="#7A62D8" />
+      <SolidColorBrush x:Key="Slovo.Calendar4" Color="#A48BFF" />
+      <SolidColorBrush x:Key="Slovo.ToggleKnob" Color="#F4F1EC" />
+      <SolidColorBrush x:Key="Slovo.Speaker0" Color="#AE9BFC" />
+      <SolidColorBrush x:Key="Slovo.Speaker1" Color="#5EC4D6" />
+      <SolidColorBrush x:Key="Slovo.Speaker2" Color="#F2946B" />
+      <SolidColorBrush x:Key="Slovo.Speaker3" Color="#7CCB84" />
+      <SolidColorBrush x:Key="Slovo.Speaker4" Color="#F08BC0" />
+      <SolidColorBrush x:Key="Slovo.Speaker5" Color="#86ACF7" />
+      <SolidColorBrush x:Key="Slovo.Speaker6" Color="#E2B455" />
+      <SolidColorBrush x:Key="Slovo.Speaker7" Color="#B9C86A" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <!-- The Flow bar is dark in both themes. -->
+  <SolidColorBrush x:Key="Slovo.FlowBarBackground" Color="#161514" />
+  <SolidColorBrush x:Key="Slovo.FlowBarIdle" Color="#8F8A81" />
+  <SolidColorBrush x:Key="Slovo.FlowBarForeground" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="Slovo.FlowBarSecondary" Color="#ADFFFFFF" />
+  <SolidColorBrush x:Key="Slovo.FlowBarButtonBackground" Color="#24FFFFFF" />
+  <SolidColorBrush x:Key="Slovo.FlowBarBorder" Color="#24FFFFFF" />
+  <SolidColorBrush x:Key="Slovo.FlowBarAccent" Color="#A48BFF" />
+  <SolidColorBrush x:Key="Slovo.FlowBarWarning" Color="#F4A259" />
+  <SolidColorBrush x:Key="Slovo.HighlightStar" Color="#E9A94B" />
+
+  <LinearGradientBrush x:Key="Slovo.BannerBackground" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0" Color="#1E1A17" />
+    <GradientStop Offset="1" Color="#4A3A30" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="Slovo.BannerText" Color="#FBFAF7" />
+  <SolidColorBrush x:Key="Slovo.BannerSecondaryText" Color="#D8CFC4" />
+  <SolidColorBrush x:Key="Slovo.BannerButtonBackground" Color="#FBFAF7" />
+  <SolidColorBrush x:Key="Slovo.BannerButtonText" Color="#1C1B19" />
+
+  <!-- Type: Segoe UI Variable on Windows 11, Segoe UI on 10, Inter elsewhere; a serif for
+       banners, big numbers and style samples (New York on macOS). -->
+  <FontFamily x:Key="Slovo.UIFont">Segoe UI Variable Text, Segoe UI, avares://Avalonia.Fonts.Inter/Assets#Inter</FontFamily>
+  <FontFamily x:Key="Slovo.SerifFont">Georgia, Cambria, Times New Roman</FontFamily>
+  <FontFamily x:Key="Slovo.MonoFont">Cascadia Mono, Consolas, Menlo, monospace</FontFamily>
+
+  <CornerRadius x:Key="Slovo.PanelRadius">16</CornerRadius>
+  <CornerRadius x:Key="Slovo.CardRadius">12</CornerRadius>
+  <CornerRadius x:Key="Slovo.RowRadius">8</CornerRadius>
+  <CornerRadius x:Key="Slovo.ButtonRadius">8</CornerRadius>
+</ResourceDictionary>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Everything platform-neutral: the data model and its on-disk format (shared with the
+       macOS app), the text pipeline, stores, meeting logic, the MCP server and the
+       service interfaces the platform layer implements. No UI, no Windows APIs. -->
+  <PropertyGroup>
+    <RootNamespace>Slovo.Core</RootNamespace>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Slovo.Core.Tests" />
+    <InternalsVisibleTo Include="Slovo.Engines" />
+    <InternalsVisibleTo Include="Slovo.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- SlovoCore's string tables are the source of truth for both apps; the Windows
+         overrides next to them replace only the lines that name macOS. -->
+    <EmbeddedResource Include="$(SlovoRepoRoot)/Sources/SlovoCore/Resources/**/*.strings" LogicalName="Slovo.Strings.Core/%(RecursiveDir)%(Filename).strings" Link="Strings/Shared/%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Strings/**/*.strings" LogicalName="Slovo.Strings.CoreWindows/%(RecursiveDir)%(Filename).strings" />
+    <EmbeddedResource Include="$(SlovoRepoRoot)/Sources/SlovoCore/Resources/vocabulary.txt" LogicalName="Slovo.Resources.vocabulary.txt" Link="Resources/vocabulary.txt" />
+  </ItemGroup>
+</Project>

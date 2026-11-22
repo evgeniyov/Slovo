@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Slovo</string>
+    <string name="app_subtitle">Voice inbox</string>
+
+    <string name="mode_note">Note</string>
+    <string name="mode_meeting">Meeting</string>
+    <string name="mode_note_hint">One thought, dictated in a breath</string>
+    <string name="mode_meeting_hint">The phone lies on the table for an hour or two</string>
+
+    <string name="record_note">Record</string>
+    <string name="record_meeting">Start meeting</string>
+    <string name="stop">Stop</string>
+
+    <string name="status_idle">Ready</string>
+    <string name="status_recording_note">Recording a note</string>
+    <string name="status_recording_meeting">Recording a meeting</string>
+    <string name="status_saving">Saving</string>
+
+    <string name="mark_moment">Mark moment</string>
+    <string name="moments_none">No moments marked</string>
+    <string name="moment_marked">Moment %1$d · %2$s</string>
+    <string name="screen_off_hint">Recording continues with the screen off</string>
+
+    <string name="waiting_title">Waiting to go</string>
+    <string name="waiting_empty_title">Nothing is waiting</string>
+    <string name="waiting_empty_body">Everything recorded has reached the Mac.</string>
+    <string name="folder_hint">They reach the Mac over the cable</string>
+
+    <string name="kind_note">Note</string>
+    <string name="kind_meeting">Meeting</string>
+    <string name="clip_without_details">details missing, the Mac will take it as a plain note</string>
+
+    <string name="clip_delete">Delete</string>
+    <string name="delete_title">Delete this recording?</string>
+    <string name="delete_body">It has not reached the Mac yet. This cannot be undone.</string>
+    <string name="delete_failed">The recording could not be deleted</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="permission_needed">Slovo needs the microphone to record</string>
+    <string name="save_failed">The recording could not be saved</string>
+    <string name="save_without_details">The recording was saved, but its details were not: the Mac will take it as a plain note</string>
+    <string name="record_failed">Recording could not be started</string>
+
+    <string name="notification_channel">Recording</string>
+    <string name="notification_saving">Saving the recording</string>
+    <string name="notification_moment">Moment</string>
+
+    <plurals name="moments_count">
+        <item quantity="one">%d moment</item>
+        <item quantity="other">%d moments</item>
+    </plurals>
+
+    <plurals name="clips_waiting">
+        <item quantity="one">%d recording</item>
+        <item quantity="other">%d recordings</item>
+    </plurals>
+</resources>

@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Slovo.App/Slovo.App.csproj" />
+    <Project Path="src/Slovo.Core/Slovo.Core.csproj" />
+    <Project Path="src/Slovo.Engines/Slovo.Engines.csproj" />
+    <Project Path="src/Slovo.Platform.Windows/Slovo.Platform.Windows.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Slovo.App.Tests/Slovo.App.Tests.csproj" />
+    <Project Path="tests/Slovo.Core.Tests/Slovo.Core.Tests.csproj" />
+    <Project Path="tests/Slovo.Engines.Tests/Slovo.Engines.Tests.csproj" />
+    <Project Path="tests/Slovo.Platform.Windows.Tests/Slovo.Platform.Windows.Tests.csproj" />
+  </Folder>
+</Solution>

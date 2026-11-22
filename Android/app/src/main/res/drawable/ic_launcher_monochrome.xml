@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The themed-icon layer: the system keeps only the shape and paints it itself. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#000000" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M26,43 L26,65" />
+    <path android:strokeColor="#000000" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M40,35 L40,73" />
+    <path android:strokeColor="#000000" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M54,27 L54,81" />
+    <path android:strokeColor="#000000" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M68,35 L68,73" />
+    <path android:strokeColor="#000000" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M82,43 L82,65" />
+</vector>

@@ -1,0 +1,7 @@
+/* JSON stores, retention and insights. Owned by the input module. */
+
+"storage.error.saveFailed" = "Could not save %1$@: %2$@";
+"storage.error.corruptMovedAside" = "%@ was damaged and has been moved aside; starting empty";
+"storage.error.entriesSkipped" = "Some entries in %1$@ could not be read and were skipped; the original file was kept as %2$@";
+"storage.error.notSetAside" = "%@ could not be read or set aside, so changes to it are not saved until the file is fixed or removed";
+"storage.error.savingDisabled" = "%@ was not saved: its unreadable original could not be set aside";

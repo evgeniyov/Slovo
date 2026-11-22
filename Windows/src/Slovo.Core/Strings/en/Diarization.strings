@@ -1,0 +1,5 @@
+/* Windows overrides and additions for the speaker model (pyannote segmentation and a speaker
+   embedding model on sherpa-onnx). Owned by the engines module. */
+
+"diarization.error.unsupportedSystem" = "Speaker separation is not available on this computer";
+"diarization.error.sherpaRejected" = "sherpa-onnx did not accept the model files in %@";

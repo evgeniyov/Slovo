@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Slovo.App.ViewModels.Settings"
+        xmlns:v="using:Slovo.App.Views"
+        xmlns:vs="using:Slovo.App.Views.Settings"
+        xmlns:c="using:Slovo.App.Controls"
+        xmlns:loc="using:Slovo.App.Localization"
+        x:Class="Slovo.App.Views.Settings.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="{Binding Title}"
+        Width="820" Height="620" MinWidth="720" MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource Slovo.InsetBackground}"
+        Icon="avares://Slovo/Assets/slovo.ico">
+  <Panel>
+  <Grid ColumnDefinitions="214,1,*">
+    <StackPanel Grid.Column="0" Background="{DynamicResource Slovo.WindowBackground}" Spacing="2">
+      <TextBlock Classes="SectionTitle" Text="{loc:T settings.title}" Margin="20,22,10,14" />
+      <ItemsControl ItemsSource="{Binding Sections}" Margin="10,0">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate><StackPanel Spacing="2" /></ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:SettingsSectionItem">
+            <Button Classes="SidebarRow" Classes.Selected="{Binding IsSelected}"
+                    Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).SelectCommand}"
+                    CommandParameter="{Binding Section}">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <c:StrokeIcon Icon="{Binding IconKey, Converter={x:Static v:ViewConverters.IconByKey}}" />
+                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+    <Border Grid.Column="1" Background="{DynamicResource Slovo.PanelBorder}" />
+    <DockPanel Grid.Column="2">
+      <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="28,20,20,14">
+        <TextBlock Classes="PageTitle" Text="{Binding Title}" />
+        <Button Grid.Column="1" Classes="Ghost" Command="{Binding CloseCommand}" ToolTip.Tip="{loc:T common.close}"
+                AutomationProperties.Name="{loc:T common.close}">
+          <c:StrokeIcon Icon="{StaticResource Icon.Close}" />
+        </Button>
+      </Grid>
+      <Border DockPanel.Dock="Top" Classes="Error" Margin="28,0,28,10" IsVisible="{Binding Alert, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="{Binding Alert}" />
+          <Button Grid.Column="1" Classes="Link" Content="{loc:T common.ok}" Command="{Binding DismissAlertCommand}" />
+        </Grid>
+      </Border>
+      <ScrollViewer>
+        <ContentControl Content="{Binding Current}" Margin="28,6,28,28" />
+      </ScrollViewer>
+    </DockPanel>
+  </Grid>
+  <Border Classes="SheetScrim" IsVisible="{Binding HasSheet}">
+    <Border Classes="Sheet">
+      <ContentControl Content="{Binding Sheet}" />
+    </Border>
+  </Border>
+  </Panel>
+</Window>

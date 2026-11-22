@@ -1,0 +1,32 @@
+{
+  "createdAt" : 810799200.0,
+  "duration" : 1e20,
+  "formatVersion" : 2,
+  "hasAudio" : false,
+  "hasSystemAudio" : false,
+  "highlights" : [
+    {
+      "createdAt" : 810799200.0,
+      "id" : "9B1C0000-0000-4000-8000-000000000009",
+      "source" : "transcript",
+      "time" : 1e300
+    }
+  ],
+  "id" : "E0E0E0E0-0000-4000-8000-000000000003",
+  "segments" : [
+    {
+      "end" : -1,
+      "speaker" : "me",
+      "start" : -5,
+      "text" : "Before the start."
+    },
+    {
+      "end" : 1e19,
+      "speaker" : "me",
+      "start" : 9.3e18,
+      "text" : "After the end of time."
+    }
+  ],
+  "status" : "transcribed",
+  "title" : "Extreme times"
+}

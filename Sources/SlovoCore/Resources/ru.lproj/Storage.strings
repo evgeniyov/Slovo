@@ -1,0 +1,7 @@
+/* JSON stores, retention and insights. Owned by the input module. */
+
+"storage.error.saveFailed" = "Не удалось сохранить %1$@: %2$@";
+"storage.error.corruptMovedAside" = "Файл %@ был повреждён и отложен в сторону, начинаем с пустого";
+"storage.error.entriesSkipped" = "Часть записей в %1$@ не удалось прочитать, они пропущены; исходный файл сохранён как %2$@";
+"storage.error.notSetAside" = "Файл %@ не удалось прочитать и отложить в сторону, поэтому изменения в нём не сохраняются, пока файл не исправят или не удалят";
+"storage.error.savingDisabled" = "%@ не сохранён: нечитаемый исходный файл не удалось отложить в сторону";

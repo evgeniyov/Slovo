@@ -1,0 +1,28 @@
+/* Speech engines and audio file loading. */
+
+"engines.gigaam.missingFiles" = "GigaAM v3 model files are missing (%1$@): %2$@.";
+"engines.gigaam.damagedFiles" = "GigaAM v3 model files (%1$@) are damaged or incomplete: %2$@.";
+"engines.gigaam.expectedFolder" = "Expected in %@";
+"engines.gigaam.recognizerFailed" = "sherpa-onnx could not create the GigaAM v3 recognizer from %@";
+"engines.gigaam.streamFailed" = "sherpa-onnx did not create a recognition stream";
+"engines.gigaam.noResult" = "sherpa-onnx returned no recognition result";
+
+"engines.parakeet.transcribeFailed" = "Parakeet could not transcribe the recording: %@";
+"engines.parakeet.downloadFailed" = "Could not download the Parakeet model: %@";
+"engines.parakeet.notDownloaded" = "The Parakeet model is not downloaded (expected in %@). Download it in Settings → Recognition.";
+"engines.parakeet.filesMissingAfterDownload" = "Parakeet model files are missing in %@ after the download";
+"engines.parakeet.loadFailed" = "Could not load the Parakeet model from %1$@: %2$@. Delete this folder and the model will download again.";
+
+"engines.apple.unsupportedLocale" = "DictationTranscriber does not support %@";
+"engines.apple.assetsMissing" = "Dictation language files for %@ are not installed. Turn on dictation in this language: System Settings → Keyboard → Dictation.";
+
+"engines.audioLoader.bufferFailed" = "Could not prepare a buffer for %@";
+"engines.audioLoader.converterFailed" = "Could not create a sample rate converter";
+"engines.audioLoader.conversionBufferFailed" = "Could not prepare a buffer for conversion";
+"engines.audioLoader.conversionFailed" = "Audio conversion failed";
+"engines.audioLoader.noData" = "The converter returned no data";
+
+"engines.whisper.notDownloaded" = "The Whisper model is not downloaded (expected in %@). Download it in Settings → Recognition.";
+"engines.whisper.damaged" = "The Whisper model file %@ is incomplete. Download it again in Settings → Recognition.";
+"engines.whisper.loadFailed" = "whisper.cpp could not load the Whisper model from %@";
+"engines.whisper.transcribeFailed" = "whisper.cpp could not transcribe the recording (code %ld)";

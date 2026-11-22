@@ -1,0 +1,28 @@
+/* Speech engines and audio file loading. */
+
+"engines.gigaam.missingFiles" = "Не хватает файлов модели GigaAM v3 (%1$@): %2$@.";
+"engines.gigaam.damagedFiles" = "Файлы модели GigaAM v3 (%1$@) повреждены или скачаны не полностью: %2$@.";
+"engines.gigaam.expectedFolder" = "Ожидались в папке %@";
+"engines.gigaam.recognizerFailed" = "sherpa-onnx не смог создать распознаватель GigaAM v3 из %@";
+"engines.gigaam.streamFailed" = "sherpa-onnx не создал поток распознавания";
+"engines.gigaam.noResult" = "sherpa-onnx не вернул результат распознавания";
+
+"engines.parakeet.transcribeFailed" = "Parakeet не смог расшифровать запись: %@";
+"engines.parakeet.downloadFailed" = "Не удалось скачать модель Parakeet: %@";
+"engines.parakeet.notDownloaded" = "Модель Parakeet не скачана (ожидалась в %@). Скачайте её в Настройках → Распознавание.";
+"engines.parakeet.filesMissingAfterDownload" = "После скачивания в %@ не хватает файлов модели Parakeet";
+"engines.parakeet.loadFailed" = "Не удалось загрузить модель Parakeet из %1$@: %2$@. Удалите эту папку, и модель скачается заново.";
+
+"engines.apple.unsupportedLocale" = "DictationTranscriber не поддерживает язык %@";
+"engines.apple.assetsMissing" = "Языковые файлы диктовки для %@ не установлены. Включите диктовку на этом языке: Системные настройки → Клавиатура → Диктовка.";
+
+"engines.audioLoader.bufferFailed" = "Не удалось подготовить буфер для %@";
+"engines.audioLoader.converterFailed" = "Не удалось создать конвертер частоты дискретизации";
+"engines.audioLoader.conversionBufferFailed" = "Не удалось подготовить буфер для конвертации";
+"engines.audioLoader.conversionFailed" = "Ошибка конвертации аудио";
+"engines.audioLoader.noData" = "Конвертер не вернул данные";
+
+"engines.whisper.notDownloaded" = "Модель Whisper не скачана (ожидалась в %@). Скачайте её в Настройках → Распознавание.";
+"engines.whisper.damaged" = "Файл модели Whisper %@ скачан не полностью. Скачайте его заново в Настройках → Распознавание.";
+"engines.whisper.loadFailed" = "whisper.cpp не смог загрузить модель Whisper из %@";
+"engines.whisper.transcribeFailed" = "whisper.cpp не смог расшифровать запись (код %ld)";

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">20dp</dimen>
+    <!-- The elapsed time is the one thing readable from across a table, so it gets the
+         largest type the narrowest supported screen can hold. -->
+    <dimen name="timer_size">62sp</dimen>
+    <!-- The air the status line and the timer stand in. Fixed, so a long waiting list
+         pushes the page into scrolling instead of squeezing the timer. -->
+    <dimen name="stage_height">240dp</dimen>
+    <!-- The waiting list follows the recorder down the page and needs air above it;
+         in landscape it starts at the top of its own column and needs none. -->
+    <dimen name="waiting_gap">28dp</dimen>
+</resources>

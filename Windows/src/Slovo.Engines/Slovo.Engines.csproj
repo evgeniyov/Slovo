@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Speech engines on sherpa-onnx: GigaAM v3 (RNNT and CTC), Parakeet TDT v3 and
+       speaker separation. The same ONNX model files the macOS app downloads for GigaAM. -->
+  <PropertyGroup>
+    <RootNamespace>Slovo.Engines</RootNamespace>
+    <!-- The sherpa-onnx C API is called through source-generated P/Invoke with pointers. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Slovo.Core/Slovo.Core.csproj" />
+    <PackageReference Include="org.k2fsa.sherpa.onnx" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Slovo.Engines.Tests" />
+  </ItemGroup>
+</Project>

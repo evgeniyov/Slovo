@@ -1,0 +1,40 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Slovo.App.Controls">
+  <Style Selector="c|SettingsRow">
+    <Setter Property="Padding" Value="0,10" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="*,Auto" Margin="{TemplateBinding Padding}">
+          <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center" Margin="0,0,16,0">
+            <TextBlock Text="{TemplateBinding Title}" TextWrapping="Wrap" />
+            <TextBlock Classes="Caption" Text="{TemplateBinding Detail}" TextWrapping="Wrap"
+                       IsVisible="{TemplateBinding Detail, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          </StackPanel>
+          <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="c|SettingsGroup">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel Spacing="8">
+          <TextBlock Classes="SectionLabel" Text="{TemplateBinding Header}" Margin="2,0,0,0" />
+          <Border Classes="Card" Padding="16,4">
+            <ItemsPresenter />
+          </Border>
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel />
+      </ItemsPanelTemplate>
+    </Setter>
+  </Style>
+  <!-- A hairline between rows of a group. -->
+  <Style Selector="c|SettingsGroup > c|SettingsRow">
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+</Styles>

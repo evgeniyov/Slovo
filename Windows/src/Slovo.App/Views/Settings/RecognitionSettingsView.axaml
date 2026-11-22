@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Settings"
+             xmlns:vs="using:Slovo.App.Views.Settings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Settings.RecognitionSettingsView"
+             x:DataType="vm:RecognitionSettingsViewModel">
+  <StackPanel Spacing="22">
+    <c:SettingsGroup Header="{loc:T settings.group.engines}">
+      <c:SettingsRow Title="{loc:T settings.recognition.russian}" Detail="{loc:T settings.recognition.russian.detail}">
+        <ComboBox ItemsSource="{Binding RussianChoices}" SelectedItem="{Binding SelectedRussian}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.recognition.english}" Detail="{loc:T settings.recognition.english.detail}">
+        <ComboBox ItemsSource="{Binding EnglishChoices}" SelectedItem="{Binding SelectedEnglish}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.recognition.meetingsEngine}" Detail="{loc:T settings.recognition.meetingsEngine.detail}">
+        <ComboBox ItemsSource="{Binding MeetingChoices}" SelectedItem="{Binding SelectedMeeting}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.recognition.idle}" Detail="{loc:T settings.recognition.idle.detail}">
+        <ComboBox ItemsSource="{Binding IdleChoices}" SelectedItem="{Binding SelectedIdle}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+    <StackPanel Spacing="8">
+      <TextBlock Classes="SectionLabel" Text="{loc:T settings.recognition.models}" />
+      <Border Classes="Card" Padding="16,4">
+        <ItemsControl ItemsSource="{Binding Models}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ModelRowViewModel"><vs:ModelRowView /></DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+      <TextBlock Classes="Caption" Text="{loc:T settings.recognition.models.footer}" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

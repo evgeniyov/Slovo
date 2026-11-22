@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Screens"
+             xmlns:core="using:Slovo.Core.Model"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Screens.SnippetsView"
+             x:DataType="vm:SnippetsViewModel">
+  <ScrollViewer>
+    <StackPanel Spacing="18" Margin="32,28">
+      <c:PageHeader Title="{loc:T sidebar.snippets}" Subtitle="{loc:T snippets.subtitle}">
+        <Button Classes="Primary" Command="{Binding AddNewCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <c:StrokeIcon Icon="{StaticResource Icon.Plus}" Width="13" Height="13" />
+            <TextBlock Text="{loc:T common.addNew}" />
+          </StackPanel>
+        </Button>
+      </c:PageHeader>
+
+      <c:BannerCard Headline="{loc:T snippets.banner.headline}" Message="{loc:T snippets.banner.message}"
+                    DismissCommand="{Binding DismissBannerCommand}" IsVisible="{Binding IsBannerVisible}">
+        <ItemsControl ItemsSource="{Binding Examples}" Margin="0,2,0,0">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:SnippetExample">
+              <Border Background="#1AFFFFFF" CornerRadius="6" Padding="8,3" Margin="0,0,8,6">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Foreground="{DynamicResource Slovo.BannerText}" FontWeight="Medium" Text="{Binding Trigger}" />
+                  <TextBlock Foreground="{DynamicResource Slovo.BannerSecondaryText}" Text="→" />
+                  <TextBlock Foreground="{DynamicResource Slovo.BannerSecondaryText}" Text="{Binding Text}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </c:BannerCard>
+
+      <c:SearchBox Text="{Binding Query}" PlaceholderText="{loc:T snippets.search}" HorizontalAlignment="Right" IsVisible="{Binding !IsEmpty}" />
+
+      <c:EmptyState Icon="{StaticResource Icon.Braces}" Title="{loc:T snippets.empty.title}" Message="{loc:T snippets.empty.message}"
+                    ActionText="{loc:T common.addNew}" ActionCommand="{Binding AddNewCommand}" IsVisible="{Binding IsEmpty}" />
+      <c:EmptyState Icon="{StaticResource Icon.Search}" Title="{loc:T common.nothingFound}" Message="{loc:T snippets.search.empty}"
+                    IsVisible="{Binding NothingFound}" />
+
+      <Border Classes="List" IsVisible="{Binding HasRows}">
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="core:Snippet">
+              <Border Classes="Row" Focusable="True" DoubleTapped="OnRowDoubleTapped">
+                <Grid ColumnDefinitions="220,*,Auto">
+                  <TextBlock Classes="Medium" Text="{Binding Trigger}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,12,0" />
+                  <TextBlock Grid.Column="1" Classes="Secondary" Text="{Binding Expansion}" TextTrimming="CharacterEllipsis" MaxLines="1" VerticalAlignment="Center" />
+                  <StackPanel Grid.Column="2" Classes="RowActions" Orientation="Horizontal">
+                    <Button Classes="Ghost" ToolTip.Tip="{loc:T common.edit}" AutomationProperties.Name="{loc:T common.edit}"
+                            Command="{Binding $parent[UserControl].((vm:SnippetsViewModel)DataContext).EditCommand}" CommandParameter="{Binding}">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Edit}" Width="14" Height="14" />
+                    </Button>
+                    <Button Classes="Ghost" ToolTip.Tip="{loc:T common.delete}" AutomationProperties.Name="{loc:T common.delete}"
+                            Command="{Binding $parent[UserControl].((vm:SnippetsViewModel)DataContext).DeleteCommand}" CommandParameter="{Binding}">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Trash}" Width="14" Height="14" />
+                    </Button>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Settings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Settings.SystemSettingsView"
+             x:DataType="vm:SystemSettingsViewModel">
+  <StackPanel Spacing="22">
+    <c:SettingsGroup Header="{loc:T settings.group.startup}">
+      <c:SettingsRow Title="{loc:T settings.system.launchAtLogin}" Detail="{loc:T settings.system.launchAtLogin.detail}">
+        <ToggleSwitch IsChecked="{Binding LaunchAtLogin}" AutomationProperties.Name="{loc:T settings.system.launchAtLogin}" />
+      </c:SettingsRow>
+      <Border Classes="Error" Margin="0,0,0,10" IsVisible="{Binding LaunchAtLoginError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding LaunchAtLoginError}" />
+      </Border>
+    </c:SettingsGroup>
+    <c:SettingsGroup Header="{loc:T settings.group.appearance}">
+      <c:SettingsRow Title="{loc:T settings.system.flowBarIdle}" Detail="{loc:T settings.system.flowBarIdle.detail}">
+        <ToggleSwitch IsChecked="{Binding ShowFlowBarWhenIdle}" AutomationProperties.Name="{loc:T settings.system.flowBarIdle}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.system.sounds}" Detail="{loc:T settings.system.sounds.detail}">
+        <ToggleSwitch IsChecked="{Binding SoundsEnabled}" AutomationProperties.Name="{loc:T settings.system.sounds}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.system.menuBarIcon}" Detail="{loc:T settings.system.menuBarIcon.detail}">
+        <ToggleSwitch IsChecked="{Binding ShowMenuBarIcon}" AutomationProperties.Name="{loc:T settings.system.menuBarIcon}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+    <Border Classes="Inset">
+      <TextBlock Classes="Secondary" Text="{loc:T settings.system.elevated}" TextWrapping="Wrap" />
+    </Border>
+  </StackPanel>
+</UserControl>

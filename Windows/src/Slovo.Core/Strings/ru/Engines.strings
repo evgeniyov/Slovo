@@ -1,0 +1,10 @@
+/* Windows additions to the engine messages: Parakeet runs on sherpa-onnx like GigaAM, and
+   models download over HttpClient. Owned by the engines module. */
+
+"engines.parakeet.damagedFiles" = "Файлы модели Parakeet v3 повреждены или скачаны не полностью: %1$@. Ожидались в папке %2$@";
+"engines.parakeet.recognizerFailed" = "sherpa-onnx не смог создать распознаватель Parakeet v3 из %@";
+
+"engines.apple.unavailable" = "Apple Dictation есть только на Mac";
+
+"engines.download.truncated" = "соединение оборвалось до конца скачивания";
+"engines.download.stalled" = "данные не приходили %ld секунд";

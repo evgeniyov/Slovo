@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Slovo}",
+            "name": "Debug slovo-bench",
+            "target": "slovo-bench",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug slovo-bench"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Slovo}",
+            "name": "Release slovo-bench",
+            "target": "slovo-bench",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release slovo-bench"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Slovo}",
+            "name": "Debug Slovo",
+            "target": "Slovo",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug Slovo"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Slovo}",
+            "name": "Release Slovo",
+            "target": "Slovo",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release Slovo"
+        }
+    ]
+}

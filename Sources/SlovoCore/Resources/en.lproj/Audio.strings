@@ -1,0 +1,8 @@
+/* Microphone capture, input devices and WAV files. Owned by the dictation module. */
+
+"audio.error.noInputDevice" = "No microphone is available";
+"audio.error.engineStartFailed" = "Could not start the microphone: %@";
+"audio.error.formatUnsupported" = "The microphone's audio format is not supported";
+"audio.error.writeFailed" = "Could not save the recording: %@";
+"audio.error.readFailed" = "Could not read the recording %1$@: %2$@";
+"audio.error.unreadableWAV" = "%@ is not a WAV recording Slovo can read";

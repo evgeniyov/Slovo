@@ -1,0 +1,42 @@
+<!-- Line icons on a 24×24 grid, drawn as strokes by Controls/StrokeIcon (the SF Symbols of
+     the macOS app have no Windows counterpart). -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StreamGeometry x:Key="Icon.Mic">M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1 -6 0V6a3 3 0 0 1 3 -3z M5 11a7 7 0 0 0 14 0 M12 18v3 M8.5 21h7</StreamGeometry>
+  <StreamGeometry x:Key="Icon.MicOff">M15 9V6a3 3 0 0 0 -5.8 -1.1 M9 9v3a3 3 0 0 0 5.1 2.1 M5 11a7 7 0 0 0 11.5 5.4 M19 11a7 7 0 0 1 -0.8 3.3 M12 18v3 M3 3l18 18</StreamGeometry>
+  <StreamGeometry x:Key="Icon.People">M9 11a3.5 3.5 0 1 0 0 -7a3.5 3.5 0 0 0 0 7z M2.5 20c0 -3.6 2.9 -6 6.5 -6s6.5 2.4 6.5 6 M16 4.5a3.3 3.3 0 0 1 0 6.3 M18 14.5c2.1 0.7 3.5 2.7 3.5 5.5</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Chart">M5 20v-6 M10 20V9 M15 20v-9 M20 20V5</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Book">M5 4.5A1.5 1.5 0 0 1 6.5 3H19v14H6.5A1.5 1.5 0 0 0 5 18.5z M5 18.5A1.5 1.5 0 0 0 6.5 20H19 M9 7h6</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Braces">M8 5H7a2 2 0 0 0 -2 2v3a2 2 0 0 1 -2 2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h1 M16 5h1a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2v3a2 2 0 0 1 -2 2h-1</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Pen">M4 20l4 -1l11 -11l-3 -3l-11 11z M14 7l3 3</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Note">M6 3h9l4 4v14H6z M15 3v4h4 M9 12h7 M9 16h5</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Sliders">M4 6h9 M17 6h3 M15 4v4 M4 12h3 M11 12h9 M9 10v4 M4 18h11 M19 18h1 M17 16v4</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Help">M12 21a9 9 0 1 0 0 -18a9 9 0 0 0 0 18z M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-0.6 0.3 -1 0.9 -1 1.6V14 M12 17.5v0.01</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Star">M12 3.5l2.6 5.3l5.9 0.9l-4.3 4.1l1 5.8L12 16.9l-5.2 2.7l1 -5.8l-4.3 -4.1l5.9 -0.9z</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Play">M8 5v14l11 -7z</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Pause">M8 5v14 M16 5v14</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Stop">M7 7h10v10H7z</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Copy">M9 9h10v11H9z M5 15V4h10</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Trash">M4 7h16 M10 11v6 M14 11v6 M6 7l1 13h10l1 -13 M9 7V4h6v3</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Close">M6 6l12 12 M18 6L6 18</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Plus">M12 5v14 M5 12h14</StreamGeometry>
+  <StreamGeometry x:Key="Icon.More">M6 12h0.01 M12 12h0.01 M18 12h0.01</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Folder">M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v10a1.5 1.5 0 0 1 -1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Export">M12 4v11 M7 10l5 5l5 -5 M5 20h14</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Refresh">M20 12a8 8 0 1 1 -2.3 -5.7 M20 4v4h-4</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Search">M11 18a7 7 0 1 0 0 -14a7 7 0 0 0 0 14z M16 16l4.5 4.5</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Check">M5 12.5l4.5 4.5L19 7.5</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Edit">M4 20h4L19 9l-4 -4L4 16z</StreamGeometry>
+  <StreamGeometry x:Key="Icon.ChevronRight">M9 6l6 6l-6 6</StreamGeometry>
+  <StreamGeometry x:Key="Icon.ChevronDown">M6 9l6 6l6 -6</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Sound">M4 9h4l5 -4v14l-5 -4H4z M17 9a4 4 0 0 1 0 6</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Warning">M12 4L2.5 20h19z M12 10v4 M12 17v0.01</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Import">M12 15V4 M7 9l5 -5l5 5 M5 20h14</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Sparkle">M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8 -5.2L5 10l5.2 -1.8z M19 16l0.8 2.2L22 19l-2.2 0.8L19 22l-0.8 -2.2L16 19l2.2 -0.8z</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Keyboard">M3 7h18v11H3z M7 11h0.01 M11 11h0.01 M15 11h0.01 M8 14.5h8</StreamGeometry>
+  <StreamGeometry x:Key="Icon.Link">M10 14a4 4 0 0 0 5.7 0l3 -3a4 4 0 0 0 -5.7 -5.7l-1 1 M14 10a4 4 0 0 0 -5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1 -1</StreamGeometry>
+  <!-- A screen with a picture on it (SF Symbols' rectangle.inset.filled): screen recording. -->
+  <StreamGeometry x:Key="Icon.Screen">M3 5h18v14H3z M7 9h10v6H7z</StreamGeometry>
+  <!-- A window of an app, for the screen picker's app rows. -->
+  <StreamGeometry x:Key="Icon.AppWindow">M4 5h16v14H4z M4 9h16</StreamGeometry>
+</ResourceDictionary>

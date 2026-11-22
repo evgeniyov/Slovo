@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Meetings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Meetings.PlaybackBarView"
+             x:DataType="vm:PlaybackBarViewModel">
+  <!-- Play/pause, the playhead, the scrubber, the length and the speed (the macOS PlaybackBar). -->
+  <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+    <Button Name="PlayButton" Classes="Ghost" Command="{Binding TogglePlayCommand}" VerticalAlignment="Center"
+            ToolTip.Tip="{Binding PlayPauseTitle}" AutomationProperties.Name="{Binding PlayPauseTitle}">
+      <Panel>
+        <c:StrokeIcon Icon="{StaticResource Icon.Play}" Width="14" Height="14" IsVisible="{Binding !IsPlaying}" />
+        <c:StrokeIcon Icon="{StaticResource Icon.Pause}" Width="14" Height="14" IsVisible="{Binding IsPlaying}" />
+      </Panel>
+    </Button>
+    <TextBlock Grid.Column="1" Classes="Caption" Text="{Binding CurrentTimeText}" FontFeatures="+tnum"
+               MinWidth="42" TextAlignment="Right" VerticalAlignment="Center" Margin="4,0,10,0" />
+    <c:PlaybackScrubber Name="Scrubber" Grid.Column="2" Fraction="{Binding Fraction}" Command="{Binding SeekCommand}" VerticalAlignment="Center"
+                        Fill="{DynamicResource Slovo.Accent}" Track="{DynamicResource Slovo.CalendarEmpty}" />
+    <TextBlock Grid.Column="3" Classes="Caption" Text="{Binding DurationText}" FontFeatures="+tnum"
+               MinWidth="42" VerticalAlignment="Center" Margin="10,0" />
+    <ComboBox Name="SpeedBox" Grid.Column="4" ItemsSource="{Binding RateChoices}" SelectedItem="{Binding SelectedRate}"
+              MinWidth="0" Width="76" MinHeight="26" Padding="10,2,4,2" FontSize="12" VerticalAlignment="Center"
+              ToolTip.Tip="{loc:T meetings.playback.speed}" AutomationProperties.Name="{loc:T meetings.playback.speed}" />
+  </Grid>
+</UserControl>

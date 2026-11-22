@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Screens"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Screens.HomeView"
+             x:DataType="vm:HomeViewModel">
+  <ScrollViewer>
+    <StackPanel Spacing="22" Margin="32,28">
+      <WrapPanel>
+        <TextBlock Classes="PageTitle" Text="{Binding Greeting}" VerticalAlignment="Center" Margin="0,0,10,0" />
+        <Border Classes="Keycap" Padding="9,2" Margin="0,0,10,0"><TextBlock Text="{Binding KeySymbol}" FontSize="17" /></Border>
+        <TextBlock Classes="PageTitle" Text="{loc:T home.greetingSuffix}" VerticalAlignment="Center" />
+      </WrapPanel>
+
+      <c:BannerCard Headline="{loc:T home.banner.headline}" Message="{loc:T home.banner.message}"
+                    ButtonText="{loc:T home.banner.button}" ButtonCommand="{Binding OpenDictionaryCommand}"
+                    DismissCommand="{Binding DismissBannerCommand}" IsVisible="{Binding IsBannerVisible}" />
+
+      <Border Classes="Card" Padding="22,18">
+        <ItemsControl ItemsSource="{Binding Stats}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:StatTile">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="StatNumber" Text="{Binding Value}" />
+                <TextBlock Classes="Medium" Text="{Binding Title}" />
+                <TextBlock Classes="Caption" Text="{Binding Caption}" IsVisible="{Binding Caption, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+
+      <c:EmptyState Icon="{StaticResource Icon.Mic}" Title="{loc:T home.empty.title}" Message="{Binding EmptyMessage}" IsVisible="{Binding !HasHistory}" />
+
+      <StackPanel Spacing="14" IsVisible="{Binding HasHistory}">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="SectionTitle" Text="{loc:T home.history}" VerticalAlignment="Center" />
+          <c:SearchBox Grid.Column="1" Width="260" Text="{Binding Query}" PlaceholderText="{loc:T home.search}" />
+        </Grid>
+        <c:EmptyState Icon="{StaticResource Icon.Search}" Title="{loc:T home.search.empty.title}" Message="{Binding NothingFoundMessage}" IsVisible="{Binding NothingFound}" />
+        <ItemsControl ItemsSource="{Binding Groups}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="16" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:HistoryDayGroup">
+              <StackPanel Spacing="8">
+                <TextBlock Classes="SectionLabel" Text="{Binding Title}" Margin="4,0,0,0" />
+                <Border Classes="List">
+                  <ItemsControl ItemsSource="{Binding Rows}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:HistoryRowViewModel">
+                        <Border Classes="Row" Focusable="True">
+                          <Grid ColumnDefinitions="56,*,Auto">
+                            <TextBlock Classes="Caption" Text="{Binding Time}" Margin="0,2,0,0" FontFeatures="+tnum" />
+                            <StackPanel Grid.Column="1" Spacing="3">
+                              <SelectableTextBlock Text="{Binding Entry.Text}" TextWrapping="Wrap" />
+                              <TextBlock Classes="Caption" Text="{Binding Meta}" />
+                              <TextBlock Classes="Caption" Text="{loc:T home.rerun.running}" IsVisible="{Binding IsRerunning}" Foreground="{DynamicResource Slovo.AccentText}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Classes="RowActions" Orientation="Horizontal" VerticalAlignment="Top" Margin="8,-4,0,0">
+                              <Button Classes="Ghost" IsVisible="{Binding HasAudio}" ToolTip.Tip="{loc:T home.action.play}" AutomationProperties.Name="{loc:T home.action.play}"
+                                      Command="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).TogglePlayCommand}" CommandParameter="{Binding}">
+                                <Panel>
+                                  <c:StrokeIcon Icon="{StaticResource Icon.Play}" Width="14" Height="14" IsVisible="{Binding !IsPlaying}" />
+                                  <c:StrokeIcon Icon="{StaticResource Icon.Stop}" Width="14" Height="14" IsVisible="{Binding IsPlaying}" />
+                                </Panel>
+                              </Button>
+                              <Button Classes="Ghost" ToolTip.Tip="{loc:T home.action.copy}" AutomationProperties.Name="{loc:T home.action.copy}"
+                                      Command="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).CopyCommand}" CommandParameter="{Binding}">
+                                <c:StrokeIcon Icon="{StaticResource Icon.Copy}" Width="14" Height="14" />
+                              </Button>
+                              <Button Classes="Ghost" IsVisible="{Binding CanRerun}" ToolTip.Tip="{loc:T home.action.rerun}" AutomationProperties.Name="{loc:T home.action.rerun}">
+                                <c:StrokeIcon Icon="{StaticResource Icon.Refresh}" Width="14" Height="14" />
+                                <Button.Flyout>
+                                  <MenuFlyout ItemsSource="{Binding RerunChoices}">
+                                    <MenuFlyout.ItemContainerTheme>
+                                      <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="vm:RerunChoice">
+                                        <Setter Property="Header" Value="{Binding Title}" />
+                                        <Setter Property="Command" Value="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).RerunCommand}" />
+                                        <Setter Property="CommandParameter" Value="{Binding}" />
+                                      </ControlTheme>
+                                    </MenuFlyout.ItemContainerTheme>
+                                  </MenuFlyout>
+                                </Button.Flyout>
+                              </Button>
+                              <Button Classes="Ghost" ToolTip.Tip="{loc:T home.action.delete}" AutomationProperties.Name="{loc:T home.action.delete}"
+                                      Command="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).DeleteCommand}" CommandParameter="{Binding}">
+                                <c:StrokeIcon Icon="{StaticResource Icon.Trash}" Width="14" Height="14" />
+                              </Button>
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Border>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

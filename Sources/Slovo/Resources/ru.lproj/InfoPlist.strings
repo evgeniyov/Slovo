@@ -1,0 +1,6 @@
+/* Permission prompts and bundle names shown by macOS. */
+
+"CFBundleName" = "Slovo";
+"CFBundleDisplayName" = "Slovo";
+"NSMicrophoneUsageDescription" = "Slovo использует микрофон, чтобы превращать речь в текст прямо на этом Mac.";
+"NSAudioCaptureUsageDescription" = "Slovo записывает системный звук во время записи встречи, чтобы расшифровать речь собеседников.";

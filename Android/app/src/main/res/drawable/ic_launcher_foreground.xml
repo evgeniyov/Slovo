@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Five bars of a level meter, the middle one in the paper colour of the Mac app: a
+     voice being written down. Everything stays inside the 66dp adaptive safe zone, so no
+     launcher mask can clip it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#8F74FB" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M26,43 L26,65" />
+    <path android:strokeColor="#8F74FB" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M40,35 L40,73" />
+    <path android:strokeColor="#EEEAE3" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M54,27 L54,81" />
+    <path android:strokeColor="#8F74FB" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M68,35 L68,73" />
+    <path android:strokeColor="#8F74FB" android:strokeWidth="8"
+        android:strokeLineCap="round" android:pathData="M82,43 L82,65" />
+</vector>

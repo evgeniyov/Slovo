@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Everything that starts, stops and describes a recording. Kept in its own file so
+     portrait can stack it above the waiting list and landscape can set it beside one,
+     without two copies of the same views drifting apart. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="@color/text_primary"
+        android:textSize="27sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_subtitle"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp" />
+
+    <!-- Chosen before the microphone opens: a note and a meeting are different
+         recordings, not two settings of one. -->
+    <LinearLayout
+        android:id="@+id/modeGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/card"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/modeNote"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/mode_note"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/modeMeeting"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/mode_meeting"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/modeHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:text="@string/mode_note_hint"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
+    <!-- A fixed height, not a weight. Inside a ScrollView a weighted child is handed a
+         negative share the moment the content outgrows the viewport, and LinearLayout
+         then measures it smaller than its own text: that cut the timer clean in half as
+         soon as the meeting card appeared below it. -->
+    <LinearLayout
+        android:id="@+id/stage"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/stage_height"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/liveDot"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/dot"
+                android:backgroundTint="@color/recording"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/spinner"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="8dp"
+                android:indeterminateTint="@color/accent_text"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.03"
+                android:text="@string/status_idle"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <!-- One fixed size, not auto-sizing. An auto-sizing TextView rescales its paint
+             without asking to be measured again, so it keeps the height it had at a
+             smaller size and slices the digits in half. At this size the longest the
+             timer can ever read, "1:47:12", still fits the narrowest supported screen. -->
+        <TextView
+            android:id="@+id/elapsed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="0:00"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/timer_size" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/meetingBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/card"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_moment" />
+
+            <TextView
+                android:id="@+id/moments"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/moments_none"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <!-- The last moment stays on screen instead of flashing past: it is the proof
+             that the tap landed, and it survives being looked at a minute later. -->
+        <TextView
+            android:id="@+id/momentConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="5dp"
+            android:alpha="0"
+            android:textColor="@color/accent_text"
+            android:textSize="13sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="14dp"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="10dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_screen_off" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/screen_off_hint"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- AppCompatButton, not Button: under a Material3 theme a plain Button is inflated
+         as a MaterialButton, which paints its own tinted background and silently ignores
+         android:background — the palette below would never reach the screen, and the red
+         of a running recording would stay accent purple. -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/markMoment"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/button_moment"
+        android:stateListAnimator="@null"
+        android:text="@string/mark_moment"
+        android:textAllCaps="false"
+        android:textColor="@color/accent_text"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/record"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/button_accent"
+        android:stateListAnimator="@null"
+        android:text="@string/record_note"
+        android:textAllCaps="false"
+        android:textColor="@color/on_accent"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

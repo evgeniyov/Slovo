@@ -1,0 +1,164 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Slovo.App.Onboarding"
+        xmlns:vs="using:Slovo.App.ViewModels.Settings"
+        xmlns:vss="using:Slovo.App.Views.Settings"
+        xmlns:v="using:Slovo.App.Views"
+        xmlns:c="using:Slovo.App.Controls"
+        xmlns:loc="using:Slovo.App.Localization"
+        x:Class="Slovo.App.Onboarding.OnboardingWindow"
+        x:DataType="vm:OnboardingViewModel"
+        Title="Slovo"
+        Width="720" Height="600" CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Slovo.WindowBackground}"
+        Icon="avares://Slovo/Assets/slovo.ico">
+  <Window.Styles>
+    <Style Selector="RadioButton.KeyCard">
+      <Setter Property="Margin" Value="0,0,0,8" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="Card" Background="{DynamicResource Slovo.PanelBackground}" BorderBrush="{DynamicResource Slovo.PanelBorder}"
+                  BorderThickness="1" CornerRadius="{DynamicResource Slovo.CardRadius}" Padding="14,10">
+            <ContentPresenter Content="{TemplateBinding Content}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="RadioButton.KeyCard:checked /template/ Border#Card">
+      <Setter Property="BorderBrush" Value="{DynamicResource Slovo.Accent}" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="Padding" Value="13,9" />
+    </Style>
+  </Window.Styles>
+  <DockPanel Margin="36,28">
+    <!-- Progress and navigation -->
+    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto" Margin="0,16,0,0">
+      <Button Classes="Secondary" Content="{loc:T common.back}" Command="{Binding BackCommand}" IsVisible="{Binding !IsFirst}" />
+      <TextBlock Grid.Column="1" Classes="Caption" Text="{Binding StepText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+      <Panel Grid.Column="2">
+        <Button Classes="Primary" Content="{loc:T common.continue}" Command="{Binding NextCommand}" IsVisible="{Binding !IsLast}" />
+        <Button Classes="Primary" Content="{loc:T common.finish}" Command="{Binding NextCommand}" IsVisible="{Binding IsLast}" />
+      </Panel>
+    </Grid>
+
+    <ScrollViewer>
+      <Panel>
+        <!-- 1. Welcome and language -->
+        <StackPanel Spacing="18" IsVisible="{Binding IsWelcome}">
+          <v:AppLogo Width="56" Height="56" HorizontalAlignment="Left" />
+          <TextBlock Classes="PageTitle" Text="{loc:T onboarding.welcome.title}" />
+          <TextBlock Classes="Subtitle" Text="{loc:T onboarding.welcome.message}" />
+          <StackPanel Spacing="12" Margin="0,6,0,0">
+            <StackPanel Spacing="2"><TextBlock Classes="Headline" Text="{loc:T onboarding.welcome.feature1}" /><TextBlock Classes="Secondary" Text="{loc:T onboarding.welcome.feature1.detail}" TextWrapping="Wrap" /></StackPanel>
+            <StackPanel Spacing="2"><TextBlock Classes="Headline" Text="{loc:T onboarding.welcome.feature2}" /><TextBlock Classes="Secondary" Text="{loc:T onboarding.welcome.feature2.detail}" TextWrapping="Wrap" /></StackPanel>
+            <StackPanel Spacing="2"><TextBlock Classes="Headline" Text="{loc:T onboarding.welcome.feature3}" /><TextBlock Classes="Secondary" Text="{loc:T onboarding.welcome.feature3.detail}" TextWrapping="Wrap" /></StackPanel>
+          </StackPanel>
+          <c:SettingsRow Title="{loc:T settings.general.language}">
+            <ComboBox ItemsSource="{Binding LanguageChoices}" SelectedItem="{Binding SelectedLanguage}" />
+          </c:SettingsRow>
+        </StackPanel>
+
+        <!-- 2. Microphone -->
+        <StackPanel Spacing="16" IsVisible="{Binding IsMicrophone}">
+          <TextBlock Classes="PageTitle" Text="{loc:T onboarding.permissions.title}" />
+          <TextBlock Classes="Subtitle" Text="{loc:T onboarding.permissions.message}" />
+          <Border Classes="Card">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <c:StrokeIcon Icon="{StaticResource Icon.Mic}" Width="20" Height="20" Margin="0,0,14,0" Foreground="{DynamicResource Slovo.TextPrimary}" />
+              <StackPanel Grid.Column="1" Spacing="2">
+                <TextBlock Classes="Headline" Text="{loc:T permission.microphone}" />
+                <TextBlock Classes="Caption" Text="{loc:T onboarding.permissions.microphone.detail}" />
+              </StackPanel>
+              <Panel Grid.Column="2" VerticalAlignment="Center">
+                <TextBlock Text="{Binding MicrophoneStatusText}" Foreground="{DynamicResource Slovo.Success}" IsVisible="{Binding MicrophoneAllowed}" />
+                <Button Classes="Primary" Content="{loc:T onboarding.permissions.open}" Command="{Binding AllowMicrophoneCommand}" IsVisible="{Binding !MicrophoneAllowed}" />
+              </Panel>
+            </Grid>
+          </Border>
+          <TextBlock Classes="Caption" Text="{loc:T onboarding.permissions.footnote}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- 3. Key -->
+        <StackPanel Spacing="14" IsVisible="{Binding IsKey}">
+          <TextBlock Classes="PageTitle" Text="{loc:T onboarding.key.title}" />
+          <TextBlock Classes="Subtitle" Text="{loc:T onboarding.key.message}" />
+          <ItemsControl ItemsSource="{Binding Keys}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:KeyCardViewModel">
+                <RadioButton Classes="KeyCard" GroupName="DictationKey"
+                             IsChecked="{Binding IsSelected, Mode=OneWay}"
+                             Command="{Binding $parent[Window].((vm:OnboardingViewModel)DataContext).SelectKeyCommand}" CommandParameter="{Binding}">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Classes="Headline" Text="{Binding Title}" />
+                      <TextBlock Classes="Caption" Text="{Binding Detail}" />
+                    </StackPanel>
+                    <Border Grid.Column="1" Classes="Keycap"><TextBlock Text="{Binding Symbol}" /></Border>
+                  </Grid>
+                </RadioButton>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Border Classes="Inset">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Ellipse Width="10" Height="10" Fill="{DynamicResource Slovo.Success}" IsVisible="{Binding IsKeyDown}" />
+              <Ellipse Width="10" Height="10" Fill="{DynamicResource Slovo.PanelBorder}" IsVisible="{Binding !IsKeyDown}" />
+              <TextBlock Text="{loc:T keytest.passed}" Foreground="{DynamicResource Slovo.Success}" IsVisible="{Binding IsKeyDown}" />
+              <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding !IsKeyDown}">
+                <TextBlock Text="{loc:T keytest.prompt.prefix}" VerticalAlignment="Center" />
+                <Border Classes="Keycap"><TextBlock Text="{Binding KeySymbol}" FontSize="12" /></Border>
+                <TextBlock Text="{loc:T keytest.prompt.suffix}" VerticalAlignment="Center" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- 4. Models -->
+        <StackPanel Spacing="14" IsVisible="{Binding IsModels}">
+          <TextBlock Classes="PageTitle" Text="{loc:T onboarding.models.title}" />
+          <TextBlock Classes="Subtitle" Text="{loc:T onboarding.models.message}" />
+          <Border Classes="Notice" IsVisible="{Binding NothingUsable}">
+            <TextBlock Text="{loc:T onboarding.models.nothingUsable}" />
+          </Border>
+          <Border Classes="Card" Padding="16,4">
+            <ItemsControl ItemsSource="{Binding ModelRows}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vs:ModelRowViewModel"><vss:ModelRowView /></DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Border>
+        </StackPanel>
+
+        <!-- 5. Practice -->
+        <StackPanel Spacing="14" IsVisible="{Binding IsPractice}">
+          <TextBlock Classes="PageTitle" Text="{loc:T onboarding.practice.title}" />
+          <TextBlock Classes="Subtitle" Text="{loc:T onboarding.practice.message}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="{loc:T onboarding.practice.hold.prefix}" VerticalAlignment="Center" />
+            <Border Classes="Keycap"><TextBlock Text="{Binding KeySymbol}" /></Border>
+            <TextBlock Text="{loc:T onboarding.practice.hold.suffix}" VerticalAlignment="Center" />
+          </StackPanel>
+          <Border Classes="Card" MinHeight="120">
+            <StackPanel Spacing="6">
+              <TextBlock Classes="SectionLabel" Text="{loc:T onboarding.practice.result}" />
+              <SelectableTextBlock Classes="Sample" FontSize="17" Text="{Binding PracticeResult}" TextWrapping="Wrap" />
+              <TextBlock Classes="Secondary" Text="{loc:T onboarding.practice.placeholder}" IsVisible="{Binding PracticeResult, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+            </StackPanel>
+          </Border>
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Button Classes="Secondary" Command="{Binding ToggleHandsFreeCommand}">
+              <Panel>
+                <TextBlock Text="{loc:T onboarding.practice.handsFree}" IsVisible="{Binding !IsPracticeRecording}" />
+                <TextBlock Text="{loc:T onboarding.practice.stop}" IsVisible="{Binding IsPracticeRecording}" />
+              </Panel>
+            </Button>
+            <TextBlock Classes="Caption" Text="{loc:T onboarding.practice.handsFree.detail}" VerticalAlignment="Center" />
+          </StackPanel>
+        </StackPanel>
+      </Panel>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

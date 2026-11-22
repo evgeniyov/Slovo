@@ -1,0 +1,61 @@
+<!-- Help → Keyboard shortcuts (the macOS ShortcutsSheet): each action with its keys as keycaps. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.ShortcutsSheetView"
+             x:DataType="vm:ShortcutsSheetViewModel"
+             Width="500">
+  <UserControl.Styles>
+    <!-- The macOS ShortcutKeys keycap: quiet, unlike the orange dictation-key hint. -->
+    <Style Selector="Border.ShortcutKey">
+      <Setter Property="Background" Value="{DynamicResource Slovo.FieldBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Slovo.PanelBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="7,0" />
+      <Setter Property="MinWidth" Value="24" />
+      <Setter Property="MinHeight" Value="22" />
+    </Style>
+    <Style Selector="Border.ShortcutKey > TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="Medium" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+  <StackPanel Spacing="18">
+    <Grid ColumnDefinitions="*,Auto">
+      <TextBlock Classes="SectionTitle" Text="{loc:T help.shortcuts}" VerticalAlignment="Center" />
+      <Button Grid.Column="1" Classes="Ghost" Command="{Binding DismissCommand}" ToolTip.Tip="{loc:T common.close}" AutomationProperties.Name="{loc:T common.close}">
+        <c:StrokeIcon Icon="{StaticResource Icon.Close}" />
+      </Button>
+    </Grid>
+    <Border Classes="Card" Padding="16,0">
+      <ItemsControl ItemsSource="{Binding Rows}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:ShortcutRow">
+            <StackPanel>
+              <Border Classes="Divider" IsVisible="{Binding !IsFirst}" />
+              <c:SettingsRow Title="{Binding Title}" Detail="{Binding Detail}">
+                <ItemsControl ItemsSource="{Binding Keys}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="4" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                      <Border Classes="ShortcutKey"><TextBlock Text="{Binding}" /></Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </c:SettingsRow>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Border>
+  </StackPanel>
+</UserControl>

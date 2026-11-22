@@ -1,0 +1,6 @@
+/* Windows additions to Sources/SlovoCore/Resources/ru.lproj/Audio.strings. Owned by the Windows platform module. */
+
+"audio.error.microphoneLost" = "Микрофон недоступен. Запись встречи продолжается, а микрофон подключится сам, как только появится.";
+"audio.error.systemAudioLost" = "Системный звук недоступен. Запись встречи продолжается, а звук подключится сам, как только появится.";
+"audio.error.noOutputDevice" = "Нет доступных динамиков или наушников";
+"audio.error.unavailableHere" = "Запись работает только в Windows";

@@ -1,0 +1,100 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Settings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Settings.IntegrationsSettingsView"
+             x:DataType="vm:IntegrationsSettingsViewModel">
+  <StackPanel Spacing="22">
+    <Border Classes="Card">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="Headline" Text="{loc:T settings.integrations.title}" />
+        <TextBlock Classes="Secondary" Text="{loc:T settings.integrations.intro}" TextWrapping="Wrap" />
+        <Border Classes="Notice"><TextBlock Text="{loc:T settings.integrations.disclosure}" /></Border>
+      </StackPanel>
+    </Border>
+
+    <c:SettingsGroup Header="{loc:T settings.group.claudeAccess}">
+      <c:SettingsRow Title="{loc:T settings.integrations.enable}" Detail="{loc:T settings.integrations.enable.detail}">
+        <ToggleSwitch IsChecked="{Binding McpEnabled}" AutomationProperties.Name="{loc:T settings.integrations.enable}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.integrations.maxAge}" Detail="{loc:T settings.integrations.maxAge.detail}" IsEnabled="{Binding McpEnabled}">
+        <ComboBox ItemsSource="{Binding MaxAgeChoices}" SelectedItem="{Binding SelectedMaxAge}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.integrations.write}" Detail="{loc:T settings.integrations.write.detail}" IsEnabled="{Binding McpEnabled}">
+        <ToggleSwitch IsChecked="{Binding McpWriteEnabled}" AutomationProperties.Name="{loc:T settings.integrations.write}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+
+    <StackPanel Spacing="8">
+      <TextBlock Classes="SectionLabel" Text="{loc:T settings.group.connect}" />
+      <Border Classes="Notice" IsVisible="{Binding !IsInstalled}">
+        <TextBlock Text="{loc:T settings.integrations.notInApplications}" />
+      </Border>
+      <Border Classes="Card">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel>
+              <TextBlock Classes="Medium" Text="Claude Code" />
+              <TextBlock Classes="Caption" Text="{loc:T settings.integrations.claudeCode.detail}" />
+            </StackPanel>
+            <Button Grid.Column="1" Classes="Secondary" Command="{Binding CopyClaudeCodeCommand}" VerticalAlignment="Top">
+              <Panel>
+                <TextBlock Text="{loc:T common.copy}" IsVisible="{Binding !ClaudeCodeCopied.IsOn}" />
+                <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding ClaudeCodeCopied.IsOn}">
+                  <c:StrokeIcon Icon="{StaticResource Icon.Check}" Width="12" Height="12" Foreground="{DynamicResource Slovo.Success}" />
+                  <TextBlock Text="{loc:T common.copied}" />
+                </StackPanel>
+              </Panel>
+            </Button>
+          </Grid>
+          <Border Classes="Inset" Padding="10,8">
+            <SelectableTextBlock Classes="Mono" FontFamily="{DynamicResource Slovo.MonoFont}" FontSize="11.5" Text="{Binding ClaudeCodeCommand}" TextWrapping="Wrap" />
+          </Border>
+          <TextBlock Classes="Caption" Text="{Binding ClaudeCodeStatus}" />
+        </StackPanel>
+      </Border>
+      <Border Classes="Card">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Margin="0,0,12,0">
+              <TextBlock Classes="Medium" Text="{loc:T settings.integrations.claudeApp}" />
+              <TextBlock Classes="Caption" Text="{loc:T settings.integrations.claudeApp.detail}" TextWrapping="Wrap" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top">
+              <Button Classes="Secondary" Content="{loc:T settings.integrations.showConfig}" Command="{Binding ShowConfigCommand}" />
+              <Button Classes="Secondary" Command="{Binding CopyClaudeAppCommand}">
+                <Panel>
+                  <TextBlock Text="{loc:T common.copy}" IsVisible="{Binding !ClaudeAppCopied.IsOn}" />
+                  <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding ClaudeAppCopied.IsOn}">
+                    <c:StrokeIcon Icon="{StaticResource Icon.Check}" Width="12" Height="12" Foreground="{DynamicResource Slovo.Success}" />
+                    <TextBlock Text="{loc:T common.copied}" />
+                  </StackPanel>
+                </Panel>
+              </Button>
+            </StackPanel>
+          </Grid>
+          <Border Classes="Inset" Padding="10,8">
+            <SelectableTextBlock FontFamily="{DynamicResource Slovo.MonoFont}" FontSize="11.5" Text="{Binding ClaudeAppSnippet}" TextWrapping="Wrap" />
+          </Border>
+          <TextBlock Classes="Caption" Text="{Binding ClaudeAppStatus}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <c:SettingsGroup Header="{loc:T settings.integrations.check.title}">
+      <c:SettingsRow Title="{loc:T settings.integrations.check.title}" Detail="{loc:T settings.integrations.check.detail}">
+        <Button Classes="Secondary" Command="{Binding CheckCommand}" IsEnabled="{Binding !IsChecking}">
+          <Panel>
+            <TextBlock Text="{loc:T settings.integrations.check}" IsVisible="{Binding !IsChecking}" />
+            <TextBlock Text="{loc:T settings.integrations.check.running}" IsVisible="{Binding IsChecking}" />
+          </Panel>
+        </Button>
+      </c:SettingsRow>
+      <TextBlock Text="{Binding CheckMessage}" Foreground="{DynamicResource Slovo.Success}" IsVisible="{Binding CheckWorks}" Margin="0,0,0,10" TextWrapping="Wrap" />
+      <Border Classes="Notice" IsVisible="{Binding CheckProblem}" Margin="0,0,0,10"><TextBlock Text="{Binding CheckMessage}" /></Border>
+    </c:SettingsGroup>
+
+    <TextBlock Classes="Caption" Text="{loc:T settings.integrations.tip}" TextWrapping="Wrap" />
+  </StackPanel>
+</UserControl>

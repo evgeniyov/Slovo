@@ -1,0 +1,9 @@
+/* Windows additions to Sources/SlovoCore/Resources/en.lproj/Audio.strings. Owned by the Windows platform module. */
+
+/* A meeting's microphone has been missing for about half a minute; the recording goes on. */
+"audio.error.microphoneLost" = "The microphone is unavailable. The meeting keeps recording, and the microphone rejoins as soon as it is back.";
+/* System audio capture has failed for about half a minute; the recording goes on. */
+"audio.error.systemAudioLost" = "System audio is unavailable. The meeting keeps recording, and system audio rejoins as soon as it is back.";
+"audio.error.noOutputDevice" = "No speakers or headphones are available";
+/* Shown when the Windows app runs on another system for interface work. */
+"audio.error.unavailableHere" = "Recording works only on Windows";

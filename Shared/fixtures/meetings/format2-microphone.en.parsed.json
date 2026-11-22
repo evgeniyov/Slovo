@@ -1,0 +1,79 @@
+{
+  "highlights" : [
+
+  ],
+  "segments" : [
+    {
+      "end" : 6,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 0,
+      "text" : "Testing the microphone."
+    },
+    {
+      "end" : 21,
+      "speaker" : "me",
+      "start" : 6,
+      "text" : "I am the one who recorded this."
+    },
+    {
+      "end" : 100,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 21,
+      "text" : "A voice nobody named."
+    },
+    {
+      "end" : 131,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 100,
+      "text" : "First half of a long monologue."
+    },
+    {
+      "end" : 140,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 131,
+      "text" : "Second half that makes the line too long."
+    },
+    {
+      "end" : 162,
+      "speaker" : "others",
+      "start" : 140,
+      "text" : "Someone on the call."
+    },
+    {
+      "end" : 171,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 162,
+      "text" : "Tail."
+    },
+    {
+      "end" : 171,
+      "speaker" : "others",
+      "start" : 171,
+      "text" : "The call again, with a microphone speaker's id."
+    }
+  ],
+  "speakers" : [
+    {
+      "colorIndex" : 0,
+      "displayName" : "Microphone",
+      "id" : "s1",
+      "isMe" : false,
+      "number" : 1,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 1,
+      "displayName" : "Олег Петров",
+      "id" : "s2",
+      "isMe" : false,
+      "number" : 2,
+      "track" : "microphone"
+    }
+  ],
+  "title" : "Microphone check"
+}

@@ -1,0 +1,147 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Slovo.App.Controls"
+        xmlns:loc="using:Slovo.App.Localization">
+  <Style Selector="c|PageHeader">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="PageTitle" Text="{TemplateBinding Title}" />
+            <TextBlock Classes="Subtitle" Text="{TemplateBinding Subtitle}"
+                       IsVisible="{TemplateBinding Subtitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          </StackPanel>
+          <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" VerticalAlignment="Top" Margin="16,4,0,0" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="c|BannerCard">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Classes="Banner">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="Banner" Text="{TemplateBinding Headline}" />
+              <TextBlock Text="{TemplateBinding Message}" TextWrapping="Wrap" Foreground="{DynamicResource Slovo.BannerSecondaryText}" MaxWidth="560" HorizontalAlignment="Left" />
+              <ContentPresenter Content="{TemplateBinding Content}" />
+              <Button Classes="Banner" HorizontalAlignment="Left" Margin="0,4,0,0"
+                      Content="{TemplateBinding ButtonText}" Command="{TemplateBinding ButtonCommand}"
+                      IsVisible="{TemplateBinding ButtonText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+            <Button Grid.Column="1" Classes="Ghost" VerticalAlignment="Top" Command="{TemplateBinding DismissCommand}"
+                    ToolTip.Tip="{loc:T banner.dismiss}" AutomationProperties.Name="{loc:T banner.dismiss}"
+                    IsVisible="{TemplateBinding DismissCommand, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <c:StrokeIcon Icon="{StaticResource Icon.Close}" Foreground="{DynamicResource Slovo.BannerSecondaryText}" />
+            </Button>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="c|EmptyState">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Classes="Card" Padding="28,32">
+          <StackPanel Spacing="10" HorizontalAlignment="Center" MaxWidth="420">
+            <Border Width="44" Height="44" CornerRadius="22" Background="{DynamicResource Slovo.AccentSoft}" HorizontalAlignment="Center">
+              <c:StrokeIcon Icon="{TemplateBinding Icon}" Width="20" Height="20" Foreground="{DynamicResource Slovo.AccentText}" />
+            </Border>
+            <TextBlock Classes="SectionTitle" Text="{TemplateBinding Title}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+            <TextBlock Classes="Secondary" Text="{TemplateBinding Message}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+            <Button Classes="Primary" HorizontalAlignment="Center" Margin="0,6,0,0"
+                    Content="{TemplateBinding ActionText}" Command="{TemplateBinding ActionCommand}"
+                    IsVisible="{TemplateBinding ActionText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          </StackPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="TextBox.Search">
+    <Setter Property="InnerLeftContent">
+      <Template>
+        <c:StrokeIcon Icon="{StaticResource Icon.Search}" Width="14" Height="14" Margin="10,0,0,0" Foreground="{DynamicResource Slovo.TextSecondary}" />
+      </Template>
+    </Setter>
+    <Setter Property="Width" Value="210" />
+  </Style>
+
+  <!-- A card of rows with hairlines between them. -->
+  <Style Selector="Border.List">
+    <Setter Property="Background" Value="{DynamicResource Slovo.PanelBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.PanelBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.CardRadius}" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+  <Style Selector="Border.Row">
+    <Setter Property="Padding" Value="16,10" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.Divider}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+  <Style Selector="Border.Row:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Slovo.RowHover}" />
+  </Style>
+  <!-- Row actions show on hover and on keyboard focus, and stay reachable for screen readers. -->
+  <Style Selector="Border.Row StackPanel.RowActions">
+    <Setter Property="Opacity" Value="0" />
+  </Style>
+  <Style Selector="Border.Row:pointerover StackPanel.RowActions, Border.Row:focus-within StackPanel.RowActions">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+
+  <!-- The dimmed layer behind an in-window sheet. -->
+  <Style Selector="Border.SheetScrim">
+    <Setter Property="Background" Value="#66000000" />
+  </Style>
+  <Style Selector="Border.Sheet">
+    <Setter Property="Background" Value="{DynamicResource Slovo.PanelBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.PanelBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.PanelRadius}" />
+    <Setter Property="Padding" Value="24" />
+    <Setter Property="BoxShadow" Value="0 8 24 0 #33000000" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- Screen recording: the square button next to "New recording", tinted while the screen is
+       on, and the rows of its picker (which opens in a pop-up, outside the Meetings view's styles). -->
+  <Style Selector="Button.ScreenChoice">
+    <Setter Property="Width" Value="34" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="{DynamicResource Slovo.SecondaryButtonBackground}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.ScreenChoice c|StrokeIcon">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+  </Style>
+  <Style Selector="Button.ScreenChoice.On">
+    <Setter Property="Background" Value="{DynamicResource Slovo.AccentSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.Accent}" />
+  </Style>
+  <Style Selector="Button.ScreenChoice.On c|StrokeIcon">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.AccentText}" />
+  </Style>
+  <Style Selector="Button.ScreenTarget">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="Button.ScreenTarget:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.RowHover}" />
+  </Style>
+  <Style Selector="Button.ScreenTarget c|StrokeIcon">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+  </Style>
+</Styles>

@@ -1,0 +1,9 @@
+/* Speaker separation model: loading, download and deletion. Owned by the diarization module. */
+
+"diarization.error.modelMissing" = "Модель спикеров не скачана. Скачайте её в Настройках → Встречи.";
+"diarization.error.modelDamaged" = "Файлы модели спикеров повреждены. Удалите модель и скачайте её заново в Настройках → Встречи.";
+"diarization.error.loadFailed" = "Не удалось загрузить модель спикеров: %@";
+"diarization.error.downloadFailed" = "Не удалось скачать модель спикеров: %@";
+"diarization.error.filesMissingAfterDownload" = "Модель спикеров скачалась не полностью. Попробуйте скачать её ещё раз.";
+"diarization.error.deleteWhileDownloading" = "Модель спикеров ещё скачивается. Отмените загрузку, прежде чем удалять модель.";
+"diarization.error.unsupportedSystem" = "Для разделения по спикерам нужна macOS 15 или новее";

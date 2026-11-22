@@ -1,0 +1,95 @@
+{
+  "createdAt" : 811152127,
+  "diarization" : {
+    "model" : "pyannote-community-1-coreml@1ed7a66",
+    "speakersPerTrack" : {
+      "microphone" : 3
+    },
+    "state" : "applied"
+  },
+  "duration" : 3852.4,
+  "engineID" : "parakeet-v3",
+  "formatVersion" : 2,
+  "hasAudio" : false,
+  "hasScreenRecording" : false,
+  "hasSystemAudio" : false,
+  "highlights" : [
+    {
+      "createdAt" : 811152900,
+      "id" : "9B1C0000-0000-4000-8000-000000000001",
+      "note" : "дедлайн",
+      "source" : "recording",
+      "time" : 760.2
+    },
+    {
+      "createdAt" : 811159200,
+      "id" : "9B1C0000-0000-4000-8000-000000000002",
+      "source" : "transcript",
+      "time" : 805
+    }
+  ],
+  "id" : "3F2A9C1E-5B7D-4C1A-9E0F-2B6D8A4C7E11",
+  "segments" : [
+    {
+      "end" : 9,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 4,
+      "text" : "Всем привет, начнём с планов на неделю."
+    },
+    {
+      "end" : 30,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 20,
+      "text" : "Коллеги, давайте начнём с релиза."
+    },
+    {
+      "end" : 765,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 758,
+      "text" : "Давайте к пятнице соберём прототип и покажем его команде."
+    },
+    {
+      "end" : 812,
+      "speaker" : "me",
+      "speakerID" : "s3",
+      "start" : 800,
+      "text" : "Согласен, ёлка на ресепшене тоже нужна."
+    },
+    {
+      "end" : 1210,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 1200,
+      "text" : "Проверим дизайн в понедельник."
+    }
+  ],
+  "speakers" : [
+    {
+      "colorIndex" : 0,
+      "id" : "s1",
+      "isMe" : true,
+      "number" : 1,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 1,
+      "displayName" : "Аня",
+      "id" : "s2",
+      "isMe" : false,
+      "number" : 2,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 2,
+      "id" : "s3",
+      "isMe" : false,
+      "number" : 3,
+      "track" : "microphone"
+    }
+  ],
+  "status" : "transcribed",
+  "title" : "Коворк 15 сентября"
+}

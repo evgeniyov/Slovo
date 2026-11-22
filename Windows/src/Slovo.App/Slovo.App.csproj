@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The Windows app: tray icon, Flow bar, main window, settings and onboarding, plus
+       Slovo.exe with the mcp switch, the headless MCP server Claude starts. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Slovo.App</RootNamespace>
+    <AssemblyName>Slovo</AssemblyName>
+    <ApplicationIcon>Assets/slovo.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Slovo.Core/Slovo.Core.csproj" />
+    <ProjectReference Include="../Slovo.Engines/Slovo.Engines.csproj" />
+    <ProjectReference Include="../Slovo.Platform.Windows/Slovo.Platform.Windows.csproj" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/**" />
+    <!-- The app's own string tables: the macOS app's Localizable tables are the base, and
+         the Windows tables replace lines that name macOS and add Windows-only keys. -->
+    <EmbeddedResource Include="$(SlovoRepoRoot)/Sources/Slovo/Resources/**/Localizable.strings" LogicalName="Slovo.Strings.App/%(RecursiveDir)%(Filename).strings" Link="Strings/Shared/%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="$(SlovoRepoRoot)/Sources/Slovo/Resources/**/Localizable.stringsdict" LogicalName="Slovo.Strings.App/%(RecursiveDir)%(Filename).stringsdict" Link="Strings/Shared/%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Strings/**/*.strings" LogicalName="Slovo.Strings.AppWindows/%(RecursiveDir)%(Filename).strings" />
+    <EmbeddedResource Include="Strings/**/*.stringsdict" LogicalName="Slovo.Strings.AppWindows/%(RecursiveDir)%(Filename).stringsdict" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Slovo.App.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The per-user installer and uninstaller ship next to Slovo.exe. -->
+    <None Include="../../package/*.ps1" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="Never" Link="%(Filename)%(Extension)" />
+    <None Include="../../package/README.txt" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="Never" Link="README.txt" />
+  </ItemGroup>
+</Project>

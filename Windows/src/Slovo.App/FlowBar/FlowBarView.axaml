@@ -1,0 +1,90 @@
+<!-- The Flow bar: one capsule for every state (idle, hint, recording, processing, message,
+     meeting notice). It reshapes on a spring and its content fades in once it opens, so the
+     bar reads as one object coming alive rather than as pills replacing each other. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fb="using:Slovo.App.FlowBar"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.FlowBar.FlowBarView"
+             x:DataType="fb:FlowBarViewModel"
+             Background="Transparent">
+  <UserControl.Styles>
+    <Style Selector="StackPanel.Layer TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.FlowBarForeground}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="Medium" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.Round">
+      <Setter Property="Width" Value="22" />
+      <Setter Property="Height" Value="22" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="11" />
+      <Setter Property="Background" Value="{DynamicResource Slovo.FlowBarButtonBackground}" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.Round:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource Slovo.FlowBarBorder}" />
+    </Style>
+    <Style Selector="Button.Round.Filled">
+      <Setter Property="Background" Value="{DynamicResource Slovo.FlowBarForeground}" />
+    </Style>
+    <Style Selector="Button.Round.Filled:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource Slovo.FlowBarSecondary}" />
+    </Style>
+  </UserControl.Styles>
+
+  <!-- The stage is as large as the shape the bar is heading for, so the window around it
+       grows at once and shrinks only after the capsule has settled. -->
+  <Panel Name="Stage" VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="Transparent" Cursor="Hand">
+    <Border Name="Capsule" HorizontalAlignment="Center" VerticalAlignment="Bottom" ClipToBounds="True"
+            Width="40" Height="8" CornerRadius="4" BorderThickness="1"
+            Background="{DynamicResource Slovo.FlowBarIdle}" BorderBrush="{DynamicResource Slovo.FlowBarBorder}">
+      <fb:CenterOverflowPanel>
+        <!-- Hint -->
+        <StackPanel Classes="Layer" Name="HintLayer" Orientation="Horizontal" Spacing="7" Margin="16,0">
+          <c:StrokeIcon Icon="{StaticResource Icon.Mic}" Width="13" Height="13" Foreground="{DynamicResource Slovo.FlowBarAccent}" />
+          <TextBlock Text="{Binding HintText}" />
+        </StackPanel>
+
+        <!-- Recording -->
+        <StackPanel Classes="Layer" Name="RecordingLayer" Orientation="Horizontal" Spacing="10"
+                    Margin="{Binding IsHandsFree, Converter={x:Static fb:FlowBarConverters.RecordingPadding}}">
+          <Button Classes="Round" IsVisible="{Binding IsHandsFree}" Command="{Binding CancelCommand}"
+                  ToolTip.Tip="{loc:T flowbar.cancel}" AutomationProperties.Name="{loc:T flowbar.cancel}">
+            <c:StrokeIcon Icon="{StaticResource Icon.Close}" Width="10" Height="10" StrokeWidth="3" Foreground="{DynamicResource Slovo.FlowBarForeground}" />
+          </Button>
+          <c:LevelBars Level="{Binding Level}" Foreground="{DynamicResource Slovo.FlowBarForeground}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding RemainingText}" IsVisible="{Binding RemainingText, Converter={x:Static ObjectConverters.IsNotNull}}"
+                     FontWeight="SemiBold" FontFeatures="+tnum"
+                     Foreground="{Binding RemainingIsLow, Converter={x:Static fb:FlowBarConverters.RemainingBrush}}" />
+          <Button Classes="Round Filled" IsVisible="{Binding IsHandsFree}" Command="{Binding StopCommand}"
+                  ToolTip.Tip="{loc:T flowbar.stop}" AutomationProperties.Name="{loc:T flowbar.stop}">
+            <c:StrokeIcon Icon="{StaticResource Icon.Stop}" Width="9" Height="9" Filled="True" Foreground="{DynamicResource Slovo.FlowBarBackground}" />
+          </Button>
+        </StackPanel>
+
+        <!-- Processing: cancel first, as on macOS -->
+        <StackPanel Classes="Layer" Name="ProcessingLayer" Orientation="Horizontal" Spacing="9" Margin="6,0,16,0">
+          <Button Classes="Round" Command="{Binding CancelCommand}" ToolTip.Tip="{loc:T flowbar.cancel}"
+                  AutomationProperties.Name="{loc:T flowbar.cancel}">
+            <c:StrokeIcon Icon="{StaticResource Icon.Close}" Width="10" Height="10" StrokeWidth="3" Foreground="{DynamicResource Slovo.FlowBarForeground}" />
+          </Button>
+          <c:ProcessingDots Foreground="{DynamicResource Slovo.FlowBarForeground}" VerticalAlignment="Center" />
+          <TextBlock Text="{loc:T flowbar.loadingModel}" IsVisible="{Binding IsLoadingModel}" />
+        </StackPanel>
+
+        <!-- Message and meeting notice -->
+        <StackPanel Classes="Layer" Name="MessageLayer" Orientation="Horizontal" Spacing="7" Margin="16,0">
+          <c:StrokeIcon Icon="{Binding MessageIconKey, Converter={x:Static fb:FlowBarConverters.Icon}}" Width="13" Height="13"
+                        Foreground="{Binding MessageIsWarning, Converter={x:Static fb:FlowBarConverters.IconBrush}}" />
+          <TextBlock Text="{Binding MessageText}" MaxWidth="300" TextTrimming="CharacterEllipsis" />
+          <c:StrokeIcon Icon="{StaticResource Icon.ChevronRight}" Width="9" Height="9" StrokeWidth="3"
+                        IsVisible="{Binding MessageIsActionable}" Foreground="{DynamicResource Slovo.FlowBarSecondary}" />
+        </StackPanel>
+      </fb:CenterOverflowPanel>
+    </Border>
+  </Panel>
+</UserControl>

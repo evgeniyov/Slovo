@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Screens"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Screens.DictionaryView"
+             x:DataType="vm:DictionaryViewModel">
+  <ScrollViewer>
+    <StackPanel Spacing="18" Margin="32,28">
+      <c:PageHeader Title="{loc:T sidebar.dictionary}" Subtitle="{loc:T dictionary.subtitle}">
+        <Button Classes="Primary" Command="{Binding AddNewCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <c:StrokeIcon Icon="{StaticResource Icon.Plus}" Width="13" Height="13" />
+            <TextBlock Text="{loc:T common.addNew}" />
+          </StackPanel>
+        </Button>
+      </c:PageHeader>
+
+      <c:BannerCard Headline="{loc:T dictionary.banner.headline}" Message="{loc:T dictionary.banner.message}"
+                    DismissCommand="{Binding DismissBannerCommand}" IsVisible="{Binding IsBannerVisible}">
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
+          <Border Background="#1AFFFFFF" CornerRadius="6" Padding="8,3"><TextBlock Foreground="{DynamicResource Slovo.BannerText}" Text="кубернетес → Kubernetes" /></Border>
+          <Border Background="#1AFFFFFF" CornerRadius="6" Padding="8,3"><TextBlock Foreground="{DynamicResource Slovo.BannerText}" Text="гитхаб экшенс → GitHub Actions" /></Border>
+          <Border Background="#1AFFFFFF" CornerRadius="6" Padding="8,3"><TextBlock Foreground="{DynamicResource Slovo.BannerText}" Text="юзер дефолтс → UserDefaults" /></Border>
+        </StackPanel>
+      </c:BannerCard>
+
+      <Grid ColumnDefinitions="*,Auto,Auto" IsVisible="{Binding !IsEmpty}">
+        <StackPanel Orientation="Horizontal">
+          <RadioButton Classes="Segment" GroupName="DictionaryTab" IsChecked="{Binding IsAllTab}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="{loc:T dictionary.tab.all}" /><TextBlock Classes="Caption" Text="{Binding AllCount}" VerticalAlignment="Center" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="Segment" GroupName="DictionaryTab" IsChecked="{Binding IsTermsTab}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="{loc:T dictionary.tab.terms}" /><TextBlock Classes="Caption" Text="{Binding TermCount}" VerticalAlignment="Center" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="Segment" GroupName="DictionaryTab" IsChecked="{Binding IsReplacementsTab}">
+            <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="{loc:T dictionary.tab.replacements}" /><TextBlock Classes="Caption" Text="{Binding ReplacementCount}" VerticalAlignment="Center" /></StackPanel>
+          </RadioButton>
+        </StackPanel>
+        <ComboBox Grid.Column="1" MinWidth="150" Margin="8,0" ItemsSource="{Binding SortChoices}" SelectedIndex="{Binding SortIndex}" />
+        <c:SearchBox Grid.Column="2" Text="{Binding Query}" PlaceholderText="{loc:T dictionary.search}" />
+      </Grid>
+
+      <c:EmptyState Icon="{StaticResource Icon.Book}" Title="{loc:T dictionary.empty.title}" Message="{loc:T dictionary.empty.message}"
+                    ActionText="{loc:T common.addNew}" ActionCommand="{Binding AddNewCommand}" IsVisible="{Binding IsEmpty}" />
+      <c:EmptyState Icon="{StaticResource Icon.Search}" Title="{loc:T common.nothingFound}" Message="{loc:T dictionary.search.empty}"
+                    IsVisible="{Binding NothingFound}" />
+
+      <Border Classes="List" IsVisible="{Binding HasRows}">
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:DictionaryRowViewModel">
+              <Border Classes="Row" Focusable="True" DoubleTapped="OnRowDoubleTapped">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                  <Border Width="26" Height="26" CornerRadius="7" Margin="0,0,12,0"
+                          Background="{DynamicResource Slovo.AccentSoft}" IsVisible="{Binding IsTerm}">
+                    <TextBlock Text="Aa" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Slovo.AccentText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                  <Border Width="26" Height="26" CornerRadius="7" Margin="0,0,12,0"
+                          Background="{DynamicResource Slovo.InsetBackground}" IsVisible="{Binding !IsTerm}">
+                    <c:StrokeIcon Icon="{StaticResource Icon.ChevronRight}" Width="12" Height="12" Foreground="{DynamicResource Slovo.SecondaryAccent}" />
+                  </Border>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Classes="Medium" Text="{Binding Item.Text}" IsVisible="{Binding IsTerm}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Classes="Secondary" Text="{Binding Item.Text}" IsVisible="{Binding !IsTerm}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Classes="Secondary" Text="→" IsVisible="{Binding !IsTerm}" />
+                    <TextBlock Classes="Medium" Text="{Binding Item.Replacement}" IsVisible="{Binding !IsTerm}" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <TextBlock Grid.Column="2" Classes="Caption" Text="{Binding KindTitle}" IsVisible="{Binding ShowsKind}" VerticalAlignment="Center" Margin="8,0" />
+                  <StackPanel Grid.Column="3" Classes="RowActions" Orientation="Horizontal">
+                    <Button Classes="Ghost" ToolTip.Tip="{loc:T common.edit}" AutomationProperties.Name="{loc:T common.edit}"
+                            Command="{Binding $parent[UserControl].((vm:DictionaryViewModel)DataContext).EditCommand}" CommandParameter="{Binding}">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Edit}" Width="14" Height="14" />
+                    </Button>
+                    <Button Classes="Ghost" ToolTip.Tip="{loc:T common.delete}" AutomationProperties.Name="{loc:T common.delete}"
+                            Command="{Binding $parent[UserControl].((vm:DictionaryViewModel)DataContext).DeleteCommand}" CommandParameter="{Binding}">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Trash}" Width="14" Height="14" />
+                    </Button>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

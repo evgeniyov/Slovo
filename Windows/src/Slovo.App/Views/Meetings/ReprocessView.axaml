@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Meetings"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Meetings.ReprocessView"
+             x:DataType="vm:ReprocessViewModel">
+  <StackPanel Spacing="12" Width="420">
+    <TextBlock Classes="SectionTitle" Text="{loc:T meetings.reprocess.title}" />
+    <RadioButton GroupName="ReprocessMode" IsChecked="{Binding SpeakersOnly}" IsEnabled="{Binding CanSpeakersOnly}">
+      <StackPanel Spacing="1">
+        <TextBlock Classes="Medium" Text="{loc:T meetings.reprocess.mode.speakers}" />
+        <TextBlock Classes="Caption" Text="{loc:T meetings.reprocess.mode.speakers.detail}" />
+      </StackPanel>
+    </RadioButton>
+    <TextBlock Classes="Caption" Margin="28,-6,0,0" Foreground="{DynamicResource Slovo.Warning}" Text="{loc:T meetings.reprocess.needsModel}"
+               IsVisible="{Binding !SpeakerModelReady}" TextWrapping="Wrap" />
+    <RadioButton GroupName="ReprocessMode" IsChecked="{Binding IsFull}">
+      <StackPanel Spacing="1">
+        <TextBlock Classes="Medium" Text="{loc:T meetings.reprocess.mode.full}" />
+        <TextBlock Classes="Caption" Text="{loc:T meetings.reprocess.mode.full.detail}" />
+      </StackPanel>
+    </RadioButton>
+    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" Margin="0,4,0,0">
+      <TextBlock Text="{loc:T settings.meetings.engine}" VerticalAlignment="Center" IsVisible="{Binding IsFull}" />
+      <ComboBox Grid.Column="1" ItemsSource="{Binding EngineChoices}" SelectedItem="{Binding SelectedEngine}" IsVisible="{Binding IsFull}" MinWidth="200" />
+      <TextBlock Grid.Row="1" Text="{loc:T settings.meetings.separate}" VerticalAlignment="Center" IsVisible="{Binding IsFull}" />
+      <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding SeparateSpeakers}" IsEnabled="{Binding SpeakerModelReady}" IsVisible="{Binding IsFull}"
+                    OnContent="" OffContent="" HorizontalAlignment="Right" />
+      <TextBlock Grid.Row="2" Text="{loc:T settings.meetings.people}" VerticalAlignment="Center" />
+      <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding PeopleChoices}" SelectedItem="{Binding SelectedPeople}" MinWidth="200" />
+    </Grid>
+    <TextBlock Classes="Caption" Text="{loc:T meetings.reprocess.keep}" />
+    <TextBlock Classes="Caption" Foreground="{DynamicResource Slovo.Warning}" Text="{loc:T meetings.reprocess.noAudio}" IsVisible="{Binding !HasAudio}" />
+    <TextBlock Classes="Caption" Foreground="{DynamicResource Slovo.Warning}" Text="{loc:T meetings.reprocess.busy}" IsVisible="{Binding IsBusy}" />
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,8,0,0">
+      <Button Classes="Secondary" Content="{loc:T common.cancel}" Command="{Binding CancelCommand}" IsCancel="True" />
+      <Button Classes="Primary" Content="{loc:T meetings.reprocess.start}" Command="{Binding StartCommand}" IsEnabled="{Binding CanStart}" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

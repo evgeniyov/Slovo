@@ -1,0 +1,82 @@
+/* Slovo for Windows: lines that replace macOS wording in the shared Localizable table,
+   and keys only the Windows app has. Keys must match ru/Localizable.strings exactly. */
+
+"home.play.missing" = "The recording is no longer on this computer.";
+"meetings.consent.detail" = "Let people know you are recording. Recordings and transcripts stay on this computer.";
+"meetings.system.silent" = "System audio is silent. If a call is playing, check the output device in Windows sound settings.";
+"meetings.action.finder" = "Show in Explorer";
+"meetings.delete.message" = "“%@”, its audio and its transcript will be removed from this computer.";
+"insights.subtitle" = "How you dictate, from your history on this computer.";
+"scratchpad.delete.message" = "The note will be removed from this computer.";
+"settings.group.appearance" = "Flow bar and sounds";
+"settings.general.pasteLast.refused" = "Windows or another app already uses this shortcut; choose another";
+"keytest.needsPermission" = "Slovo could not listen to the keyboard; restart Slovo";
+"engine.delete.message" = "The model files will be removed from this computer. You can download them again later.";
+"settings.system.launchAtLogin.detail" = "Slovo waits in the notification area";
+"settings.system.flowBarIdle.detail" = "A small pill above the taskbar while a text field has focus; it always appears while you dictate";
+"settings.meetings.systemAudio.detail" = "Captures other participants: everything the computer plays, except Slovo itself.";
+"settings.meetings.microphone.detail" = "Whether a recording starts with the microphone on. During a meeting, switch it with the button, from the tray menu or with the shortcut; while it is off, silence is recorded.";
+"settings.meetings.speakerModel.delete.message" = "The files will be removed from this computer. Meetings keep their speakers; new ones show Me and Others until you download the model again.";
+"settings.meetings.markShortcut.refused" = "Windows did not accept this shortcut; choose another";
+"settings.integrations.claudeCode.detail" = "Run once in PowerShell";
+"settings.privacy.local" = "Everything stays on this computer";
+"settings.privacy.deleteAll.confirmMessage" = "%@ and their audio will be removed from this computer. This cannot be undone.";
+"settings.about.tagline" = "Local voice input for Windows";
+"flowbar.copied" = "Copied — press Ctrl+V";
+"flowbar.error.accessibility" = "Slovo cannot type into this window";
+"onboarding.welcome.message" = "Hold a key, speak, and your words appear in any app. Everything runs on this computer.";
+"onboarding.welcome.feature3.detail" = "No account and no cloud: your speech never leaves this computer.";
+"onboarding.permissions.message" = "Slovo needs the microphone to hear you. Statuses update when you come back from Windows Settings.";
+"onboarding.models.message" = "GigaAM and Parakeet run on this computer. Download at least one to dictate.";
+"permission.status.unknown" = "See in Windows Settings";
+"settings.integrations.notInApplications" = "Slovo is not installed. Run install.ps1 from the zip first, or the path in the command changes with the next update.";
+"engine.status.unavailable" = "Not available on Windows";
+
+/* Dictation keys on Windows. */
+"key.ctrlWin" = "Ctrl + Win";
+"key.rightCtrl" = "Right Ctrl";
+"key.rightAlt" = "Right Alt";
+"key.leftCtrlAlt" = "Ctrl + Alt";
+"key.ctrlWin.detail" = "Left Ctrl and Win together, as in Wispr Flow";
+"key.rightCtrl.detail" = "Rarely used by other apps";
+"key.rightAlt.detail" = "AltGr on some layouts";
+"key.leftCtrlAlt.detail" = "Two keys held together";
+
+/* Windows-only */
+"tray.tooltip" = "Slovo";
+"tray.tooltip.recording" = "Slovo — recording";
+"tray.tooltip.meeting" = "Slovo — recording a meeting";
+"tray.tooltip.meeting.microphoneOff" = "Slovo — recording a meeting, microphone off";
+"tray.tooltip.meeting.microphoneLost" = "Slovo — recording a meeting, the microphone is gone";
+"settings.system.elevated" = "Slovo cannot type into windows that run as administrator; the text is copied instead.";
+"windows.secureInput" = "This window runs as administrator; the text was copied";
+
+/* Engines on Windows run on ONNX Runtime (sherpa-onnx), not Core ML. */
+"engine.tradeoff.parakeet" = "Best English, good Russian · ~1 GB RAM while loaded";
+"settings.meetings.speakerModel.tradeoff" = "pyannote segmentation 3.0 + WeSpeaker ResNet34-LM · about 40 MB";
+"onboarding.permissions.footnote" = "Windows asks nothing else. Slovo cannot type into windows that run as administrator; there it copies the text instead.";
+
+/* Help on Windows */
+"keytest.running" = "Slovo is listening for the key";
+"troubleshooting.key.detail" = "Another app may use the same keys (Wispr Flow uses Ctrl + Win too). Choose another key in Settings → General, and try it in the key test there.";
+"troubleshooting.notPasted.detail" = "Windows does not let Slovo type into windows that run as administrator, nor into some games and remote desktops. There the text is copied: press Ctrl+V yourself.";
+"troubleshooting.meetingOthers.detail" = "Turn on “Record system audio” in Settings → Meetings. Slovo records what the default output device plays, so the call must play there, not only in a headset set up elsewhere.";
+"troubleshooting.meetingOthers.action" = "Meetings";
+
+/* The sidebar status card when the keyboard hook could not be installed; macOS asks for Input Monitoring instead. */
+"readiness.keyUnavailable" = "Dictation key not working";
+"readiness.keyUnavailable.detail" = "Slovo could not listen to the keyboard";
+
+/* The file picker filter for "Import File". */
+"meetings.import.fileType" = "Audio and video";
+
+/* Settings → System: the tray icon instead of the menu bar icon. */
+"settings.system.menuBarIcon" = "Show the icon in the notification area";
+"settings.system.menuBarIcon.detail" = "Hidden, it still appears while a meeting records. To open Slovo, start it again from the Start menu";
+
+/* Screen recording on Windows: no permission to ask for; the video opens in the video player. */
+"meetings.recordScreen.help" = "Also records the screen for this and future meetings. The video is saved next to the audio.";
+"settings.meetings.screen.detail" = "Off by default. When on, a new meeting also saves a video of the screen, kept alongside the audio. Windows may draw a yellow frame around what is recorded.";
+"meetings.screenRecording.open" = "Open video";
+"meetings.screenRecording.open.help" = "Opens the screen recording in the video player";
+"meetings.screenRecording.missing" = "The screen recording is no longer on this computer.";

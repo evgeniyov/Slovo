@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Portrait: the recorder fills the screen and the waiting list follows it down.
+     The root carries the window insets, set from code, so nothing lands under the
+     status bar or the gesture bar. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/window">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:paddingStart="@dimen/screen_padding"
+        android:paddingTop="14dp"
+        android:paddingEnd="@dimen/screen_padding"
+        android:paddingBottom="22dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/recorder"
+                layout="@layout/block_recorder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- The one flexible thing on the page: it opens up when the list is short
+                 and collapses to nothing when the content outgrows the screen. Giving the
+                 space away through something empty means there is never anything to clip. -->
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <include
+                android:id="@+id/waiting"
+                layout="@layout/block_waiting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>

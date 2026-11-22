@@ -1,0 +1,88 @@
+{
+  "createdAt" : 788907599.9,
+  "duration" : 0,
+  "engineID" : "parakeet-v3",
+  "formatVersion" : 2,
+  "hasAudio" : false,
+  "hasScreenRecording" : false,
+  "hasSystemAudio" : true,
+  "highlights" : [
+
+  ],
+  "id" : "3D9E6F10-2B4C-4A8D-9E1F-5C6B7A8D9E0F",
+  "segments" : [
+    {
+      "end" : 5,
+      "speaker" : "me",
+      "start" : 0,
+      "text" : "Testing the microphone."
+    },
+    {
+      "end" : 20,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 6,
+      "text" : "I am the one who recorded this."
+    },
+    {
+      "end" : 25,
+      "speaker" : "me",
+      "speakerID" : "s9",
+      "start" : 21,
+      "text" : "A voice nobody named."
+    },
+    {
+      "end" : 130,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 100,
+      "text" : "First half of a long monologue."
+    },
+    {
+      "end" : 161,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 131,
+      "text" : "Second half that makes the line too long."
+    },
+    {
+      "end" : 150,
+      "speaker" : "others",
+      "start" : 140,
+      "text" : "Someone on the call."
+    },
+    {
+      "end" : 170,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 162,
+      "text" : "Tail."
+    },
+    {
+      "end" : 175,
+      "speaker" : "others",
+      "speakerID" : "s1",
+      "start" : 171,
+      "text" : "The call again, with a microphone speaker's id."
+    }
+  ],
+  "speakers" : [
+    {
+      "colorIndex" : 0,
+      "displayName" : "  Олег  Петров ",
+      "id" : "s1",
+      "isMe" : false,
+      "number" : 1,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 1,
+      "id" : "s2",
+      "isMe" : true,
+      "number" : 2,
+      "track" : "microphone"
+    }
+  ],
+  "status" : "transcribed",
+  "title" : "Microphone check"
+}

@@ -1,0 +1,5 @@
+/* Dictation key, paste shortcut, text insertion, permissions. Owned by the input module. */
+
+"input.fn.warning.systemUsage" = "macOS тоже реагирует на клавишу fn. В настройках клавиатуры выберите «Нажатие клавиши 🌐» → «действие не требуется».";
+"input.fn.warning.wisprFlow" = "Запущен Wispr Flow, он тоже слушает fn. Закройте его, чтобы диктовка не срабатывала дважды.";
+"input.fn.openKeyboardSettings" = "Открыть настройки клавиатуры";

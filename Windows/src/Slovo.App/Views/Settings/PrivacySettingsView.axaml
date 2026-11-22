@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Settings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Settings.PrivacySettingsView"
+             x:DataType="vm:PrivacySettingsViewModel">
+  <StackPanel Spacing="22">
+    <Border Classes="Card">
+      <StackPanel Spacing="4">
+        <TextBlock Classes="Headline" Text="{loc:T settings.privacy.local}" />
+        <TextBlock Classes="Secondary" Text="{loc:T settings.privacy.local.detail}" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,6,0,0" IsVisible="{Binding ClaudeAccessOn}">
+          <TextBlock Text="{loc:T settings.privacy.claudeOn}" TextWrapping="Wrap" Foreground="{DynamicResource Slovo.Warning}" />
+          <Button Classes="Link" Content="{loc:T settings.privacy.claudeOn.link}" Command="{Binding OpenIntegrationsCommand}" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+    <c:SettingsGroup Header="{loc:T settings.group.permissions}">
+      <ContentControl Content="{Binding Microphone}" />
+    </c:SettingsGroup>
+    <c:SettingsGroup Header="{loc:T settings.group.retention}">
+      <c:SettingsRow Title="{loc:T settings.privacy.keepHistory}" Detail="{loc:T settings.privacy.keepHistory.detail}">
+        <ComboBox ItemsSource="{Binding HistoryChoices}" SelectedItem="{Binding SelectedHistory}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.privacy.keepAudio}" Detail="{loc:T settings.privacy.keepAudio.detail}">
+        <ComboBox ItemsSource="{Binding AudioChoices}" SelectedItem="{Binding SelectedAudio}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+    <c:SettingsGroup Header="{loc:T settings.group.data}">
+      <c:SettingsRow Title="{loc:T settings.privacy.openFolder}" Detail="{Binding DataFolder}">
+        <Button Classes="Secondary" Content="{loc:T common.open}" Command="{Binding OpenDataFolderCommand}" />
+      </c:SettingsRow>
+      <c:SettingsRow Title="{loc:T settings.privacy.deleteAll}" Detail="{loc:T settings.privacy.deleteAll.detail}">
+        <Button Classes="Destructive" Content="{loc:T settings.privacy.deleteAll.button}" Command="{Binding DeleteAllCommand}" />
+      </c:SettingsRow>
+    </c:SettingsGroup>
+  </StackPanel>
+</UserControl>

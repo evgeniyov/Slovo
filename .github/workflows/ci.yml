@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      upload_artifacts:
+        description: Upload build artifacts to GitHub Actions
+        type: boolean
+        default: true
+      windows_release:
+        description: Test the Windows installers from this release tag (optional)
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+  AVALONIA_TELEMETRY_OPTOUT: '1'
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test
+        run: dotnet test Windows/Slovo.slnx -c Release
+      - name: Publish
+        run: dotnet publish Windows/src/Slovo.App -c Release -r win-x64 --self-contained -o dist/Slovo-win-x64
+      - name: Smoke-test the MCP server
+        shell: pwsh
+        run: |
+          $requests = @(
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}',
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}',
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"list_meetings","arguments":{"limit":1}}}'
+          ) -join "`n"
+          $env:SLOVO_DATA_DIR = Join-Path $env:RUNNER_TEMP 'slovo-data'
+          New-Item -ItemType Directory -Force $env:SLOVO_DATA_DIR | Out-Null
+          '{"integrations.mcp.enabled":true}' | Set-Content -Encoding utf8NoBOM (Join-Path $env:SLOVO_DATA_DIR 'settings.json')
+
+          # Slovo.exe is a GUI executable. Redirect its handles explicitly, as MCP clients do.
+          $start = [System.Diagnostics.ProcessStartInfo]::new((Resolve-Path dist/Slovo-win-x64/Slovo.exe).Path, '--mcp')
+          $start.UseShellExecute = $false
+          $start.RedirectStandardInput = $true
+          $start.RedirectStandardOutput = $true
+          $start.RedirectStandardError = $true
+          $start.StandardInputEncoding = [System.Text.UTF8Encoding]::new($false)
+          $process = [System.Diagnostics.Process]::Start($start)
+          try {
+            $stdout = $process.StandardOutput.ReadToEndAsync()
+            $stderr = $process.StandardError.ReadToEndAsync()
+            $process.StandardInput.WriteLine($requests)
+            $process.StandardInput.Close()
+            if (-not $process.WaitForExit(30000)) {
+              $process.Kill()
+              throw 'MCP server did not exit after stdin closed'
+            }
+            Write-Host ($stderr.GetAwaiter().GetResult())
+            if ($process.ExitCode -ne 0) { throw "MCP server exited with $($process.ExitCode)" }
+            $lines = @(($stdout.GetAwaiter().GetResult() -split '\r?\n') | Where-Object { $_ -ne '' })
+            Write-Host ($lines -join "`n")
+            if ($lines.Count -ne 2) { throw "expected 2 answers, got $($lines.Count)" }
+            $initialize = $lines[0] | ConvertFrom-Json
+            $meetings = $lines[1] | ConvertFrom-Json
+            if ($initialize.id -ne 1 -or $initialize.result.protocolVersion -ne '2025-11-25' -or
+                $meetings.id -ne 2 -or $meetings.error -or $meetings.result.isError -or
+                $null -eq $meetings.result.structuredContent.meetings) {
+              throw 'MCP returned unexpected replies'
+            }
+          } finally {
+            $process.Dispose()
+          }
+      - name: Test Windows release packages
+        if: github.event_name == 'workflow_dispatch' && inputs.windows_release != ''
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.windows_release }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v([0-9]+\.[0-9]+\.[0-9]+)$') { throw 'Expected a tag like v0.4.1' }
+          $version = $Matches[1]
+          $packages = Join-Path $env:RUNNER_TEMP 'release packages'
+          gh release download $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --dir $packages `
+            --pattern "Slovo-$version-win-x64-portable.zip" --pattern "Slovo-$version-win-x64-setup.exe"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not download the Windows release packages' }
+          Remove-Item Env:GH_TOKEN
+          & ./Windows/package/test_release.ps1 -PackageDirectory $packages -Version $version
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_artifacts
+        with:
+          name: Slovo-win-x64
+          path: dist/Slovo-win-x64
+
+  macos:
+    if: github.event_name != 'workflow_dispatch' || inputs.windows_release == ''
+    runs-on: macos-15
+    env:
+      # Apple Speech APIs require the macOS 26 SDK, even when testing on macOS 15.
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Select Xcode
+        run: |
+          if [[ ! -x "$DEVELOPER_DIR/usr/bin/xcodebuild" ]]; then
+            echo "::error::Pinned Xcode 26.3 is missing at $DEVELOPER_DIR on the macos-15 runner."
+            exit 1
+          fi
+          xcodebuild -version
+      - name: Resolve packages and repair ONNX Runtime
+        run: |
+          swift package resolve
+          set -- .build/artifacts/onnxruntime-libs/OnnxruntimeMacOS/*.xcframework/macos-*/onnxruntime.framework
+          if [[ ! -d "$1" ]]; then
+            echo "::error::SwiftPM did not extract the macOS ONNX Runtime framework."
+            exit 1
+          fi
+          python3 Scripts/repair_onnxruntime_framework.py
+      - name: Test
+        run: swift test
+      - name: Package macOS app
+        run: |
+          python3 build.py --dmg --sign-identity -
+          hdiutil verify Slovo-*.dmg
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_artifacts
+        with:
+          name: Slovo-macos-arm64
+          path: Slovo-*.dmg
+          if-no-files-found: error

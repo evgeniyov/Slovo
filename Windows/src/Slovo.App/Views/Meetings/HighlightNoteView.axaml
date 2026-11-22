@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Meetings"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Meetings.HighlightNoteView"
+             x:DataType="vm:HighlightNoteViewModel">
+  <StackPanel Spacing="12" Width="380">
+    <TextBlock Classes="SectionTitle" Text="{loc:T meetings.highlight.note}" />
+    <TextBox Name="NoteBox" Text="{Binding Note}" PlaceholderText="{loc:T meetings.highlight.notePlaceholder}"
+             AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72" MaxHeight="200" />
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,8,0,0">
+      <Button Classes="Secondary" Content="{loc:T common.cancel}" Command="{Binding CancelCommand}" IsCancel="True" />
+      <Button Classes="Primary" Content="{loc:T common.save}" Command="{Binding SaveCommand}" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

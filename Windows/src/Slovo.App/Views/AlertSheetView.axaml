@@ -1,0 +1,12 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.AlertSheetView"
+             x:DataType="vm:AlertSheetViewModel">
+  <StackPanel Spacing="12" Width="400">
+    <TextBlock Classes="SectionTitle" Text="{Binding Title}" TextWrapping="Wrap" />
+    <TextBlock Classes="Secondary" Text="{Binding Message}" TextWrapping="Wrap" />
+    <Button Classes="Primary" HorizontalAlignment="Right" Content="{loc:T common.ok}" Command="{Binding OkCommand}" IsDefault="True" />
+  </StackPanel>
+</UserControl>

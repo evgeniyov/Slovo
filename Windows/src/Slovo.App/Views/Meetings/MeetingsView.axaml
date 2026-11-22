@@ -1,0 +1,181 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Meetings"
+             xmlns:v="using:Slovo.App.Views"
+             xmlns:vmt="using:Slovo.App.Views.Meetings"
+             xmlns:c="using:Slovo.App.Controls"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Meetings.MeetingsView"
+             x:DataType="vm:MeetingsViewModel">
+  <DockPanel Margin="32,28">
+    <c:PageHeader DockPanel.Dock="Top" Title="{loc:T sidebar.meetings}" Subtitle="{loc:T meetings.subtitle}" Margin="0,0,0,18">
+      <StackPanel Spacing="6" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+          <Button Classes="Secondary" Command="{Binding ImportCommand}" ToolTip.Tip="{loc:T meetings.importFile.help}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <c:StrokeIcon Icon="{StaticResource Icon.Import}" Width="13" Height="13" />
+              <TextBlock Text="{loc:T meetings.importFile}" />
+            </StackPanel>
+          </Button>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Classes="Primary" Command="{Binding NewRecordingCommand}" IsEnabled="{Binding CanStart}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Ellipse Width="9" Height="9" Fill="{DynamicResource Slovo.Destructive}" />
+                <TextBlock Text="{loc:T meetings.newRecording}" />
+              </StackPanel>
+            </Button>
+            <!-- With screen or without, and what it captures (ScreenCaptureButton on macOS). -->
+            <Button Name="ScreenButton" Classes="ScreenChoice" Classes.On="{Binding ScreenChoice.RecordScreen}" IsEnabled="{Binding CanStart}"
+                    ToolTip.Tip="{Binding ScreenChoice.ButtonTip}" AutomationProperties.Name="{loc:T meetings.recordScreen}">
+              <c:StrokeIcon Icon="{StaticResource Icon.Screen}" Width="15" Height="15" />
+              <Button.Flyout>
+                <Flyout Placement="BottomEdgeAlignedRight" Opening="OnScreenChoiceOpening">
+                  <StackPanel Width="280" Spacing="10" Margin="4" DataContext="{Binding ScreenChoice}" x:DataType="vm:ScreenChoiceViewModel">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="Headline" Text="{loc:T meetings.recordScreen.title}" VerticalAlignment="Center" />
+                      <ToggleSwitch Grid.Column="1" IsChecked="{Binding RecordScreen}" OnContent="" OffContent=""
+                                    AutomationProperties.Name="{loc:T meetings.recordScreen.title}" />
+                    </Grid>
+                    <ScrollViewer MaxHeight="240" IsVisible="{Binding RecordScreen}">
+                      <ItemsControl ItemsSource="{Binding Targets}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:ScreenTargetItem">
+                            <Button Classes="ScreenTarget" Command="{Binding $parent[ItemsControl].((vm:ScreenChoiceViewModel)DataContext).ChooseCommand}"
+                                    CommandParameter="{Binding}" Click="OnScreenTargetClick">
+                              <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Panel Width="18" Margin="0,0,8,0">
+                                  <c:StrokeIcon Icon="{StaticResource Icon.Screen}" Width="14" Height="14" IsVisible="{Binding IsWholeScreen}" />
+                                  <c:StrokeIcon Icon="{StaticResource Icon.AppWindow}" Width="14" Height="14" IsVisible="{Binding !IsWholeScreen}" />
+                                </Panel>
+                                <TextBlock Grid.Column="1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                <c:StrokeIcon Grid.Column="2" Icon="{StaticResource Icon.Check}" Width="12" Height="12" IsVisible="{Binding IsChecked}"
+                                              Foreground="{DynamicResource Slovo.AccentText}" Margin="8,0,0,0" />
+                              </Grid>
+                            </Button>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </ScrollViewer>
+                    <TextBlock Classes="Caption" Text="{loc:T meetings.recordScreen.help}" TextWrapping="Wrap" IsVisible="{Binding !RecordScreen}" />
+                  </StackPanel>
+                </Flyout>
+              </Button.Flyout>
+            </Button>
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
+          <c:StrokeIcon Icon="{StaticResource Icon.People}" Width="12" Height="12" Foreground="{DynamicResource Slovo.TextSecondary}" />
+          <TextBlock Classes="Caption" Text="{Binding ConsentText}" />
+        </StackPanel>
+      </StackPanel>
+    </c:PageHeader>
+
+    <!-- Recording panel -->
+    <ContentControl DockPanel.Dock="Top" Content="{Binding Recording}" Margin="0,0,0,14">
+      <ContentControl.ContentTemplate>
+        <DataTemplate x:DataType="vm:RecordingPanelViewModel">
+          <StackPanel>
+            <Border Classes="Error" IsVisible="{Binding HasFailure}"><TextBlock Text="{Binding FailureText}" /></Border>
+            <Border Classes="Card" Padding="20" BorderBrush="{DynamicResource Slovo.Accent}" BorderThickness="1.5" IsVisible="{Binding IsVisible}">
+              <Grid ColumnDefinitions="190,28,*,28,Auto">
+                <StackPanel Spacing="4">
+                  <StackPanel Orientation="Horizontal" Spacing="7">
+                    <Ellipse Width="8" Height="8" Fill="{DynamicResource Slovo.Accent}" />
+                    <TextBlock FontSize="11" FontWeight="Medium" Foreground="{DynamicResource Slovo.AccentText}" Text="{Binding StatusTitle}" />
+                  </StackPanel>
+                  <TextBlock Classes="LargeNumber" Text="{Binding ElapsedText}" FontFeatures="+tnum" IsVisible="{Binding IsRecording}" />
+                  <TextBlock Classes="Caption" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                  <TextBlock FontSize="11" FontWeight="Medium" Text="{Binding TracksText}" TextWrapping="Wrap" IsVisible="{Binding IsRecording}"
+                             Foreground="{DynamicResource Slovo.TextSecondary}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="10" VerticalAlignment="Center">
+                  <Grid ColumnDefinitions="104,*">
+                    <TextBlock Classes="Caption" FontWeight="Medium" Text="{loc:T meetings.meter.microphone}" />
+                    <c:ShareBar Grid.Column="1" Fraction="{Binding MicrophoneLevel, Converter={x:Static v:ViewConverters.MeterLevel}}"
+                                Fill="{DynamicResource Slovo.Accent}" Track="{DynamicResource Slovo.CalendarEmpty}" VerticalAlignment="Center" />
+                  </Grid>
+                  <TextBlock Classes="Caption" Text="{Binding MicrophoneStatusText}" Foreground="{DynamicResource Slovo.Warning}" TextWrapping="Wrap"
+                             IsVisible="{Binding MicrophoneStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                  <Grid ColumnDefinitions="104,*">
+                    <TextBlock Classes="Caption" FontWeight="Medium" Text="{Binding SystemMeterTitle}" TextTrimming="CharacterEllipsis" />
+                    <c:ShareBar Grid.Column="1" Fraction="{Binding SystemLevel, Converter={x:Static v:ViewConverters.MeterLevel}}"
+                                Fill="{DynamicResource Slovo.SecondaryAccent}" Track="{DynamicResource Slovo.CalendarEmpty}" VerticalAlignment="Center" />
+                  </Grid>
+                  <TextBlock Classes="Caption" Text="{Binding SystemStatusText}" Foreground="{DynamicResource Slovo.Warning}" TextWrapping="Wrap"
+                             IsVisible="{Binding SystemStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                  <TextBlock Classes="Caption" Classes.Warning="{Binding ScreenStatusIsWarning}" Text="{Binding ScreenStatusText}" TextWrapping="Wrap"
+                             IsVisible="{Binding ScreenStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
+                <StackPanel Grid.Column="4" Spacing="8" HorizontalAlignment="Right">
+                  <Button Classes="Primary" Command="{Binding StopCommand}" IsEnabled="{Binding !IsStopping}" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Stop}" Width="11" Height="11" Filled="True" />
+                      <TextBlock Text="{loc:T meetings.stop}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="Secondary" Command="{Binding ToggleMicrophoneCommand}" IsVisible="{Binding IsRecording}" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Mic}" Width="12" Height="12" IsVisible="{Binding IsMicrophoneOn}" />
+                      <c:StrokeIcon Icon="{StaticResource Icon.MicOff}" Width="12" Height="12" IsVisible="{Binding !IsMicrophoneOn}" Foreground="{DynamicResource Slovo.Warning}" />
+                      <TextBlock Text="{Binding MicrophoneButtonText}" />
+                      <TextBlock Classes="Secondary" Text="{Binding MicrophoneShortcut}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Classes="Secondary" Command="{Binding MarkCommand}" IsVisible="{Binding IsRecording}" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <c:StrokeIcon Icon="{StaticResource Icon.Star}" Width="12" Height="12" />
+                      <TextBlock Text="{loc:T meetings.recording.mark}" />
+                      <TextBlock Classes="Secondary" Text="{Binding MarkShortcut}" />
+                    </StackPanel>
+                  </Button>
+                  <TextBlock Classes="Caption" Text="{Binding MarkedText}" HorizontalAlignment="Right"
+                             IsVisible="{Binding MarkedText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
+              </Grid>
+            </Border>
+          </StackPanel>
+        </DataTemplate>
+      </ContentControl.ContentTemplate>
+    </ContentControl>
+
+    <c:EmptyState DockPanel.Dock="Top" Icon="{StaticResource Icon.People}" Title="{loc:T meetings.empty.title}" Message="{loc:T meetings.empty.message}"
+                  IsVisible="{Binding IsEmpty}" VerticalAlignment="Top" />
+
+    <Grid ColumnDefinitions="280,14,*" IsVisible="{Binding !IsEmpty}">
+      <Border Classes="List">
+        <ScrollViewer>
+          <ItemsControl ItemsSource="{Binding Rows}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:MeetingRowViewModel">
+                <Button Classes="SidebarRow" Classes.Selected="{Binding IsSelected}" Margin="6,3" CornerRadius="8" Padding="12,9"
+                        Command="{Binding $parent[UserControl].((vm:MeetingsViewModel)DataContext).SelectCommand}" CommandParameter="{Binding Id}">
+                  <StackPanel Spacing="3">
+                    <TextBlock Classes="Medium" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Classes="Caption" Text="{Binding DateText}" />
+                      <!-- A meeting still recording counts up, as on the Mac. -->
+                      <TextBlock Classes="Caption" Text="·" IsVisible="{Binding HasDuration}" />
+                      <TextBlock Classes="Caption" Text="{Binding DurationText}" FontFeatures="+tnum" IsVisible="{Binding HasDuration}" />
+                      <c:StrokeIcon Icon="{StaticResource Icon.Mic}" Width="11" Height="11" IsVisible="{Binding FromPhone}" Foreground="{DynamicResource Slovo.TextSecondary}" />
+                    </StackPanel>
+                    <TextBlock FontSize="11" FontWeight="Medium" Text="{Binding StatusText}" Classes.Problem="{Binding IsProblem}"
+                               Foreground="{DynamicResource Slovo.AccentText}" IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                  </StackPanel>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Border>
+      <ContentControl Grid.Column="2" Content="{Binding Detail}" />
+    </Grid>
+  </DockPanel>
+  <UserControl.Styles>
+    <Style Selector="TextBlock.Problem">
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.Destructive}" />
+    </Style>
+    <Style Selector="TextBlock.Warning">
+      <Setter Property="Foreground" Value="{DynamicResource Slovo.Warning}" />
+    </Style>
+  </UserControl.Styles>
+</UserControl>

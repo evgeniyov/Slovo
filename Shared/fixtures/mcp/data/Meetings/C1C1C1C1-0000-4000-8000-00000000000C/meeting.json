@@ -1,0 +1,106 @@
+{
+  "claudeNotes" : {
+    "author" : "Claude",
+    "decisions" : [
+      "Релиз во вторник."
+    ],
+    "summary" : "Релиз переносим на вторник.",
+    "tasks" : [
+      "Спикер 1 пишет заметки к вечеру."
+    ],
+    "writtenAt" : 810370800
+  },
+  "createdAt" : 810306000,
+  "diarization" : {
+    "speakersPerTrack" : {
+      "microphone" : 2,
+      "system" : 1
+    },
+    "state" : "applied"
+  },
+  "duration" : 3710,
+  "engineID" : "gigaam-v3-rnnt",
+  "formatVersion" : 2,
+  "hasAudio" : false,
+  "hasScreenRecording" : false,
+  "hasSystemAudio" : true,
+  "highestSpeakerNumber" : 3,
+  "highlights" : [
+    {
+      "createdAt" : 810307800,
+      "id" : "9B1C0000-0000-4000-8000-00000000000C",
+      "note" : "перенос релиза",
+      "source" : "transcript",
+      "time" : 9
+    }
+  ],
+  "id" : "C1C1C1C1-0000-4000-8000-00000000000C",
+  "segments" : [
+    {
+      "end" : 6,
+      "speaker" : "me",
+      "speakerID" : "s2",
+      "start" : 2,
+      "text" : "Что у нас с релизом?"
+    },
+    {
+      "end" : 12,
+      "speaker" : "others",
+      "speakerID" : "s3",
+      "start" : 7,
+      "text" : "Релиз переносим на вторник."
+    },
+    {
+      "end" : 15,
+      "speaker" : "others",
+      "start" : 12.5,
+      "text" : "И обновим план."
+    },
+    {
+      "end" : 20,
+      "speaker" : "me",
+      "start" : 16,
+      "text" : "Кто пишет заметки?"
+    },
+    {
+      "end" : 30,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : 21,
+      "text" : "Я напишу, и отправлю всем к вечеру."
+    },
+    {
+      "end" : 3710,
+      "speaker" : "others",
+      "speakerID" : "s3",
+      "start" : 3700,
+      "text" : "Спасибо, до встречи."
+    }
+  ],
+  "speakers" : [
+    {
+      "colorIndex" : 0,
+      "id" : "s1",
+      "isMe" : false,
+      "number" : 1,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 1,
+      "displayName" : "Олег",
+      "id" : "s2",
+      "isMe" : true,
+      "number" : 2,
+      "track" : "microphone"
+    },
+    {
+      "colorIndex" : 2,
+      "id" : "s3",
+      "isMe" : false,
+      "number" : 3,
+      "track" : "system"
+    }
+  ],
+  "status" : "transcribed",
+  "title" : "Ретро команды"
+}

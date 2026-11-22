@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Mac app's dark palette, so the phone and the laptop look like one product. -->
+<resources>
+    <color name="window">#1B1A18</color>
+    <color name="panel">#232220</color>
+    <color name="panel_border">#34322E</color>
+    <color name="divider">#2E2C29</color>
+    <color name="text_primary">#EEEAE3</color>
+    <color name="text_secondary">#A39E94</color>
+    <color name="accent">#8F74FB</color>
+    <color name="accent_text">#AE9BFC</color>
+    <!-- The accent laid over the panel: quiet enough to carry a whole button or the
+         chosen half of the mode switch without shouting the way the solid accent does. -->
+    <color name="accent_soft">#2C2646</color>
+    <color name="on_accent">#161514</color>
+    <!-- Only for the recording state: a red reads as "live" everywhere. -->
+    <color name="recording">#E5534B</color>
+    <!-- Ripples: a dark one on the bright accent fill, a light one on dark surfaces. -->
+    <color name="ripple_dark">#33000000</color>
+    <color name="ripple_light">#22FFFFFF</color>
+</resources>

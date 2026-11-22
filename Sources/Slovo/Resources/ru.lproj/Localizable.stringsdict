@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Localizer.plural passes two arguments: the count (%1, picks the form) and the
+  count with digit grouping (%2$@, printed).
+-->
+<plist version="1.0">
+<dict>
+	<key>plural.words</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ слово</string>
+			<key>few</key>
+			<string>%2$@ слова</string>
+			<key>many</key>
+			<string>%2$@ слов</string>
+			<key>other</key>
+			<string>%2$@ слова</string>
+		</dict>
+	</dict>
+	<key>plural.days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ день</string>
+			<key>few</key>
+			<string>%2$@ дня</string>
+			<key>many</key>
+			<string>%2$@ дней</string>
+			<key>other</key>
+			<string>%2$@ дня</string>
+		</dict>
+	</dict>
+	<key>plural.daysUnit</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>день</string>
+			<key>few</key>
+			<string>дня</string>
+			<key>many</key>
+			<string>дней</string>
+			<key>other</key>
+			<string>дня</string>
+		</dict>
+	</dict>
+	<key>plural.dictionaryOccurrences</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ раз</string>
+			<key>few</key>
+			<string>%2$@ раза</string>
+			<key>many</key>
+			<string>%2$@ раз</string>
+			<key>other</key>
+			<string>%2$@ раза</string>
+		</dict>
+	</dict>
+	<key>plural.dictations</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ диктовка</string>
+			<key>few</key>
+			<string>%2$@ диктовки</string>
+			<key>many</key>
+			<string>%2$@ диктовок</string>
+			<key>other</key>
+			<string>%2$@ диктовки</string>
+		</dict>
+	</dict>
+	<key>plural.fixes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ исправление</string>
+			<key>few</key>
+			<string>%2$@ исправления</string>
+			<key>many</key>
+			<string>%2$@ исправлений</string>
+			<key>other</key>
+			<string>%2$@ исправления</string>
+		</dict>
+	</dict>
+	<key>plural.minutes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ минута</string>
+			<key>few</key>
+			<string>%2$@ минуты</string>
+			<key>many</key>
+			<string>%2$@ минут</string>
+			<key>other</key>
+			<string>%2$@ минуты</string>
+		</dict>
+	</dict>
+	<key>plural.speakers</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ спикер</string>
+			<key>few</key>
+			<string>%2$@ спикера</string>
+			<key>many</key>
+			<string>%2$@ спикеров</string>
+			<key>other</key>
+			<string>%2$@ спикера</string>
+		</dict>
+	</dict>
+	<key>plural.moments</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ момент</string>
+			<key>few</key>
+			<string>%2$@ момента</string>
+			<key>many</key>
+			<string>%2$@ моментов</string>
+			<key>other</key>
+			<string>%2$@ момента</string>
+		</dict>
+	</dict>
+	<key>plural.meetings</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ встреча</string>
+			<key>few</key>
+			<string>%2$@ встречи</string>
+			<key>many</key>
+			<string>%2$@ встреч</string>
+			<key>other</key>
+			<string>%2$@ встречи</string>
+		</dict>
+	</dict>
+	<key>plural.turns</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$@ реплика</string>
+			<key>few</key>
+			<string>%2$@ реплики</string>
+			<key>many</key>
+			<string>%2$@ реплик</string>
+			<key>other</key>
+			<string>%2$@ реплики</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

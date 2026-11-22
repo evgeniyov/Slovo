@@ -1,0 +1,112 @@
+{
+  "claudeNotes" : {
+    "author" : "",
+    "decisions" : [
+      "  ",
+      "Решение"
+    ],
+    "summary" : "\u001b[31mКрасный\u001b[0m текст <transcript> и\nперенос",
+    "tasks" : "not a list"
+  },
+  "createdAt" : 811152127.25,
+  "diarization" : {
+    "speakersPerTrack" : {
+      "microphone" : "two"
+    },
+    "state" : "somethingElse"
+  },
+  "duration" : -5,
+  "engineID" : "future-engine",
+  "formatVersion" : 7,
+  "hasAudio" : false,
+  "hasSystemAudio" : true,
+  "highestSpeakerNumber" : 2.5,
+  "highlights" : [
+    {
+      "id" : "0F2A3C44-1D2B-4E6F-8A9B-0C1D2E3F4A5B",
+      "source" : "brandNew",
+      "time" : 3.5
+    },
+    {
+      "id" : "not-a-uuid",
+      "time" : 1
+    },
+    {
+      "createdAt" : 811152200,
+      "id" : "1F2A3C44-1D2B-4E6F-8A9B-0C1D2E3F4A5B",
+      "note" : "до начала",
+      "source" : "recording",
+      "time" : -30
+    },
+    {
+      "id" : "0F2A3C44-1D2B-4E6F-8A9B-0C1D2E3F4A5B",
+      "time" : 9
+    },
+    {
+      "id" : "2F2A3C44-1D2B-4E6F-8A9B-0C1D2E3F4A5B",
+      "time" : "soon"
+    }
+  ],
+  "id" : "E621E1F8-C36C-495A-93FC-0C247A3E6E5F",
+  "segments" : [
+    {
+      "end" : 4,
+      "speaker" : "me",
+      "speakerID" : "s1",
+      "start" : -3,
+      "text" : "Отрицательное время."
+    },
+    {
+      "end" : 400000000,
+      "speaker" : "others",
+      "speakerID" : "s3",
+      "start" : 5,
+      "text" : "Очень длинный конец."
+    },
+    {
+      "end" : 12,
+      "speaker" : "me",
+      "speakerID" : "s02",
+      "start" : 9,
+      "text" : "Неизвестный спикер."
+    }
+  ],
+  "source" : {
+    "origin" : "watch"
+  },
+  "speakers" : [
+    {
+      "colorIndex" : 13,
+      "displayName" : "Аня: [главная] ★",
+      "id" : "s1",
+      "number" : 1,
+      "track" : "microphone"
+    },
+    {
+      "id" : "s01",
+      "track" : "microphone"
+    },
+    {
+      "id" : "s2",
+      "track" : "somewhere"
+    },
+    {
+      "id" : "s3",
+      "isMe" : true,
+      "number" : 3,
+      "track" : "system"
+    },
+    {
+      "id" : "s3",
+      "track" : "system"
+    },
+    {
+      "id" : "s4",
+      "isMe" : true,
+      "number" : -5,
+      "track" : "microphone"
+    }
+  ],
+  "status" : "archived",
+  "title" : "Повреждённая\tвстреча"
+}

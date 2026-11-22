@@ -1,0 +1,24 @@
+{
+  "createdAt" : 810716400.0,
+  "duration" : 95.5,
+  "engineID" : "gigaam-v3-rnnt",
+  "hasAudio" : false,
+  "hasSystemAudio" : true,
+  "id" : "3F2A9C1E-AAAA-4BBB-8CCC-000000000004",
+  "segments" : [
+    {
+      "end" : 6,
+      "speaker" : "me",
+      "start" : 1,
+      "text" : "Let us plan the release."
+    },
+    {
+      "end" : 12,
+      "speaker" : "others",
+      "start" : 7,
+      "text" : "The prototype is due on Friday."
+    }
+  ],
+  "status" : "transcribed",
+  "title" : "Planning"
+}

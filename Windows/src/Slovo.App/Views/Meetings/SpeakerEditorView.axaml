@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Slovo.App.ViewModels.Meetings"
+             xmlns:loc="using:Slovo.App.Localization"
+             x:Class="Slovo.App.Views.Meetings.SpeakerEditorView"
+             x:DataType="vm:SpeakerEditorViewModel">
+  <StackPanel Spacing="12" Width="380">
+    <TextBlock Classes="SectionTitle" Text="{loc:T meetings.speaker.edit}" />
+    <TextBlock Classes="Caption" Text="{Binding SourceText}" />
+    <TextBox Name="NameBox" Text="{Binding Name}" PlaceholderText="{Binding Label}" />
+    <TextBlock Classes="Caption" Text="{loc:T meetings.speaker.nameHint}" TextWrapping="Wrap" />
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Button Classes="Secondary" Content="{loc:T meetings.speaker.itsMe}" Command="{Binding MarkAsMeCommand}" IsEnabled="{Binding !IsMe}" />
+      <Button Classes="Secondary" Content="{loc:T meetings.speaker.reset}" Command="{Binding ResetNameCommand}" />
+      <Button Classes="Secondary" Content="{loc:T meetings.speaker.merge}" IsEnabled="{Binding CanMerge}">
+        <Button.Flyout>
+          <MenuFlyout ItemsSource="{Binding MergeChoices}">
+            <MenuFlyout.ItemContainerTheme>
+              <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="vm:MergeChoice">
+                <Setter Property="Header" Value="{Binding Label}" />
+                <Setter Property="Command" Value="{Binding $parent[UserControl].((vm:SpeakerEditorViewModel)DataContext).MergeCommand}" />
+                <Setter Property="CommandParameter" Value="{Binding}" />
+              </ControlTheme>
+            </MenuFlyout.ItemContainerTheme>
+          </MenuFlyout>
+        </Button.Flyout>
+      </Button>
+    </StackPanel>
+    <TextBlock Classes="Caption" Text="{loc:T meetings.speaker.merge.none}" IsVisible="{Binding !CanMerge}" />
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,8,0,0">
+      <Button Classes="Secondary" Content="{loc:T common.cancel}" Command="{Binding CancelCommand}" IsCancel="True" />
+      <Button Classes="Primary" Content="{loc:T common.save}" Command="{Binding SaveCommand}" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

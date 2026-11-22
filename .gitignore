@@ -1,0 +1,35 @@
+.DS_Store
+.build*/
+.swiftpm/
+*.xcodeproj
+
+# Voice recordings and benchmark output stay on this Mac.
+Bench/clips/
+Bench/excluded/
+Bench/results/
+Bench/diarization/out/
+
+# The app bundle build.py assembles.
+/Slovo.app/
+*.dmg
+
+# Python bytecode.
+__pycache__/
+*.pyc
+
+# The Windows app's build output and published packages.
+Windows/**/bin/
+Windows/**/obj/
+Windows/TestResults/
+dist/
+Slovo-*-win-x64.zip
+
+# Claude Code session data and agent worktrees.
+.claude/
+
+# Local audit reports, environment files, and signing credentials.
+/docs/audit-*.md
+.env*
+*.pem
+*.p12
+*.mobileprovision

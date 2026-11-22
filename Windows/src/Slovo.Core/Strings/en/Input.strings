@@ -1,0 +1,6 @@
+/* Windows additions to Sources/SlovoCore/Resources/en.lproj/Input.strings. Owned by the Windows platform module. */
+
+/* The low-level keyboard hook could not be installed. */
+"input.error.hookFailed" = "Slovo could not listen to the keyboard, so the dictation key does not work. Restart Slovo.";
+/* Text was copied instead of pasted because the window in front runs as administrator or Windows shows a secure screen. */
+"input.warning.elevatedWindow" = "The window in front runs as administrator, so Slovo cannot type into it. The text is copied: press Ctrl+V.";

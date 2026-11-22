@@ -1,0 +1,82 @@
+/* Slovo для Windows: строки, заменяющие macOS-формулировки общей таблицы, и ключи,
+   которые есть только у Windows-версии. Ключи должны совпадать с en/Localizable.strings. */
+
+"home.play.missing" = "Этой записи больше нет на компьютере.";
+"meetings.consent.detail" = "Предупредите собеседников, что идёт запись. Записи и расшифровки остаются на этом компьютере.";
+"meetings.system.silent" = "Системный звук не поступает. Если созвон идёт, проверьте устройство вывода в параметрах звука Windows.";
+"meetings.action.finder" = "Показать в Проводнике";
+"meetings.delete.message" = "«%@» вместе со звуком и расшифровкой будет удалена с этого компьютера.";
+"insights.subtitle" = "Как вы диктуете — по истории на этом компьютере.";
+"scratchpad.delete.message" = "Заметка будет удалена с этого компьютера.";
+"settings.group.appearance" = "Панель диктовки и звуки";
+"settings.general.pasteLast.refused" = "Это сочетание уже занято Windows или другим приложением, выберите другое";
+"keytest.needsPermission" = "Slovo не удалось следить за клавиатурой; перезапустите Slovo";
+"engine.delete.message" = "Файлы модели будут удалены с этого компьютера. Потом их можно скачать снова.";
+"settings.system.launchAtLogin.detail" = "Slovo будет ждать в области уведомлений";
+"settings.system.flowBarIdle.detail" = "Небольшая полоска над панелью задач, когда курсор стоит в поле ввода; во время диктовки панель видна всегда";
+"settings.meetings.systemAudio.detail" = "Чтобы записать собеседников: всё, что играет компьютер, кроме самого Slovo.";
+"settings.meetings.microphone.detail" = "Включён ли микрофон в начале записи. Во время встречи его переключают кнопкой, в меню в области уведомлений или сочетанием клавиш; выключенный микрофон пишет тишину.";
+"settings.meetings.speakerModel.delete.message" = "Файлы модели будут удалены с этого компьютера. У записанных встреч спикеры останутся, а новые будут подписаны «Я» и «Собеседники», пока вы снова не скачаете модель.";
+"settings.meetings.markShortcut.refused" = "Windows не приняла это сочетание, выберите другое";
+"settings.integrations.claudeCode.detail" = "Выполните один раз в PowerShell";
+"settings.privacy.local" = "Всё остаётся на этом компьютере";
+"settings.privacy.deleteAll.confirmMessage" = "С этого компьютера будут удалены %@ и их звук. Отменить это нельзя.";
+"settings.about.tagline" = "Локальный голосовой ввод для Windows";
+"flowbar.copied" = "Скопировано — нажмите Ctrl+V";
+"flowbar.error.accessibility" = "Slovo не может печатать в это окно";
+"onboarding.welcome.message" = "Удерживайте клавишу, говорите — и текст появится в любом приложении. Всё работает прямо на этом компьютере.";
+"onboarding.welcome.feature3.detail" = "Без аккаунта и облака: речь не покидает этот компьютер.";
+"onboarding.permissions.message" = "Slovo нужен микрофон, чтобы слышать вас. Статусы обновятся, когда вы вернётесь из параметров Windows.";
+"onboarding.models.message" = "GigaAM и Parakeet работают прямо на компьютере. Скачайте хотя бы одну модель, чтобы диктовать.";
+"permission.status.unknown" = "Смотрите в параметрах Windows";
+"settings.integrations.notInApplications" = "Slovo не установлен. Сначала запустите install.ps1 из архива, иначе путь в команде изменится при следующем обновлении.";
+"engine.status.unavailable" = "Недоступно в Windows";
+
+/* Клавиши диктовки в Windows. */
+"key.ctrlWin" = "Ctrl + Win";
+"key.rightCtrl" = "Правый Ctrl";
+"key.rightAlt" = "Правый Alt";
+"key.leftCtrlAlt" = "Ctrl + Alt";
+"key.ctrlWin.detail" = "Левые Ctrl и Win вместе, как в Wispr Flow";
+"key.rightCtrl.detail" = "Другие приложения его почти не используют";
+"key.rightAlt.detail" = "На некоторых раскладках это AltGr";
+"key.leftCtrlAlt.detail" = "Две клавиши вместе";
+
+/* Только Windows */
+"tray.tooltip" = "Slovo";
+"tray.tooltip.recording" = "Slovo — идёт запись";
+"tray.tooltip.meeting" = "Slovo — идёт запись встречи";
+"tray.tooltip.meeting.microphoneOff" = "Slovo — идёт запись встречи, микрофон выключен";
+"tray.tooltip.meeting.microphoneLost" = "Slovo — идёт запись встречи, микрофон пропал";
+"settings.system.elevated" = "Slovo не может печатать в окна, запущенные от имени администратора; текст в этом случае копируется.";
+"windows.secureInput" = "Окно запущено от имени администратора; текст скопирован";
+
+/* Движки в Windows работают на ONNX Runtime (sherpa-onnx), а не на Core ML. */
+"engine.tradeoff.parakeet" = "Лучший для английского, хорош для русского · ~1 ГБ памяти, пока загружен";
+"settings.meetings.speakerModel.tradeoff" = "pyannote segmentation 3.0 + WeSpeaker ResNet34-LM · около 40 МБ";
+"onboarding.permissions.footnote" = "Больше Windows ничего не спрашивает. В окна, запущенные от имени администратора, Slovo печатать не может — там текст копируется.";
+
+/* Справка в Windows */
+"keytest.running" = "Slovo следит за клавишей";
+"troubleshooting.key.detail" = "Другое приложение может использовать те же клавиши (Wispr Flow тоже слушает Ctrl + Win). Выберите другую клавишу в «Настройки → Основные» и проверьте её там же.";
+"troubleshooting.notPasted.detail" = "Windows не даёт Slovo печатать в окна, запущенные от имени администратора, а также в некоторые игры и удалённые рабочие столы. Там текст копируется — нажмите Ctrl+V сами.";
+"troubleshooting.meetingOthers.detail" = "Включите «Записывать системный звук» в «Настройки → Встречи». Slovo записывает то, что играет устройство вывода по умолчанию, поэтому созвон должен звучать именно там.";
+"troubleshooting.meetingOthers.action" = "Встречи";
+
+/* Карточка состояния в боковой панели, когда Slovo не смог следить за клавиатурой; в macOS вместо этого нужен мониторинг ввода. */
+"readiness.keyUnavailable" = "Клавиша диктовки не работает";
+"readiness.keyUnavailable.detail" = "Slovo не удалось следить за клавиатурой";
+
+/* The file picker filter for "Import File". */
+"meetings.import.fileType" = "Аудио и видео";
+
+/* Settings → System: the tray icon instead of the menu bar icon. */
+"settings.system.menuBarIcon" = "Показывать значок в области уведомлений";
+"settings.system.menuBarIcon.detail" = "Скрытый значок всё равно появляется, пока идёт запись встречи. Чтобы открыть Slovo, запустите его ещё раз из меню «Пуск»";
+
+/* Запись экрана в Windows: разрешение не нужно; видео открывается в видеоплеере. */
+"meetings.recordScreen.help" = "Также записывать экран для этой и будущих встреч. Видео сохраняется рядом со звуком.";
+"settings.meetings.screen.detail" = "Выключено по умолчанию. При включении новая встреча дополнительно сохраняет видео экрана рядом со звуком. Windows может обвести записываемое жёлтой рамкой.";
+"meetings.screenRecording.open" = "Открыть видео";
+"meetings.screenRecording.open.help" = "Открывает запись экрана в видеоплеере";
+"meetings.screenRecording.missing" = "Записи экрана больше нет на этом компьютере.";

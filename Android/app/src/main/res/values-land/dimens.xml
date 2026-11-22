@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Landscape puts the recorder and the waiting list side by side, so both the type and
+     the breathing room around the timer shrink to what half a short screen can hold. -->
+<resources>
+    <dimen name="screen_padding">18dp</dimen>
+    <dimen name="timer_size">44sp</dimen>
+    <dimen name="stage_height">110dp</dimen>
+    <dimen name="waiting_gap">0dp</dimen>
+</resources>

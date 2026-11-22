@@ -1,0 +1,25 @@
+{
+  "createdAt" : 793886400,
+  "duration" : 600,
+  "formatVersion" : 2,
+  "hasAudio" : false,
+  "hasScreenRecording" : false,
+  "hasSystemAudio" : false,
+  "highlights" : [
+
+  ],
+  "id" : "C0FFEE00-0000-4000-8000-00000000000F",
+  "segments" : [
+    {
+      "end" : 5,
+      "speaker" : "me",
+      "start" : 0,
+      "text" : "Ретро прошлого года."
+    }
+  ],
+  "speakers" : [
+
+  ],
+  "status" : "transcribed",
+  "title" : "Old retro"
+}

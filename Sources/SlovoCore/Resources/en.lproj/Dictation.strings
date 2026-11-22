@@ -1,0 +1,26 @@
+/* Engine and model management, the dictation controller. Owned by the dictation module. */
+
+"dictation.error.modelMissing" = "The %@ model is not downloaded";
+"dictation.error.modelDamaged" = "The %@ model is damaged. Download it again in Settings → Recognition.";
+"dictation.error.modelDownloading" = "The %@ model is still downloading";
+"dictation.error.appleAssetsMissing" = "Apple Dictation is not available. Turn on dictation in System Settings → Keyboard → Dictation.";
+"dictation.error.downloadFailed" = "Could not download %1$@: %2$@";
+"dictation.error.deleteFailed" = "Could not delete %1$@: %2$@";
+"dictation.error.deleteWhileDownloading" = "%@ is downloading. Cancel the download before deleting the model.";
+"dictation.error.httpStatus" = "the server answered with status %ld";
+"dictation.error.extractFailed" = "Could not unpack %1$@ (tar exit code %2$ld)";
+"dictation.error.archiveIncomplete" = "The %1$@ archive is incomplete: %2$@";
+"dictation.error.checksumMismatch" = "the downloaded %@ does not match its checksum and was removed; download it again";
+"dictation.error.downloadCut" = "the connection closed before %@ was complete; Download again continues where it stopped";
+"dictation.error.appleUnsupported" = "Apple Dictation needs macOS 26 or newer";
+"dictation.error.entryMissing" = "This dictation is no longer in history";
+"dictation.error.audioMissing" = "The recording of this dictation is no longer kept";
+"dictation.error.rerunEmpty" = "The engine heard nothing in this recording";
+"dictation.error.microphoneFailed" = "Could not turn on the microphone";
+"dictation.error.timedOut" = "Recognition took too long";
+
+"dictation.model.missingFiles" = "Missing files: %@.";
+"dictation.model.incompleteFiles" = "Incomplete files: %@.";
+"dictation.model.downloadUnfinished" = "The download did not finish.";
+"dictation.error.partialRecording" = "Some microphone audio was lost. The transcript may be incomplete.";
+"dictation.error.partialRecordingCopied" = "Some microphone audio was lost. The partial transcript was copied to the clipboard.";

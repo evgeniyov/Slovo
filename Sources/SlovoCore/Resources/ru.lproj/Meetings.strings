@@ -1,0 +1,55 @@
+/* Meeting recording and transcription. Owned by the meetings module. */
+
+"meetings.speaker.me" = "Я";
+"meetings.speaker.others" = "Собеседники";
+/* The microphone's unseparated speech once another speaker is marked «This is me». */
+"meetings.speaker.microphone" = "Микрофон";
+"meetings.speaker.numbered" = "Спикер %ld";
+"meetings.defaultTitle" = "Встреча %@";
+"meetings.transcript.empty" = "Речь не распознана.";
+"meetings.transcript.participants" = "Участники: %@";
+"meetings.transcript.highlightsHeading" = "Важные моменты";
+"meetings.transcript.heading" = "Расшифровка";
+"meetings.transcript.claudeHeading" = "Итоги Claude";
+/* Who wrote the notes and when. They are an account of the meeting, not a record of it. */
+"meetings.transcript.claudeWritten" = "Записал %@ · %@. Это пересказ встречи, а не расшифровка.";
+"meetings.transcript.claudeDecisions" = "Решения";
+"meetings.transcript.claudeTasks" = "Задачи";
+/* The argument is a whole sentence, such as a speaker model error. */
+"meetings.diarization.failed" = "Спикеры не разделены. %@";
+"meetings.diarization.unsupportedSystem" = "Для разделения по спикерам нужна macOS 15 или новее";
+"meetings.transcription.cancelled" = "Расшифровка отменена";
+"meetings.transcription.noRecognizedSpeech" = "Распознать речь не удалось. Аудио и прежняя расшифровка, если она была, сохранены.";
+"meetings.transcription.interrupted" = "Расшифровка прервалась, когда Slovo закрылся";
+
+"meetings.error.systemAudioDenied" = "Системный звук не записывается. Разрешите Slovo запись системного звука в Системных настройках.";
+"meetings.error.systemAudioUnsupported" = "Для записи системного звука нужна macOS 14.4 или новее";
+"meetings.error.screenRecordingDenied" = "Нужно разрешение на запись экрана. Разрешите Slovo запись экрана в Системных настройках и перезапустите Slovo.";
+"meetings.error.screenRecordingUnavailable" = "Запись экрана сейчас недоступна";
+"meetings.error.screenRecordingAppNotRunning" = "Выбранное приложение не запущено, поэтому запись его экрана не началась";
+"meetings.error.tapFailed" = "Не удалось записать системный звук: %@";
+"meetings.error.alreadyRecording" = "Встреча уже записывается";
+"meetings.error.microphoneDenied" = "Нет доступа к микрофону. Разрешите его Slovo в Системных настройках.";
+"meetings.error.noMicrophone" = "Микрофон не найден";
+"meetings.error.microphoneFailed" = "Не удалось записать звук с микрофона: %@";
+"meetings.error.unsupportedFormat" = "Этот аудиоформат не поддерживается";
+"meetings.error.fileFailed" = "Не удалось сохранить запись встречи: %@";
+/* The argument is the free space left on the disk. */
+"meetings.error.lowDiskSpace" = "Недостаточно места для записи встречи: свободно %@. Час записи занимает около 230 МБ. Освободите место и попробуйте снова.";
+/* The argument is the free space left on the disk. The recording ended by itself and is saved. */
+"meetings.error.lowDiskSpaceWhileRecording" = "Запись остановлена: на диске почти не осталось места, свободно %@. Всё, что успело записаться, сохранено.";
+/* The argument is the underlying Core Audio error. */
+"meetings.error.systemAudioInterrupted" = "Системный звук прервался (%@). Slovo пытается подключить его снова.";
+"meetings.error.appAudioEnded" = "Звук приложения остановился вместе с записью экрана. Уже записанное сохранено.";
+"meetings.error.readFailed" = "Не удалось прочитать запись встречи: %@";
+"meetings.error.createFailed" = "Не удалось создать папку встречи: %@";
+"meetings.error.saveFailed" = "Не удалось сохранить встречу: %@";
+"meetings.error.notFound" = "Этой встречи больше нет";
+"meetings.error.noAudio" = "Запись встречи удалена, расшифровать её нельзя";
+"meetings.error.stillRecording" = "Остановите запись, прежде чем расшифровывать";
+"meetings.error.alreadyTranscribing" = "Эта встреча уже расшифровывается";
+"meetings.error.transcriptFailed" = "Не удалось сохранить расшифровку: %@";
+"meetings.error.recordDamaged" = "Файлы этой встречи повреждены, восстановить её не удалось";
+"meetings.error.mergeAcrossTracks" = "Объединять можно только спикеров из одного источника";
+"meetings.error.speakersOnlyUnavailable" = "Пересчитать спикеров можно только для встреч, расшифрованных этой версией, при сохранённой записи и скачанной модели спикеров";
+"meetings.error.fileTooShort" = "Этот файл слишком короткий, чтобы стать встречей";

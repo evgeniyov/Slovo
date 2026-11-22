@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tinted where it is used: red while the microphone is open, accent for a meeting in
+     the waiting list, muted for a note. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@android:color/white" />
+</shape>

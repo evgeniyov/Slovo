@@ -1,0 +1,311 @@
+<!-- Reusable looks (the macOS app's Design/Controls.swift and Components.swift). -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Slovo.App.Controls">
+
+  <!-- Type -->
+  <Style Selector="TextBlock">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.UIFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextPrimary}" />
+  </Style>
+  <Style Selector="SelectableTextBlock">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.UIFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextPrimary}" />
+  </Style>
+  <Style Selector="TextBlock.PageTitle">
+    <Setter Property="FontSize" Value="26" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.Subtitle">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBlock.SectionTitle">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.Headline">
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.Medium">
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="TextBlock.Secondary">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+  </Style>
+  <Style Selector="TextBlock.Caption">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+  </Style>
+  <Style Selector="TextBlock.SectionLabel">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+  </Style>
+  <Style Selector="TextBlock.Mono">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.MonoFont}" />
+    <Setter Property="FontSize" Value="11.5" />
+  </Style>
+  <Style Selector="TextBlock.Banner">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.SerifFont}" />
+    <Setter Property="FontSize" Value="26" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.BannerText}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBlock.StatNumber">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.SerifFont}" />
+    <Setter Property="FontSize" Value="34" />
+  </Style>
+  <Style Selector="TextBlock.LargeNumber">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.SerifFont}" />
+    <Setter Property="FontSize" Value="44" />
+  </Style>
+  <Style Selector="TextBlock.Sample">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.SerifFont}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBlock.Logo">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.SerifFont}" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <!-- Surfaces -->
+  <Style Selector="Border.Panel">
+    <Setter Property="Background" Value="{DynamicResource Slovo.PanelBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.PanelBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.PanelRadius}" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+  <Style Selector="Border.Card">
+    <Setter Property="Background" Value="{DynamicResource Slovo.PanelBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.PanelBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.CardRadius}" />
+    <Setter Property="Padding" Value="16" />
+  </Style>
+  <Style Selector="Border.Inset">
+    <Setter Property="Background" Value="{DynamicResource Slovo.InsetBackground}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.CardRadius}" />
+    <Setter Property="Padding" Value="12" />
+  </Style>
+  <Style Selector="Border.Banner">
+    <Setter Property="Background" Value="{DynamicResource Slovo.BannerBackground}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.CardRadius}" />
+    <Setter Property="Padding" Value="22,20" />
+  </Style>
+  <Style Selector="Border.Keycap">
+    <Setter Property="Background" Value="{DynamicResource Slovo.KeycapFill}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.KeycapBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="7,1" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.Keycap > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.KeycapText}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Border.Notice">
+    <Setter Property="Background" Value="{DynamicResource Slovo.WarningSoft}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.RowRadius}" />
+    <Setter Property="Padding" Value="12,8" />
+  </Style>
+  <Style Selector="Border.Notice TextBlock">
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="Border.Error">
+    <Setter Property="Background" Value="{DynamicResource Slovo.DestructiveSoft}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.RowRadius}" />
+    <Setter Property="Padding" Value="12,8" />
+  </Style>
+  <Style Selector="Border.Error TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.Destructive}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="Border.Divider">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource Slovo.Divider}" />
+  </Style>
+
+  <!-- Buttons -->
+  <Style Selector="Button">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.UIFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.ButtonRadius}" />
+    <Setter Property="Padding" Value="12,6" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Button.Primary">
+    <Setter Property="Background" Value="{DynamicResource Slovo.PrimaryButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.PrimaryButtonText}" />
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="Button.Primary:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.PrimaryButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.PrimaryButtonText}" />
+    <Setter Property="Opacity" Value="0.88" />
+  </Style>
+  <Style Selector="Button.Primary:pressed /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.PrimaryButtonBackground}" />
+    <Setter Property="Opacity" Value="0.78" />
+  </Style>
+  <Style Selector="Button.Primary TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.PrimaryButtonText}" />
+  </Style>
+  <Style Selector="Button.Primary c|StrokeIcon">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.PrimaryButtonText}" />
+  </Style>
+  <Style Selector="Button.Secondary">
+    <Setter Property="Background" Value="{DynamicResource Slovo.SecondaryButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.SecondaryButtonText}" />
+  </Style>
+  <Style Selector="Button.Secondary:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.SecondaryButtonText}" />
+  </Style>
+  <Style Selector="Button.Destructive">
+    <Setter Property="Background" Value="{DynamicResource Slovo.DestructiveSoft}" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.Destructive}" />
+  </Style>
+  <Style Selector="Button.Destructive TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.Destructive}" />
+  </Style>
+  <Style Selector="Button.Ghost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="6" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+  </Style>
+  <Style Selector="Button.Ghost:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.RowHover}" />
+  </Style>
+  <Style Selector="Button.Ghost c|StrokeIcon">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextSecondary}" />
+  </Style>
+  <!-- Disabled destructive and ghost buttons fade as on the Mac; the Fluent grey fill under
+       their coloured text would read as a button that still works. -->
+  <Style Selector="Button.Destructive:disabled, Button.Ghost:disabled">
+    <Setter Property="Opacity" Value="0.45" />
+  </Style>
+  <Style Selector="Button.Destructive:disabled /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.DestructiveSoft}" />
+  </Style>
+  <Style Selector="Button.Ghost:disabled /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.Link">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.AccentText}" />
+  </Style>
+  <Style Selector="Button.Link TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.AccentText}" />
+  </Style>
+  <Style Selector="Button.Link:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.Banner">
+    <Setter Property="Background" Value="{DynamicResource Slovo.BannerButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.BannerButtonText}" />
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="Button.Banner TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.BannerButtonText}" />
+  </Style>
+
+  <!-- Sidebar rows -->
+  <Style Selector="Button.SidebarRow">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Padding" Value="10,7" />
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextPrimary}" />
+  </Style>
+  <Style Selector="Button.SidebarRow:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.RowHover}" />
+  </Style>
+  <Style Selector="Button.SidebarRow.Selected /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+  </Style>
+  <Style Selector="Button.SidebarRow.Selected TextBlock">
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="Button.SidebarRow c|StrokeIcon">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.TextPrimary}" />
+  </Style>
+
+  <!-- Inputs -->
+  <Style Selector="TextBox">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.UIFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.ButtonRadius}" />
+    <Setter Property="Background" Value="{DynamicResource Slovo.FieldBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Slovo.PanelBorder}" />
+  </Style>
+  <Style Selector="ComboBox">
+    <Setter Property="FontFamily" Value="{DynamicResource Slovo.UIFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.ButtonRadius}" />
+    <Setter Property="MinWidth" Value="200" />
+  </Style>
+  <Style Selector="ToggleSwitch">
+    <Setter Property="OnContent" Value="" />
+    <Setter Property="OffContent" Value="" />
+    <Setter Property="MinWidth" Value="0" />
+  </Style>
+  <Style Selector="ToggleSwitch:checked /template/ Border#SwitchKnobBounds">
+    <Setter Property="Background" Value="{DynamicResource Slovo.Accent}" />
+  </Style>
+  <Style Selector="ProgressBar">
+    <Setter Property="Foreground" Value="{DynamicResource Slovo.Accent}" />
+    <Setter Property="Background" Value="{DynamicResource Slovo.CalendarEmpty}" />
+    <Setter Property="MinHeight" Value="4" />
+    <Setter Property="CornerRadius" Value="2" />
+  </Style>
+
+  <!-- List rows use the sidebar's selection colour, not Fluent's accent. -->
+  <Style Selector="ListBoxItem">
+    <Setter Property="CornerRadius" Value="{DynamicResource Slovo.RowRadius}" />
+    <Setter Property="Margin" Value="6,2" />
+    <Setter Property="Padding" Value="10,6" />
+  </Style>
+  <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.RowHover}" />
+  </Style>
+  <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+  </Style>
+  <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+  </Style>
+  <Style Selector="ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+  </Style>
+
+  <!-- Tabs drawn as a segmented row (Transcript / Important moments / …). -->
+  <Style Selector="RadioButton.Segment">
+    <Setter Property="Padding" Value="12,5" />
+    <Setter Property="Margin" Value="0,0,4,0" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="SegmentBorder" CornerRadius="{DynamicResource Slovo.RowRadius}" Padding="{TemplateBinding Padding}" Background="Transparent">
+          <ContentPresenter Content="{TemplateBinding Content}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.Segment:pointerover /template/ Border#SegmentBorder">
+    <Setter Property="Background" Value="{DynamicResource Slovo.RowHover}" />
+  </Style>
+  <Style Selector="RadioButton.Segment:checked /template/ Border#SegmentBorder">
+    <Setter Property="Background" Value="{DynamicResource Slovo.SidebarSelection}" />
+  </Style>
+  <Style Selector="RadioButton.Segment:checked TextBlock">
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+</Styles>
