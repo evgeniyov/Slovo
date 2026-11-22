@@ -1,7 +1,7 @@
 # Meeting documents shared by both apps
 
-Golden files that keep `transcript.md` identical on macOS and Windows. Both test suites
-read this folder:
+Both test suites use these fixtures to check that `transcript.md` is identical
+on macOS and Windows.
 
 - Swift: `Tests/SlovoCoreTests/SharedMeetingFixtureTests.swift`
 - C#: `Windows/tests/Slovo.Core.Tests/Meetings/SharedMeetingFixtureTests.cs`
@@ -21,11 +21,11 @@ The meetings:
 - `format1-call`: the first format (no `formatVersion`, only "me"/"others"): merged
   lines, whitespace in a title and a segment, an empty segment, the microphone first on
   equal start times, a timestamp past one hour. Gives the first format's document.
-- `format2-cowork`: the second format with everything: a speaker marked «Я», a named and a
+- `format2-cowork`: the second format with a speaker marked "Я" (Me), a named and a
   numbered speaker, a renamed system track, moments on lines, near a line and on no line,
   a note with a line break, an excerpt cut at 120 characters, Claude's notes, duration.
-- `format2-microphone`: another speaker marked «Я», so the unseparated microphone reads
-  «Микрофон»; a `speakerID` that names no speaker; a name with extra spaces; a line cut
+- `format2-microphone`: another speaker marked "Я", so the unseparated microphone reads
+  "Микрофон" (Microphone); a `speakerID` that names no speaker; a name with extra spaces; a line cut
   at 60 seconds; a date at 23:59 on New Year's Eve; no duration.
 - `damaged`: a hand-edited file both decoders must tolerate: unknown status, engine,
   track, source, highlight source and diarization state; malformed, duplicate and invalid
@@ -41,7 +41,7 @@ to `TranscriptMerger.Markdown`. Date text follows current macOS (`DateFormatter`
 and short time, with U+202F narrow no-break spaces), which the Windows app reproduces in
 `MeetingDates`.
 
-## Changing the behaviour
+## Update the expected files
 
 Change the Swift code, then rewrite the expected files from it and review the diff:
 
@@ -49,5 +49,6 @@ Change the Swift code, then rewrite the expected files from it and review the di
 SLOVO_REGENERATE_FIXTURES=1 swift test --filter SharedMeetingFixture
 ```
 
-The C# test fails until the Windows code follows. `.gitattributes` here turns off line-end
-conversion, so the documents stay byte-identical in a Windows checkout.
+The C# test fails until the Windows output matches. `.gitattributes` disables
+line ending conversion here so the documents keep the same bytes in a Windows
+checkout.

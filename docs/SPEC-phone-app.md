@@ -1,27 +1,18 @@
-# Slovo для Android
+# Slovo for Android
 
-Приложение записывает голосовые заметки и встречи. Slovo на компьютере
-забирает записи по USB и локально создаёт расшифровки с таймкодами.
+The app records voice notes and meetings. Slovo on your computer imports the recordings over USB and creates transcripts with timestamps locally.
 
-## Запись на Android
+## Record on Android
 
-- **Заметка** подходит для одного голоса. На компьютере она появляется в
-  разделе «Встречи» без разделения по спикерам.
-- **Встреча** подходит для беседы с несколькими участниками. Во время записи
-  можно отмечать важные моменты. Компьютер сохраняет эти отметки в расшифровке
-  и разделяет голоса, если загружена модель разделения спикеров.
+- **Note** is for a single voice. On the computer, it appears under Meetings without speaker separation.
+- **Meeting** is for a conversation with several participants. You can mark important moments while recording. The desktop app keeps the marks in the transcript and separates speakers if you have downloaded the speaker model.
 
-Выберите тип записи до запуска. Android 10 или новее поддерживает установку
-приложения. При первом запуске разрешите доступ к микрофону.
+Choose a recording type before you start. The app requires Android 10 or later. Grant microphone access on first launch.
 
-## Перенос по USB
+## Transfer over USB
 
-1. Установите Android SDK Platform-Tools (`adb`) на компьютере и включите
-   отладку по USB на телефоне.
-2. Соедините устройства кабелем и подтвердите на телефоне запрос на отладку.
-3. Откройте Slovo на компьютере. Записи из очереди на телефоне появятся в
-   разделе «Встречи».
+1. Install Android SDK Platform-Tools (`adb`) on the computer and enable USB debugging on the phone.
+2. Connect the devices with a cable and approve the debugging prompt on the phone.
+3. Open Slovo on the computer. Recordings queued on the phone appear under Meetings.
 
-Телефон хранит записи до переноса. Распознавание и хранение расшифровок
-выполняет настольная версия. См. [README](../README.md) для установки Slovo
-и настройки настольного приложения.
+The phone keeps recordings until transfer. The desktop app transcribes the recordings and stores the transcripts. See the [README](../README.md) to install and set up the desktop app.

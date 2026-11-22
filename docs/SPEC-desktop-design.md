@@ -1,205 +1,149 @@
-# Slovo для macOS — задание на дизайн
+# Slovo for macOS design brief
 
-Документ для дизайнера. Описывает, что приложение делает, из каких экранов состоит, что
-показывает и в каких состояниях бывает. Поведение уже написано и работает — дизайн
-накладывается на готовую программу, менять логику не нужно.
+This brief describes the app's behavior, screens, and states. Apply the design to the current app without changing its logic.
 
 ---
 
-## 1. Что это
+## 1. What Slovo does
 
-Личное приложение одного человека для Mac. Превращает речь в текст **полностью на
-компьютере**: без интернета, без чьих-либо серверов, без аккаунтов и подписок. Сделано как
-замена платной программе, поэтому в нём принципиально нет ничего про оплату, вход и
-синхронизацию с облаком.
+Slovo is a personal Mac app for one user. It was built as an alternative to a paid app. It converts speech to text entirely on the Mac. Speech recognition needs no internet connection or servers. The app has no payments, sign-in, accounts, subscriptions, or cloud sync.
 
-Два занятия:
+1. **Dictation.** Hold a key in any app, such as a browser, editor, or messenger. Speak, then release the key to paste the text at the cursor.
+2. **Meetings.** Record a call or a conversation in person. After recording, Slovo transcribes the conversation, labels voices as "Speaker 1", "Speaker 2", and so on, and marks important moments with stars.
 
-1. **Диктовка.** Человек удерживает клавишу в любой программе — браузере, редакторе,
-   мессенджере, — говорит, отпускает, и текст вставляется туда, где стоит курсор.
-2. **Встречи.** Запись разговора: созвон или люди за столом. После остановки запись
-   расшифровывается, голоса размечаются как «Спикер 1, 2, 3», важные моменты отмечаются
-   звёздочками.
+Claude can also read meetings through a local connection and turn them into tasks. This feature has no screen of its own.
 
-Плюс третье, не имеющее своего экрана: Claude может читать встречи через локальное
-подключение и составлять по ним задачи.
+Russian is the primary language, and English has equal support. Users can mix English technical terms into Russian speech.
 
-Русский — основной язык, английский равноправен. Речь смешанная: русская с английскими
-техническими терминами.
+## 2. Where Slovo appears
 
-## 2. Как это устроено на экране
+Slovo runs in the menu bar, with no Dock icon in this design. The app has four parts.
 
-Программа живёт **в строке состояния**, а не в Dock. Четыре поверхности:
+**2.1. Menu bar icon.** The icon is always present and changes during dictation or meeting recording. Click it for a short menu to dictate, record a meeting, mark a moment, open the main window or settings, or quit.
 
-**2.1. Значок в строке состояния.** Всегда на месте. Меняется, когда идёт диктовка или
-запись встречи. По нажатию — короткое меню: продиктовать, записать встречу, отметить
-момент, открыть окно, настройки, выход.
+**2.2. Floating panel.** A small strip near the bottom of the screen, above all windows. It is the only visible interface during dictation. It shows when Slovo is recording, the voice level, and whether Slovo pasted text, copied it, or heard nothing. Keep the panel unobtrusive over other apps. Users can hide it when idle in Settings.
 
-**2.2. Плавающая панель.** Маленькая полоска у нижнего края экрана, поверх всех окон. Это
-единственное, что человек видит во время диктовки: она показывает, что идёт запись,
-уровень голоса, и результат — вставлено, скопировано, ничего не услышано. Живёт своей
-жизнью поверх чужих приложений, поэтому должна быть спокойной и не отвлекать. Её показ в
-покое отключается настройкой.
+**2.3. Main window.** Opens on demand. The sidebar is on the left and the content is on the right. The window is about 1100×720 points.
 
-**2.3. Главное окно.** Открывается по требованию. Боковое меню слева, содержимое справа.
-Размер примерно 1100×720 точек.
+**2.4. Settings.** A separate sheet over the main window, with seven sections in its own sidebar.
 
-**2.4. Настройки.** Отдельный лист поверх окна со своим боковым меню из семи разделов.
+## 3. Main window screens
 
-## 3. Экраны главного окна
+From top to bottom, the sidebar lists **Dictation, Meetings, Insights, Dictionary, Snippets, Style,** and **Scratchpad**. The engine readiness indicator, **Settings**, and **Help** sit at the bottom.
 
-Боковое меню, сверху вниз: **Диктовка, Встречи, Статистика, Словарь, Сниппеты, Стиль,
-Заметки**. Внизу отдельно: индикатор готовности движка, **Настройки**, **Справка**.
+**3.1. Dictation.** The home screen greets the user and shows which key to hold. It shows three counts: total words, words per minute, and consecutive days. Each history entry shows the time, text, destination app, recognition engine, and duration. Users can replay, copy, or delete an entry.
 
-**3.1. Диктовка** — домашний экран. Приветствие с подсказкой, какую клавишу держать; три
-числа (всего слов, слов в минуту, дней подряд); история продиктованного: время, текст,
-программа, куда вставлено, движок, длительность. Каждую запись можно переслушать,
-скопировать, удалить.
+**3.2. Meetings.** The list is on the left and the selected meeting is on the right. See section 4.
 
-**3.2. Встречи** — список слева, карточка выбранной справа. Подробно в разделе 4.
+**3.3. Insights.** Shows how much the user dictated by day and week, where they dictated, and how much time they saved compared with typing.
 
-**3.3. Статистика** — сколько надиктовано по дням и неделям, в каких программах, сколько
-времени сэкономлено против набора руками.
+**3.4. Dictionary.** Users add terms and names the engine gets wrong. For example, the dictionary can replace "клод" with "Claude". These replacements improve recognition accuracy. Make it easy to add an entry.
 
-**3.4. Словарь** — термины и имена, которые распознавание пишет неправильно: «клод» →
-«Claude». Это ощутимо поднимает точность, поэтому экран должен звать им пользоваться.
+**3.5. Snippets.** A keyword expands to saved text. For example, say "address" to insert an address.
 
-**3.5. Сниппеты** — короткие фразы по ключевому слову: сказал «адрес» — вставился адрес.
+**3.6. Style.** Choose whether to remove filler sounds such as "э-э" and repetitions or add punctuation. Set different styles for messaging, code, email, and notes.
 
-**3.6. Стиль** — как обрабатывать текст: убирать ли «э-э» и повторы, ставить ли знаки
-препинания, разный стиль для разных категорий программ (переписка, код, почта, заметки).
+**3.7. Scratchpad.** A simple notepad for dictating without switching apps.
 
-**3.7. Заметки** — простой блокнот, куда можно надиктовывать, не переключаясь в другое
-приложение.
+**3.8. Settings.** Seven sections.
 
-**3.8. Настройки**, семь разделов: **Основные** (клавиша диктовки, режим без рук, предел
-записи, отмена по Esc, микрофон, язык), **Распознавание** (движки, скачивание моделей,
-выгрузка из памяти), **Система** (запуск при входе, разрешения macOS, значок в Dock, значок в строке меню),
-**Встречи** (системный звук, движок, разделение по спикерам, число людей, модель спикеров,
-сочетание для отметки момента, хранение аудио), **Интеграции** (доступ Claude, команды
-подключения, проверка связи), **Данные и приватность** (сроки хранения, удаление),
-**О программе**.
+- **General.** Dictation key, hands-free mode, recording limit, Esc to cancel, microphone, and language.
+- **Recognition.** Engines, model downloads, and unloading models from memory.
+- **System.** Launch at login, macOS permissions, Dock icon, and menu bar icon.
+- **Meetings.** System audio, engine, speaker separation, number of people, speaker model, shortcut to mark a moment, and audio retention.
+- **Integrations.** Claude access, setup commands, and connection check.
+- **Data and privacy.** Retention periods and deletion.
+- **About.**
 
-**3.9. Справка** — что делать, если не работает: нет разрешений, не слышно микрофон, не
-вставляется текст.
+**3.9. Help.** Troubleshooting for missing permissions, a microphone that picks up no sound, and text that does not paste.
 
-## 4. Встречи подробно
+## 4. Meeting details
 
-Это самая сложная и самая ценная часть — ей стоит уделить больше всего внимания.
+Give meeting details the most design time. This is the most complex part of the app and a priority for users.
 
-**Список слева:** название, дата и время, длительность. Идущая запись помечена.
+**List on the left.** Show the title, date and time, and duration. Mark the recording in progress.
 
-**Карточка справа:**
-- Название — редактируется прямо в заголовке.
-- Строка подробностей: дата, время, длительность, движок, число спикеров, откуда запись
-  (с этого Mac или с телефона).
-- Действия: скопировать, выгрузить в Markdown, обработать заново, показать в Finder,
-  удалить.
-- Полоса спикеров: чипы «Спикер 1», «Спикер 2» с цветом и временем речи каждого;
-  переименование, «это я», объединение двух в одного.
-- Вкладки: **Расшифровка**, **Важные моменты**, **Статистика** (кто сколько говорил,
-  темп, паузы) и — только для встречи, о которой написал Claude, — **Итоги Claude**.
-- Расшифровка: строки с таймкодом, именем спикера и текстом. Отмеченные строки помечены
-  звёздочкой. Можно отфильтровать по спикеру, перенести реплику другому спикеру.
-- Важные моменты: список отметок с таймкодом, заметкой и переходом к нужной строке.
+**Details on the right.**
 
-**Панель записи** (когда идёт запись): таймер, уровни микрофона и системного звука,
-кнопка «Отметить момент» с сочетанием клавиш и счётчиком отмеченного, «Стоп»,
-предупреждения — например, что системный звук не разрешён.
+- Edit the title in the header.
+- Show the date, time, duration, engine, speaker count, and source (this Mac or a phone).
+- Offer Copy, Export Markdown, Process Again, Show in Finder, and Delete.
+- Show a chip for each speaker, such as "Speaker 1" and "Speaker 2", with a color and speaking time. Let users rename a speaker, mark a speaker as themselves, or merge two speakers.
+- Show tabs for Transcript, Important Moments, and Statistics. Statistics show speaking time per person, pace, and pauses. Show the "Claude's notes" tab only if Claude has written notes for that meeting.
+- Each transcript line shows a timestamp, speaker name, and text. A star marks an important line. Users can filter by speaker or assign a line to another speaker.
+- The important moments list shows each mark with a timestamp and any note. Click a mark to jump to its transcript line.
 
-**Окно «Обработать заново»**: только спикеры или спикеры и текст, число людей, движок.
+**Recording panel.** While recording, show the timer, microphone and system audio levels, the Mark Moment button with its shortcut and mark count, and Stop. Show warnings, for example when Slovo lacks permission to record system audio.
 
-## 5. Состояния, которые нужно нарисовать
+**Process Again sheet.** Offer speaker separation only or speaker separation and transcription. Include the number of people and the engine.
 
-**5.1. Диктовка:** покой · идёт запись (с уровнем голоса) · обработка (отдельно «загружаю
-модель») · результат.
+## 5. States to design
 
-**5.2. Сообщения плавающей панели**, каждое живёт около полутора секунд: «Скопировано,
-нажмите ⌘V» · «Ничего не слышно» с названием микрофона · «Идёт запись встречи» (диктовка
-заблокирована) · ошибка.
+**5.1. Dictation.** Idle, recording with voice level, processing with a distinct model-loading state, and result.
 
-**5.3. Ошибки диктовки:** нет доступа к микрофону · нет доступа к универсальному доступу ·
-нет мониторинга ввода · модель не скачана · сбой движка · сбой записи. Первые три ведут в
-нужный раздел системных настроек.
+**5.2. Floating panel messages.** Each lasts about 1.5 seconds. Show "Copied, press ⌘V", "Nothing heard" with the microphone name, "Meeting recording in progress" when dictation is blocked, or an error.
 
-**5.4. Встреча:** идёт запись · записана, но не расшифрована · расшифровывается ·
-расшифрована · ошибка.
+**5.3. Dictation errors.** No microphone permission, no Accessibility permission, no Input Monitoring permission, model missing, engine failure, and recording failure. The first three open the relevant System Settings section.
 
-**5.5. Фазы обработки:** подготовка · загрузка модели спикеров · разделение по спикерам (с
-процентами и названием дорожки) · распознавание речи (с числом обработанных кусков).
-Обработка часовой встречи занимает минуты — прогресс должен быть честным и не выглядеть
-зависшим.
+**5.4. Meeting.** Recording, recorded and awaiting transcription, transcribing, transcribed, or failed.
 
-**5.6. Модель распознавания:** не скачана (с размером) · скачивается (с процентами и
-отменой) · готова (с местом на диске) · повреждена.
+**5.5. Processing phases.** Show preparation and speaker model loading. Show the percentage and track name during speaker separation, and the number of chunks processed during transcription. An hour-long meeting takes minutes to process. Show actual progress so users can tell the app is still working.
 
-**5.7. Пустые состояния:** нет ни одной диктовки, нет встреч, пустой словарь, пустые
-сниппеты, пустые заметки. Это первое, что видит человек, и сейчас они слабые.
+**5.6. Recognition model.** Show the size before download, the percentage and a Cancel button during download, the space used on disk when ready, and a damaged state.
 
-## 6. Данные с примерами
+**5.7. Empty states.** Design first-use states for empty dictation history, meetings, dictionary, snippets, and notes. The current screens need work.
 
-**История диктовки:** `8:31 · «Да, скачай модель, проверь как работает» · Claude · GigaAM
+## 6. Example data
+
+**Dictation history:** `8:31 · «Да, скачай модель, проверь как работает» · Claude · GigaAM
 v3 RNNT · 0:26`
 
-**Список встреч:** `Встреча 16 сент. 2026 г., 10:52 · Сегодня, 10:52 · 1:42`
+**Meeting list:** `Встреча 16 сент. 2026 г., 10:52 · Сегодня, 10:52 · 1:42`
 
-**Строка подробностей встречи:** `16 сентября 2026 г. · 10:52 · 1:42 · GigaAM v3 CTC ·
+**Meeting details:** `16 сентября 2026 г. · 10:52 · 1:42 · GigaAM v3 CTC ·
 2 спикера`
 
-**Строка расшифровки:** `[00:29] ★ Спикер 2: Да, на этой неделе всё`
+**Transcript line:** `[00:29] ★ Спикер 2: Да, на этой неделе всё`
 
-**Спикеры:** `Спикер 1 · 0:09` и `Спикер 2 · 0:02`, каждый своего цвета.
+**Speakers:** `Спикер 1 · 0:09` and `Спикер 2 · 0:02`, each in its own color.
 
-**Числа на главном:** `602 слова · 111 слов в минуту · 2 дня подряд`
+**Home screen counts:** `602 слова · 111 слов в минуту · 2 дня подряд`
 
-## 7. Фирменный стиль сейчас
+## 7. Current visual style
 
-Нынешний облик — спокойный, тёплый, «бумажный»: светлый песочный фон, тонкие границы,
-никаких теней и градиентов, акцент используется скупо. Две темы, обе обязательны.
+The app uses a warm, paper-like palette with a light sand background, thin borders, and little accent color. It uses no shadows or gradients. Both themes are required.
 
-**Светлая:** фон окна `#F2F0EB`, панель `#FBFAF7`, граница `#E7E3DA`, основной текст
-`#1C1B19`, второстепенный `#6B675F`, акцент `#7C5CFA`.
+**Light.** Window background `#F2F0EB`, panel `#FBFAF7`, border `#E7E3DA`, primary text `#1C1B19`, secondary text `#6B675F`, and accent `#7C5CFA`.
 
-**Тёмная:** фон окна `#1B1A18`, панель `#232220`, граница `#34322E`, основной текст
-`#EEEAE3`, второстепенный `#A39E94`, акцент `#8F74FB`.
+**Dark.** Window background `#1B1A18`, panel `#232220`, border `#34322E`, primary text `#EEEAE3`, secondary text `#A39E94`, and accent `#8F74FB`.
 
-Общее: клавиша на подсказках рисуется оранжевой `#F4A259` с тёмной обводкой — это
-запоминающаяся деталь; звёздочка важного момента `#E9A94B`.
+In both themes, key hints use a distinctive orange keycap `#F4A259` with a dark outline. The star for important moments uses `#E9A94B`.
 
-Скругления: панель 16, карточка 12, строка 8, кнопка 8. Размеры текста: основной 13,
-подпись 11, подзаголовок страницы 13.
+Corner radii are 16 for the panel, 12 for cards, and 8 for rows and buttons. Body text and page subheadings use 13 points. Captions use 11 points.
 
-Всё это можно менять — но обе темы должны остаться, и должна остаться сдержанность: с
-программой работают часами, она не должна утомлять.
+You can change these values. Keep both themes and a restrained design for people who use the app for hours.
 
-## 8. Ограничения
+## 8. Constraints
 
-- macOS 14.4 и новее, SwiftUI, без сторонних библиотек для интерфейса. Сложные эффекты —
-  размытия со слоями, произвольные тени, анимации по кривым — либо дороги, либо
-  невоспроизводимы; лучше строгая типографика, точная сетка и хорошие пустые состояния.
-- Окно меняет размер; всё должно выживать при ширине от примерно 900 точек.
-- Два языка. Русские строки в среднем на треть длиннее английских и ломают вёрстку,
-  сделанную только на английском.
-- Программа работает в строке состояния и часто без открытого окна — поэтому плавающая
-  панель и значок несут не меньше смысла, чем экраны.
+- The app supports macOS 14.4 or later and uses SwiftUI with no third-party UI libraries. Layered blur, custom shadows, and animations along curves are costly or hard to reproduce. Use clear typography, a consistent grid, and well-designed empty states.
+- The window is resizable. The layout must work down to about 900 points wide.
+- The app uses two languages. Russian strings are about a third longer than English strings on average. Allow room for both.
+- Users often work without the main window open. The floating panel and menu bar icon must communicate as much as the app screens.
 
-## 9. Чего быть не должно
+## 9. What to leave out
 
-Оплаты, подписок, аккаунтов, входа, облака, «поделиться», рекламы других продуктов,
-телеметрии. Ничего, что намекает на отправку речи куда-то наружу: всё считается на этом
-Mac, и это надо чувствовать.
+Leave out payments, subscriptions, accounts, sign-in, cloud features, sharing, ads for other products, and telemetry. The interface should make clear that speech processing stays on this Mac.
 
-Единственное исключение — раздел «Интеграции», где Claude получает доступ к встречам. Там,
-наоборот, должно быть честно и прямо сказано, что прочитанное уходит в Anthropic.
+The Integrations section is the exception. If Claude reads a meeting, tell the user that Claude sends what it reads to Anthropic.
 
-## 10. Что нужно получить на выходе
+## 10. Deliverables
 
-- Главное окно: экраны «Диктовка» и «Встречи» — полностью, в обеих темах.
-- Карточка встречи: расшифровка, важные моменты, идущая обработка с прогрессом.
-- Плавающая панель: покой, запись, обработка, «ничего не слышно», ошибка.
-- Пустые состояния: нет диктовок, нет встреч.
-- Настройки: один раздел целиком, чтобы задать образец для остальных.
-- Шкала отступов и размеров текста.
-- Иконка программы, если будет желание — нынешняя нарисована наспех.
+- Complete Dictation and Meetings screens in both themes.
+- Meeting details with the transcript, important moments, and a processing progress state.
+- Floating panel states for idle, recording, processing, no speech heard, and errors.
+- Empty states for dictation and meetings.
+- One complete settings section to use as a pattern for the others.
+- A spacing and type size scale.
+- Optional app icon to replace the current quick draft.
 
-Русский вариант обязателен; английский — хотя бы один экран, чтобы проверить длину строк.
+Provide the Russian designs and at least one English screen to check string lengths.
