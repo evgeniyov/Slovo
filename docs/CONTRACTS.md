@@ -37,7 +37,7 @@ directory before running tests directly, use
 `storage`, `dictation`, `meetings`, `diarization`, `integration`),
 `CoreStrings.string/format/resourceBundle`, `ResourceBundleLocator.locate(_:)`.
 
-Who consumes which protocol:
+The table lists each protocol's callers and implementations.
 
 | Consumer (module) | Protocols it uses | Implemented by |
 |---|---|---|
@@ -54,8 +54,8 @@ Who consumes which protocol:
 | `MeetingRecorder`, `MeetingTranscriber` (meetings) | `MeetingStoring`, `EngineProviding` | `MeetingStore` (meetings), `EngineManager` (dictation) |
 | `AppModel` (ui) | every concrete type through its `init` | all modules |
 
-Because `AppModel` constructs every service, **initializer signatures below are
-frozen**. Placeholder bodies may be replaced freely.
+`AppModel` constructs every service. Keep the initializer signatures below.
+Replace placeholder bodies as needed.
 
 ## 3. Module `input`
 
@@ -209,9 +209,9 @@ public enum InsightsCalculator {
 }
 ```
 
-Bitrix24, Яндекс Телемост and Spark have no bundle ids in the spec: look them up
-from installed apps if present, otherwise match them by app name, and document the
-choice in a comment.
+The spec gives no bundle IDs for Bitrix24, Yandex Telemost, or Spark. Look up
+IDs for installed apps. Otherwise, match by app name. Record the choice in a
+comment.
 
 ## 4. Module `text`
 
@@ -251,9 +251,10 @@ The spec's term-correction examples («кибернетес» → Kubernetes, «
 GitHub Actions, «юзер Айди» → user id, «постгресс» → Postgres, «докер» → Docker,
 «User Defolts» → UserDefaults; «деплой», «логи», «модель», «проект» unchanged) are
 required tests. `slovo-bench score --postprocess` applies `DictionaryCorrector` with
-`Bench/vocabulary.txt` to the stored engine results and prints the before/after
-table; it reads `Bench/clips` and `Bench/results` only and must not change recordings.
-The bench is a developer tool: its console text may stay Russian and use `print`.
+`Bench/vocabulary.txt` to stored engine results and prints a before-and-after
+table. It reads only `Bench/clips` and `Bench/results`. It must leave recordings
+intact. The benchmark is a developer tool. Its console output can stay Russian
+and use `print`.
 
 ## 5. Module `meetings`
 
@@ -343,7 +344,7 @@ Owned paths:
 - The existing engine files: `Sources/SlovoCore/GigaAMEngine.swift`, `GigaAMRecognizer.swift`,
   `GigaAMChunker.swift`, `ParakeetEngine.swift`, `AppleDictationEngine.swift`,
   `AudioLoader.swift`, `ModelStore.swift`, `TranscriptionEngine.swift`. Their public API
-  and behaviour must stay compatible with `slovo-bench`; additions are fine.
+  and behavior must stay compatible with `slovo-bench`. You can add to the API.
 - `Sources/SlovoCore/Resources/en.lproj/Dictation.strings`, `ru.lproj/Dictation.strings`,
   `en.lproj/Audio.strings`, `ru.lproj/Audio.strings`, `en.lproj/Engines.strings`, `ru.lproj/Engines.strings`
 - `Tests/SlovoCoreTests/Dictation*Tests.swift`
@@ -488,19 +489,18 @@ re-run with another engine, paste-last shortcut wiring (`PasteLastShortcut` +
 `DictationController.pasteLastTranscript()`), dismissed banners
 (`AppSettings.dismissedBanners`), Reduce Motion. Every colour stays a `Theme` token.
 
-Rendering: `ImageRenderer` cannot draw AppKit-backed controls (scroll views, text
+`ImageRenderer` cannot draw AppKit-backed controls (scroll views, text
 fields, switches, pop-up menus). Views check `@Environment(\.isSnapshot)` and use the
 snapshot-friendly controls in `Design/Controls.swift` (`PanelScroll`, `SearchField`,
-`ThemedToggle`, `PopupChoice`). Extend `ScreenRenderer` with fake data as screens
-grow; it must keep using a throwaway `UserDefaults` suite and a temporary data folder.
+`ThemedToggle`, `PopupChoice`). Extend `ScreenRenderer` with fake data as you add
+screens. Keep it on a temporary `UserDefaults` suite and a temporary data folder.
 
-While other modules are unfinished the services are placeholders (empty lists,
-`.unknown` statuses, thrown "not available yet" errors); the ui must handle those
-states instead of assuming data.
+Until other modules are ready, their services return empty lists and `.unknown`
+statuses or throw "not available yet" errors. The UI must handle these states.
 
 ## 8. Integration
 
-Changes made when the modules were joined into one app:
+These rules apply where the modules work together.
 
 - The default dictation key is Fn (`SettingsKey.dictationKey`, `AppSettings.dictationKey`),
   as SPEC 4.1 says. `HotkeyConfiguration.init` defaults to `.fn` as well; the app always
@@ -779,7 +779,7 @@ public enum DiarizationScoring {
 }
 ```
 
-- `description` is implemented and is what `MeetingDiarization.configuration` stores.
+- The module implements `description` and stores its value in `MeetingDiarization.configuration`.
   The FluidAudio configuration builder, the file checks and `FluidAudioJobQueue`
   are internal to the module.
 - No file under `Sources/` may call FluidAudio's model preparation helper that
@@ -1106,7 +1106,7 @@ public struct SlovoPreferences: Sendable {
 
 ### 9.7 Integration
 
-Agents A–D landed; none of the placeholders listed in 10.1 remain.
+Agents A through D finished their modules. They replaced all placeholders listed in 10.1.
 
 Wiring:
 
@@ -1157,13 +1157,13 @@ MCPServerMode.runIfRequested()        // then MicrophoneDiagnostics.runIfRequest
   moves the data folder of a release `--mcp` process to another home folder, but
   not its preferences, which `cfprefsd` still reads from the user's domain.
 
-API additions reported by A (diarization):
+Diarization API additions (agent A):
 
 - `DiarizationService.downloadBytes` and `.modelIdentifier` are
   `nonisolated public static let`, readable off the main actor.
 - `DiarizationService.init(modelsRoot:downloader:factory:)` is a
   `convenience init`; an internal designated init adds `systemSupported:` so tests
-  can play macOS 14. Completeness and status come from the internal
+  can simulate macOS 14. Completeness and status come from the internal
   `DiarizationModelFiles`.
 - `DiarizationTuning(configuration:)` also accepts `zeroVoteMin`,
   `excludeOverlap`, `exclusive` and the space-separated form `description` prints,
@@ -1191,7 +1191,7 @@ API additions reported by A (diarization):
   synthetic cases in `Bench/diarization/out/` (not in git);
   `Bench/diarization/scenarios/generate.py` regenerates the scenarios byte for byte.
 
-API additions reported by B (meetings), all internal:
+Internal meeting API additions (agent B):
 
 - `MeetingStore.transcriptLanguage` (language provider for tests),
   `MeetingRecorder.hostTime` and `startSessionWithoutCapture(meetingID:originHostTime:)`
@@ -1199,7 +1199,7 @@ API additions reported by B (meetings), all internal:
   `ClipPlanner.plan` overload with an envelope and segmenter, and
   `MeetingErrors.speakersOnlyUnavailable()`.
 - Highlight anchoring: when several lines contain the time, the line that started
-  last wins, so a star placed at a line's start toggles that line again.
+  last gets the highlight. A star placed at a line's start toggles that line again.
 - `SpeakerRegistry` runs after transcription, over clips that produced text, with
   the record re-read from the store as `previous`; a voice without recognized text
   does not become a speaker, and renames made during the run are matched.
@@ -1231,7 +1231,7 @@ API additions reported by B (meetings), all internal:
   `createdAt` of the 2001 reference date; named speakers are numbered above every
   «Спикер N» in the document.
 
-API additions reported by C (mcp):
+MCP API additions (agent C):
 
 - `MeetingArchiveReading.unreadableMeetingDate(id:) -> Date?`, a requirement with a
   default that returns nil, so a full-UUID lookup of an unreadable folder answers
@@ -1262,7 +1262,7 @@ API additions reported by C (mcp):
   An empty result adds `integration.mcp.noMeetings`; `next_step` uses the short id
   only when it is unambiguous.
 
-API additions reported by D (ui), all in the `Slovo` target:
+UI API additions in the `Slovo` target (agent D):
 
 - `AppModel`: `diarization`, `meetingWiring`, `refusedHighlightShortcut`,
   `claudeRegistration`, `mcpCheckState`, `canProcess(_:mode:)`, `speakerLabel(_:in:)`,
@@ -1276,9 +1276,10 @@ API additions reported by D (ui), all in the `Slovo` target:
   `secondaryAccent`, all at least 4.5:1 on the panel, on `rowHover` and on `accentSoft`
   over the panel, checked by `InterfaceThemeContrastTests`), `codeFont`, `highlightStar`;
   the generic `ModelRow` behind `EngineModelRow`; `Support/ClaudeIntegration.swift`.
-- Check sends the requests of SPEC-speakers-mcp 7.2; «Работает: Claude видит N
-  встреч» counts the app's meetings within `mcpMaxAgeDays`, and «Работает, но доступ
-  выключен» is chosen when the reply is `isError` and access is off in the app.
+- Check sends the requests in SPEC-speakers-mcp 7.2. The message "Работает: Claude видит N
+  встреч" (Works: Claude can see N meetings) counts the app's meetings within
+  `mcpMaxAgeDays`. Show "Работает, но доступ выключен" (Responds, but access is off)
+  when the reply is `isError` and access is off in Slovo.
 - The failed-separation notice shows `MeetingDiarization.message`, or
   `meetings.diarization.failedGeneric` when it is missing.
 - Transcript line text is not selectable, so right-click opens the line menu.

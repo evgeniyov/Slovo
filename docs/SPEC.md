@@ -1,18 +1,17 @@
 # Slovo app specification
 
-Slovo is a macOS app for local voice input, modelled on Wispr Flow:
-hold a key, speak, and the text appears in whatever field has focus. It also
-records meetings and turns them into transcripts. Everything runs on the Mac;
-there is no account, subscription, team, cloud, telemetry or network use except
-explicit model downloads the user starts. When the user turns on Claude access,
-text Claude reads through Slovo's local MCP server leaves the Mac as part of the
-user's Claude conversation; Slovo's own process still sends nothing.
+Slovo is a macOS app for local voice input modeled on Wispr Flow. Hold a key
+while you speak. Release it to insert the text into the focused field. Slovo also
+records and transcribes meetings. It has no accounts, subscriptions, team
+features, cloud processing, or telemetry. The app itself uses the network only
+for model downloads the user starts. If the user allows Claude to read meetings
+through Slovo's local MCP server, Claude sends the text as part of the user's
+Claude conversation.
 
 Speaker separation, important moments, speaker renaming and Claude access are
-specified in `docs/SPEC-speakers-mcp.md`; where the two documents disagree, that
-document wins.
+specified in `docs/SPEC-speakers-mcp.md`. That specification takes precedence.
 
-The interface is fully bilingual: English and Russian, switchable at runtime.
+Users can switch between English and Russian without restarting the app.
 Recognition handles Russian, English and Russian speech with English terms.
 
 ## 1. Scope
@@ -24,9 +23,9 @@ In scope for this version:
 - Insights, Dictionary (terms and replacements), Snippets, Style (per app
   category) with Auto cleanup, Scratchpad notes, Meetings (Notetaker) with
   speaker separation, speaker renaming and important moments.
-- An opt-in local MCP server for meetings (see `docs/SPEC-speakers-mcp.md`), so
-  Claude Code and the Claude app can read them and, behind a second switch of its
-  own, write their own summary, decisions and tasks back into a meeting.
+- An opt-in local MCP server for meetings (see `docs/SPEC-speakers-mcp.md`).
+  Claude Code and the Claude app can read meetings when allowed. A separate
+  setting lets them write summaries, decisions, and tasks into a meeting.
 - Settings: General, Recognition, System, Meetings, Integrations, Data and
   privacy, About.
 - Onboarding: language, permissions, model check, a practice dictation.
@@ -73,7 +72,7 @@ through a local server; keep the text pipeline open to one more stage.
   where Slovo's bundle locator looks for them.
 - Engineering rules: no force unwraps, no `print` outside `slovo-bench`, use
   `os.Logger` (subsystem `local.slovo.Slovo`), no third-party dependencies beyond
-  sherpa-onnx, FluidAudio and whisper.cpp — the official prebuilt
+  sherpa-onnx, FluidAudio, and whisper.cpp. For whisper.cpp, use the official prebuilt
   `whisper.xcframework` of v1.9.4 (release asset of nightly build b5130, the same
   commit) as a SwiftPM binary target pinned by URL and checksum. It is a dynamic
   framework: SwiftPM puts it next to the executables, `build.py` copies it into
@@ -128,9 +127,8 @@ Slovo's data folder or preferences is ever written by that process.
   user's choice, made in onboarding and changeable at any time in Settings →
   General. Choices: Fn/Globe (keycode 63, Apple keyboards only), Right Option
   (61), Right Command (54), Left Control+Left Option pressed together. Default:
-  Fn. Holds shorter than
-  0.25 s are ignored (a tap is not a dictation).
-- Fn conflicts are explained, never silently "fixed": when Fn is chosen and
+  Fn. Ignore holds shorter than 0.25 s.
+- Warn about Fn conflicts without changing system settings. When Fn is chosen and
   `AppleFnUsageType` in the `com.apple.HIToolbox` domain is not 0 (1 = change
   input source, 2 = emoji, 3 = start Apple
   dictation), show an inline warning next to the Fn choice with a button that
@@ -138,10 +136,9 @@ Slovo's data folder or preferences is ever written by that process.
   Nothing". Slovo never writes that setting. When Fn is chosen and Wispr Flow
   (`com.electron.wispr-flow`) is running, warn that both apps react to Fn.
   Re-check both conditions whenever the app becomes active.
-- Hands-free: double-tap the dictation key (two taps within 0.4 s) starts a
-  recording that continues after release; one more tap finishes it. Maximum
-  length is a setting (default 6 minutes); the Flow bar shows a countdown in the
-  last 30 s.
+- Hands-free mode starts when the user taps the dictation key twice within 0.4 s.
+  Recording continues after release. Tap again to stop. The maximum duration is
+  configurable and defaults to 6 minutes. The Flow bar counts down the last 30 s.
 - Esc while recording cancels (nothing is transcribed or inserted). Esc also
   cancels a dictation that is still being transcribed.
 - Paste last transcript: Control+Command+V by default (Carbon
@@ -157,8 +154,9 @@ Slovo's data folder or preferences is ever written by that process.
 
 - `AVCaptureSession` with an `AVCaptureAudioDataOutput` that delivers 16 kHz mono
   Float32, accumulated in memory and written to a WAV file when recording stops.
-  Not `AVAudioEngine`: selecting a non-default input on its input node posts a
-  configuration change that stops the engine at random, which captured nothing.
+  Use this instead of `AVAudioEngine`. Selecting a non-default input on its
+  input node posts a configuration change that can stop the engine at random
+  and leave the recording empty.
 - Input device: system default or a chosen device (by UID, persisted; fall back
   to the default when it is missing or disconnects mid-recording). When no input
   takes over, the recording ends and what was captured before the loss is still
@@ -181,9 +179,9 @@ Slovo's data folder or preferences is ever written by that process.
    is released to free memory (GigaAM holds about 700 MB).
 
    English words in mixed dictation (`MixedLanguageHelper`, setting
-   `recognition.englishHelper`). GigaAM knows only Russian: it writes English as
-   Latin garble (Makos, Pod Vidos, Hithub) or as transliterations that are not
-   words (мейн, ребейс). In the mixed language mode, when the dictation engine is
+   `recognition.englishHelper`). GigaAM recognizes Russian only. It can misrecognize English as Latin text
+   ("Makos", "Pod Vidos", "Hithub") or as Cyrillic forms outside the Russian
+   dictionary ("мейн", "ребейс"). In the mixed language mode, when the dictation engine is
    GigaAM (RNNT or CTC), a multilingual helper fixes those words:
    1. GigaAM transcribes as always. `MixedLanguageMerger.needsHelper` looks for a
       suspect word: Latin letters, or a Cyrillic word the system's Russian spelling
@@ -200,31 +198,31 @@ Slovo's data folder or preferences is ever written by that process.
       pipeline below and into history as `rawText`; the entry's engine stays
       GigaAM. "Run again" of an entry dictated in the mixed mode with a GigaAM
       engine uses the helper too. Meetings and the other modes never do.
-   - Helper choice: `auto` (default) — Whisper large-v3 turbo when its model is
-     downloaded, else Parakeet v3 when its model is, else none; `parakeet`;
-     `whisper`; `off`. A helper chosen by name whose model is missing means no
-     helper; only Auto falls back from one model to the other.
-   - The helper can only improve a dictation. If it is missing, fails, or has not
-     answered within max(3 s, 0.5 × recording length) — counting its load — the
-     dictation continues with GigaAM's text, no error is shown and the log says
-     why. The limit also covers Whisper's first load after each install or
+   - The default, `auto`, uses Whisper large-v3 turbo if downloaded. Otherwise,
+     it uses Parakeet v3 if downloaded or skips the helper if neither is ready.
+     Other choices are `parakeet`, `whisper`, and `off`. Only Auto switches
+     models when the selected model is missing.
+   - The helper never blocks a dictation from completing. If it is missing,
+     fails, or takes longer than max(3 s, 0.5 × recording length), keep GigaAM's
+     text. Count model loading toward that limit. Log the reason without showing
+     an error. The limit also covers Whisper's first load after each install or
      update of the app, when Metal compiles whisper.cpp's shaders for the new
      binary (15–30 s; later loads take under a second): that dictation keeps
      GigaAM's text and the load finishes for the next one. Cancelling the
      dictation stops waiting at once and cancels the helper (whisper.cpp checks
      between Metal command buffers, so it stops within about a second).
-   - The helper is an ordinary engine of `EngineManager`: loaded on first need,
-     never preloaded, released by the idle timeout with the others. Whisper is
-     also released as soon as settings stop using it (it holds about 1 GB).
+   - `EngineManager` loads the helper on first use and releases it at the idle
+     timeout, like other engines. It never preloads the helper. It also releases
+     Whisper as soon as settings stop using it. Whisper holds about 1 GB.
    - `slovo-bench run --engine hybrid-parakeet|hybrid-whisper` evaluates the
      same helper pipeline on benchmark clips with reference transcripts.
    - Whisper runs through whisper.cpp v1.9.4 (`whisper.xcframework`, Metal) with
      the model `ggml-large-v3-turbo-q5_0.bin`: language forced to Russian
      (detection sometimes picks English and translates), beam search of 5 (best
      of 5 on temperature fallback), 4 CPU threads, flash attention, and the
-     Dictionary's terms as the initial prompt — comma-separated, ending with a
-     full stop, newest terms first when they exceed 600 characters (Whisper reads
-     at most 224 prompt tokens).
+     Dictionary's terms as the initial prompt. Separate terms with commas and
+     end with a period. Put the newest terms first when they exceed 600
+     characters. Whisper reads at most 224 prompt tokens.
 2. Text pipeline (pure, synchronous, fully unit-tested), in this order:
    1. Snippets: a trigger phrase spoken as the whole dictation or as a phrase
       inside it is replaced by its expansion. Matching is case-insensitive,
@@ -282,12 +280,11 @@ focus) centered above the bottom of the screen with the focused window (or the
 main screen), 3 pt above the Dock/visible frame, so it sits on the Dock and
 covers as little as possible of the app below.
 
-- Idle: a small grey pill (about 40×8 pt), shown while focus is in a text field;
-  it grows in and out of view instead of popping. Hidden completely when the
-  setting "Show Flow bar when idle" is off. The pointer arriving nudges it at once
-  (a little larger, in the accent colour); resting on it for about 0.2 s opens it
-  into the hint "Hold ⌥ to dictate" (key name follows the setting). Clicking the
-  idle pill starts a hands-free recording.
+- Idle. A small gray capsule (about 40×8 pt) scales in and out of view when a
+  text field gains or loses focus. The "Show Flow bar when idle" setting can
+  hide it. When the pointer enters, the capsule grows slightly and takes on the
+  accent color. After about 0.2 s of hover, it expands to show "Hold ⌥ to dictate"
+  with the configured key. Click the idle capsule to start hands-free recording.
 - Recording: a dark pill (about 120×34 pt) with 9–13 animated bars driven by the
   input level; in hands-free mode also a cancel (×) and a stop (■) button.
 - Processing: the same pill with a subtle animated dots/shimmer and a cancel (×)
@@ -306,15 +303,17 @@ covers as little as possible of the app below.
 
 ### 4.5 Style and app categories
 
-Four categories, like Wispr Flow: Personal messages, Work messages, Email,
-Other. Defaults by bundle id: personal — Telegram (`ru.keepcoder.Telegram`,
-`org.telegram.desktop`), Messages (`com.apple.MobileSMS`), WhatsApp
-(`net.whatsapp.WhatsApp`), Discord (`com.hnc.Discord`); work — Slack
-(`com.tinyspeck.slackmacgap`), Microsoft Teams (`com.microsoft.teams2`),
-Bitrix24, Zoom (`us.zoom.xos`), Яндекс Телемост; email — Mail
-(`com.apple.mail`), Outlook (`com.microsoft.Outlook`), Spark; everything else —
-Other. The Style screen lets the user move any app seen in history to another
-category.
+Slovo uses the same four categories as Wispr Flow. Defaults use app bundle IDs where specified.
+
+- **Personal messages.** Telegram (`ru.keepcoder.Telegram`,
+  `org.telegram.desktop`), Messages (`com.apple.MobileSMS`), WhatsApp
+  (`net.whatsapp.WhatsApp`), and Discord (`com.hnc.Discord`).
+- **Work messages.** Slack (`com.tinyspeck.slackmacgap`), Microsoft Teams
+  (`com.microsoft.teams2`), Bitrix24, Zoom (`us.zoom.xos`), and Yandex Telemost.
+- **Email.** Mail (`com.apple.mail`), Outlook (`com.microsoft.Outlook`), and Spark.
+- **Other.** All remaining apps.
+
+The Style screen lets users move any app in their history to another category.
 
 Each category has one of three styles (Wispr's names in parentheses):
 
@@ -332,7 +331,7 @@ A period after an abbreviation («т. е.», «и т. д.», «г.», «ч.», �
 "Inc.") does not start a new sentence unless the engine capitalized the next
 word, and Casual and Very casual never drop it.
 
-Defaults: personal — Casual, work — Formal, email — Formal, other — Formal.
+Personal messages default to Casual. Work messages, Email, and Other default to Formal.
 Each style card shows a sample message in the current UI language.
 
 ## 5. Screens
@@ -392,22 +391,22 @@ the window, like Wispr Flow.
 - **General**: dictation key (with a live "press to test" indicator), hands-free
   double-tap on/off, cancel with Esc on/off, paste-last shortcut, microphone
   (list with "System default"), interface language (System, English, Русский),
-  dictation language mode (Russian and English — default; Russian; English).
-- **Recognition**: engine for Russian and mixed speech (GigaAM v3 RNNT —
-  recommended; GigaAM v3 CTC; Parakeet v3; Apple Dictation), engine for English
-  (Parakeet v3 — recommended; GigaAM v3 RNNT; Apple Dictation), engine for
-  meetings (GigaAM v3 CTC — default; Parakeet v3). Each engine row shows status
+  and dictation language mode (Russian and English is the default, with Russian
+  and English also available separately).
+- **Recognition.** For Russian and mixed speech, offer GigaAM v3 RNNT
+  (recommended), GigaAM v3 CTC, Parakeet v3, and Apple Dictation. For English,
+  offer Parakeet v3 (recommended), GigaAM v3 RNNT, and Apple Dictation. For
+  meetings, offer GigaAM v3 CTC (default) and Parakeet v3. Each engine row shows status
   (Ready, Not downloaded with size, Downloading with progress, Damaged), disk
   size, a one-line trade-off from the benchmark (for example "Best Russian with
   punctuation · ~700 MB RAM while loaded"), Download/Delete buttons. Downloads
   happen only when the user presses Download. GigaAM archives come from
   `https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/` and are
   extracted with `/usr/bin/tar`; Parakeet downloads through FluidAudio into
-  `ModelStore.root/parakeet-v3`. "English words in Russian speech" (Auto —
-  default, naming the model it would use now; Parakeet v3; Whisper large-v3
-  turbo; Off), with a line saying it works only for the Russian and English
-  dictation language, and a note when the chosen model is not downloaded (see
-  4.3). The model list also has Whisper large-v3 turbo, marked "English helper"
+  `ModelStore.root/parakeet-v3`. The "English words in Russian speech" choices are Auto (default), Parakeet v3,
+  Whisper large-v3 turbo, and Off. Auto names the model it would use now. Say
+  that the helper works only in Russian and English mode. If the chosen model
+  is missing, show a note (see 4.3). The model list also has Whisper large-v3 turbo, marked "English helper"
   and never offered as a dictation or meeting engine, nor in "Run again" or
   onboarding: 574 MB (`ggml-large-v3-turbo-q5_0.bin` from Hugging Face
   `ggerganov/whisper.cpp`, pinned to a commit, SHA-256
@@ -436,10 +435,10 @@ the window, like Wispr Flow.
   history (forever, 30 days, 7 days, 24 hours); keep dictation audio for
   playback (7 days default, 30 days, 24 hours, never); "Delete all history"
   with confirmation; "Open data folder".
-- **About**: version, build, engines and their licenses (GigaAM — MIT; NVIDIA
-  Parakeet TDT 0.6B v3 — CC-BY-4.0, attribution to NVIDIA; sherpa-onnx —
-  Apache-2.0; FluidAudio — Apache-2.0; OpenAI Whisper large-v3 turbo — MIT;
-  whisper.cpp — MIT, ggml-org; pyannote community-1 speaker model —
+- **About**: version, build, engines and their licenses (GigaAM: MIT. NVIDIA
+  Parakeet TDT 0.6B v3: CC-BY-4.0, attribution to NVIDIA. sherpa-onnx and
+  FluidAudio: Apache-2.0. OpenAI Whisper large-v3 turbo: MIT.
+  whisper.cpp: MIT, ggml-org. pyannote community-1 speaker model:
   CC-BY-4.0, pyannoteAI, Core ML conversion by FluidInference), link to the
   models folder.
 
@@ -518,32 +517,61 @@ place. `RetentionCleaner` runs at launch and every 6 hours.
   user-visible errors (including the existing Russian messages in the engines)
   move to keys in SlovoCore's own tables read through `CoreStrings`, which
   follows the same `app.language` value.
-- Russian copy is natural and short, not a literal translation. Glossary:
-  Home/Dictation — Диктовка; Meetings — Встречи; Insights — Статистика;
-  Dictionary — Словарь; Snippets — Сниппеты; Style — Стиль; Scratchpad —
-  Заметки; Settings — Настройки; Flow bar — панель диктовки; hands-free — без
-  рук; Auto cleanup — Автоочистка; Personal messages — Личные сообщения; Work
-  messages — Рабочие сообщения; Email — Почта; Other — Другое; Formal —
-  Официально; Casual — Обычно; Very casual — Совсем просто; term — термин;
-  replacement — замена; engine — движок; model — модель; speaker — спикер;
-  Speaker 2 — Спикер 2; speaker separation, Separate speakers — разделение по
-  спикерам, Разделять по спикерам; speaker model — модель спикеров; This is me —
-  Это я; Default name — Имя по умолчанию; Merge with… — Объединить с…; Assign to
-  speaker — Отнести к спикеру; important moment (highlight) — важный момент; Mark
-  moment — Отметить момент; Mark as important / Remove mark — Отметить как важное
-  / Снять отметку; Important moments — Важные моменты; Participants — Участники;
-  Process again… — Обработать заново…; Speakers only / Speakers and text — Только
-  спикеры / Спикеры и текст; People in a meeting — Сколько человек на встрече;
-  Automatic — Автоматически; Integrations — Интеграции; Claude access — Доступ
-  Claude; Let Claude read meetings — Разрешить Claude читать встречи; Check —
-  Проверить.
+- Keep Russian interface text short and idiomatic. Use these terms.
+
+  | English | Russian |
+  |---|---|
+  | Home/Dictation | Диктовка |
+  | Meetings | Встречи |
+  | Insights | Статистика |
+  | Dictionary | Словарь |
+  | Snippets | Сниппеты |
+  | Style | Стиль |
+  | Scratchpad | Заметки |
+  | Settings | Настройки |
+  | Flow bar | панель диктовки |
+  | hands-free | без рук |
+  | Auto cleanup | Автоочистка |
+  | Personal messages | Личные сообщения |
+  | Work messages | Рабочие сообщения |
+  | Email | Почта |
+  | Other | Другое |
+  | Formal | Официально |
+  | Casual | Обычно |
+  | Very casual | Совсем просто |
+  | term | термин |
+  | replacement | замена |
+  | engine | движок |
+  | model | модель |
+  | speaker | спикер |
+  | Speaker 2 | Спикер 2 |
+  | speaker separation, Separate speakers | разделение по спикерам, Разделять по спикерам |
+  | speaker model | модель спикеров |
+  | This is me | Это я |
+  | Default name | Имя по умолчанию |
+  | Merge with… | Объединить с… |
+  | Assign to speaker | Отнести к спикеру |
+  | important moment (highlight) | важный момент |
+  | Mark moment | Отметить момент |
+  | Mark as important / Remove mark | Отметить как важное / Снять отметку |
+  | Important moments | Важные моменты |
+  | Participants | Участники |
+  | Process again… | Обработать заново… |
+  | Speakers only / Speakers and text | Только спикеры / Спикеры и текст |
+  | People in a meeting | Сколько человек на встрече |
+  | Automatic | Автоматически |
+  | Integrations | Интеграции |
+  | Claude access | Доступ Claude |
+  | Let Claude read meetings | Разрешить Claude читать встречи |
+  | Check | Проверить |
+
 - "Diarization", "embedding", "cluster" and "MCP" never appear in the interface;
   "MCP" appears only inside the copyable registration snippets.
 - Plurals through `.stringsdict` in both languages (Russian needs one/few/many).
 
 ## 11. Visual design
 
-Wispr Flow's look, not its branding (own name, own icon, no copied images):
+Use Wispr Flow as a visual reference. Use Slovo's own name, icon, and images.
 
 - Light: window background `#F2F0EB`; sidebar same; content panel `#FBFAF7`
   with a 1 pt border `#E7E3DA` and 16 pt corner radius; primary text `#1C1B19`,
@@ -562,7 +590,7 @@ Wispr Flow's look, not its branding (own name, own icon, no copied images):
 
 ## 12. Quality bar
 
-- `swift build` with no warnings from Slovo targets, `swift test` green
+- `swift build` emits no warnings from Slovo targets. `swift test` passes
   (text pipeline, term correction examples above, snippets, style formatter,
   filler cleaner, stores round-trip and corruption handling, retention,
   insights, localization parity, segmenter/merger, hotkey tap state machine as a

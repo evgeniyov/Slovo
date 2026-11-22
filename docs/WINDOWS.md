@@ -1,34 +1,33 @@
 # Slovo for Windows
 
-Slovo runs on macOS and on Windows as two native apps that share one product: the
-same features, the same data format, the same MCP server for Claude, the same copy in
-both languages and the same speech models. This document is the architecture decision
-and the contract for the Windows app; `docs/SPEC.md`, `docs/SPEC-speakers-mcp.md` and
-`docs/CONTRACTS.md` stay the specification of *what* Slovo does, and where they name a
-macOS mechanism this document says what Windows uses instead.
+Slovo has native apps for macOS and Windows. They share features, data formats,
+the MCP server for Claude, interface text in both languages, and speech models.
+`docs/SPEC.md`, `docs/SPEC-speakers-mcp.md`, and `docs/CONTRACTS.md` specify the
+shared behavior. This document describes the Windows implementation and the
+features specific to each platform.
 
 ## 1. Decision
 
 Slovo uses Swift, SwiftUI, AVFoundation and Core ML on macOS. The Windows app
 uses C#, .NET 10 and Avalonia.
 
-What keeps the two apps one product:
+The apps share these formats, strings, tests, and models.
 
 1. **One data format.** `meeting.json`, `history.json`, `dictionary.json`,
-   `snippets.json`, `notes.json`, `app-categories.json` and `transcript.md` are written
-   the way the macOS app writes them (Swift `JSONEncoder` defaults: dates as seconds
-   since 2001-01-01, upper-case UUIDs, sorted keys; meeting audio as 16 kHz 16-bit CAF).
+   `snippets.json`, `notes.json`, `app-categories.json` and `transcript.md` follow the macOS format. The Swift `JSONEncoder` settings write dates as seconds
+   since 2001-01-01, use uppercase UUIDs, and sort keys. Both apps store meeting
+   audio as 16 kHz, 16-bit CAF.
    A meeting's optional screen video is `screen.mov` with `hasScreenRecording` on both
    (§5). A meeting folder copied from one computer opens on the other.
-2. **One copy.** The Windows app embeds the macOS string tables
+2. **Shared interface text.** The Windows app embeds the macOS string tables
    (`Sources/Slovo/Resources/*.lproj`, `Sources/SlovoCore/Resources/*.lproj`) and adds
    small Windows tables that only replace lines naming macOS (⌘, Finder, System
    Settings) and add Windows-only keys.
-3. **One behaviour.** Golden fixtures in `Shared/fixtures/` are checked by the Swift tests
-   and by the C# tests: text pipeline input → output, `meeting.json` decoding, MCP
-   exchanges. When behaviour changes on one side, the fixture changes and the other side's
-   test fails until it follows.
-4. **Same models.** GigaAM v3 (RNNT and CTC) uses the very same sherpa-onnx folders on both
+3. **Shared fixtures.** Swift and C# tests use `Shared/fixtures/` to check text
+   pipeline inputs and outputs, `meeting.json` decoding, and MCP exchanges. When
+   behavior changes in one app, update the fixture. The other app's test fails
+   until its behavior matches.
+4. **Same models.** GigaAM v3 (RNNT and CTC) uses the same sherpa-onnx folders on both
    systems. Parakeet v3 is FluidAudio's Core ML build on macOS and sherpa-onnx's int8 ONNX
    export on Windows. Speaker separation is pyannote community-1 on Core ML (macOS) and
    pyannote segmentation 3.0 + a speaker-embedding model on sherpa-onnx (Windows).
@@ -65,11 +64,12 @@ started on a Mac to work on the interface.
 
 - C# latest, nullable on, warnings are errors. No third-party packages beyond those in
   `Directory.Packages.props` (sherpa-onnx, NAudio, Avalonia, CommunityToolkit.Mvvm, xUnit).
-- Windows APIs without a package are called directly: Win32 through `LibraryImport`, COM and
-  WinRT (UI Automation, Windows.Graphics.Capture, Direct3D 11, Media Foundation) through
-  their vtables with function pointers, slot numbers and interface ids written next to the
-  calls. There is no CsWinRT projection, so every project stays `net10.0`, the whole solution
-  builds and tests on a Mac, and the published app carries no 25 MB projection assembly.
+- Call Windows APIs without a package directly. Use `LibraryImport` for Win32.
+  Call COM and WinRT (UI Automation, Windows.Graphics.Capture, Direct3D 11,
+  and Media Foundation) through their vtables. Keep the function pointers,
+  slot numbers, and interface IDs next to the calls. Omitting CsWinRT keeps
+  every project on `net10.0`, lets the whole solution build and test on a Mac,
+  and saves the 25 MB projection assembly in the published app.
 - Ports keep the Swift names and structure (`DictionaryCorrector` → `DictionaryCorrector`),
   and the Swift doc comments become XML comments, so a change on one side is easy to find on
   the other. Port Swift tests along with the code.
@@ -114,31 +114,36 @@ started on a Mac to work on the interface.
 
 ## 5. Screen recording
 
-The same optional third track as on macOS (`MeetingScreenCapture.swift`,
-`MeetingScreenWriter.swift`): off by default (`meetings.recordScreen`), the whole primary
-display or one app (`meetings.screenCaptureApp`, the app's lower-case executable name on
-Windows), chosen with the square button next to "New recording" or in Settings → Meetings.
-The logic is in the core and tested on any system — `MeetingScreenCapture` (pacing,
-timeline, key frames, lock/unlock, wake, one reconnect), `MeetingScreenWriter`,
-`Video/FragmentedMp4Writer`, `Video/ScreenFrameConverter` — while the platform only hands
-over BGRA pictures and encodes NV12 (`IScreenCapture`).
+As on macOS (`MeetingScreenCapture.swift`, `MeetingScreenWriter.swift`), screen
+recording is an optional third track and defaults to off (`meetings.recordScreen`).
+Use the square button beside "New recording" or Settings → Meetings to choose
+between the primary display and one app. On Windows, `meetings.screenCaptureApp`
+stores the app's lowercase executable name.
 
-- **Never at the audio's expense.** Every failure (Windows before 1903, no encoder, the app
-  not running, a lost capture, a full disk, the encoder failing) ends the screen track only,
-  with its reason in the recording panel and an alert when it does not start. Scoped to one
-  app, the app's sound replaces system audio when it starts, and system audio is recorded
-  instead when it does not; unlike macOS, where the app's sound rides on the screen stream,
-  it is a capture of its own here and keeps recording if the app's video ends.
-- **Picture.** About four pictures a second, scaled (box filter) into one canvas sized from
-  the primary display with its longer edge at most 1920 and both edges even, fixed for the
-  file; a display swap or a resized window is fitted into it (an app's window is not blown
-  up). When nothing changed the last picture is encoded again, which costs next to nothing
-  and keeps fragments reaching the disk. Times come from the audio tracks' uptime origin plus
-  any silence padded for sleep, so the video lines up with `mic.caf`/`system.caf`.
-- **Encoder.** Media Foundation's software H.264 MFT (synchronous; no hardware MFT event
-  model to get wrong), Baseline profile so there are no reordered frames, quality-based rate
-  control, a key frame every 10 s. Windows N without the Media Feature Pack has no encoder:
-  the track says so and the meeting records its audio.
+The core handles pacing, the timeline, keyframes, lock and unlock, wake, and one
+reconnect in `MeetingScreenCapture`. It also handles conversion and file writing
+in `MeetingScreenWriter`, `Video/FragmentedMp4Writer`, and
+`Video/ScreenFrameConverter`. Tests can exercise this logic on any system. The
+platform provides BGRA frames and encodes NV12 through `IScreenCapture`.
+
+- **Audio on capture failure.** Only the screen track ends if Windows is older
+  than 1903, the encoder is unavailable or fails, the selected app is closed,
+  capture is lost, or the disk is full. The recording panel shows the reason.
+  If capture does not start, show an alert. When capturing one app, record its
+  audio in place of system audio if the app capture starts. Otherwise record
+  system audio. macOS captures the app's audio in the screen stream. Windows
+  captures it separately, so audio recording continues if the video ends.
+- **Frames and size.** Record about four frames per second. Scale frames with a
+  box filter into a canvas based on the primary display. Both edges have even
+  dimensions and the longer edge is at most 1920 pixels. Keep the canvas size
+  fixed for the file. Fit a replacement display or a resized window without
+  upscaling app windows. When nothing changes, encode the last frame again at
+  minimal cost so fragments keep reaching disk. Use the audio tracks' uptime
+  origin plus any silence added for sleep to align video with `mic.caf`/`system.caf`.
+- **Encoder.** Use Media Foundation's synchronous software H.264 MFT to avoid the
+  hardware MFT event model. Use Baseline to avoid frame reordering, quality-based
+  rate control, and a keyframe every 10 s. Windows N needs the Media Feature Pack
+  for the encoder. If it is missing, report that on the screen track and record audio.
 - **File.** `screen.mov`, as on macOS, holding a fragmented ISO MP4 (`ftyp iso5`, a `moov`
   without samples, then `moof`+`mdat` fragments of about 10 s, each flushed to disk; a
   finished file also gets `mehd` and `mfra`). A crash or force-quit leaves every fragment
@@ -148,8 +153,8 @@ over BGRA pictures and encodes NV12 (`IScreenCapture`).
   torn mid-fragment; FFmpeg decodes them too), and Windows plays `.mov` through the MPEG-4
   source of Media Foundation, which reads movie fragments since Windows 8. Every fragment
   starts with a key frame, which is also where that source assumes one when seeking. The
-  card opens it in the default video player — Avalonia has no
-  video view, and the video is muted reference footage on its own timeline anyway.
+  meeting card opens the file in the default player because Avalonia has no video
+  view. The muted reference video has its own timeline.
 - **Session.** A screen lock (`WTS_SESSION_LOCK`) closes the capture and says "paused"; the
   unlock reopens it. A wake (`PBT_APMRESUMEAUTOMATIC`) rebuilds it. A capture that ends by
   itself (window closed, display gone, device reset) gets one reconnect, then the track is
@@ -179,7 +184,7 @@ about damaged data files, both languages, light and dark themes.
 
 Not on Windows, on purpose or for now:
 
-- Apple Dictation — macOS only.
+- Apple Dictation is available only on macOS.
 - An inline video player on the meeting card: Avalonia has no video view, so "Open video"
   opens the system player (§5). The screen picker lists apps by name without their icons, and
   the Home list shows no app icon beside a dictation: Windows keeps only the executable name,
@@ -213,8 +218,8 @@ On a Mac (the whole solution builds there with zero warnings, and CI repeats it 
 - Core, Engines, Platform and App tests cover the text pipeline, both formats of
   `meeting.json` and `transcript.md`, and MCP request and response parity using
   fixtures shared with the Swift tests.
-- GigaAM runs for real in the Engines tests on the models the macOS app downloaded; speaker
-  separation runs on the ONNX models.
+- The Engines tests run GigaAM with models downloaded by the macOS app. The
+  speaker separation tests use the ONNX models.
 - The app starts on the stand-in platform services (`SLOVO_DATA_DIR=… dotnet Slovo.dll`), and
   a headless test builds the whole app, opens every screen and settings section, records into
   a microphone that fails, and quits saving everything. Screens are rendered to PNG in both
@@ -222,11 +227,11 @@ On a Mac (the whole solution builds there with zero warnings, and CI repeats it 
 - Screen recording up to the encoder: the canvas, scaling and colours, pacing, key frames,
   lock/unlock, wake, one reconnect, a failing encoder and every recorder path run over a fake
   platform; `screen.mov` files written by the MP4 writer from real x264 output play in
-  AVFoundation (`AVPlayer`, `AVAssetImageGenerator`) — finished, cut off, and torn mid-fragment —
-  and FFmpeg decodes them. The raw COM/WinRT calls were checked against the Windows metadata
+  AVFoundation (`AVPlayer`, `AVAssetImageGenerator`). Both AVFoundation and FFmpeg
+  handle finished files, files cut off during recording, and files torn mid-fragment. The raw COM/WinRT calls were checked against the Windows metadata
   (interface ids, vtable slots, signatures, struct layouts); struct sizes are also tested.
 
-Only a Windows machine can confirm (compiled and unit-tested here, never run for real):
+The following compiled and passed unit tests on Mac. They still need checks on Windows hardware.
 
 - the `WH_KEYBOARD_LL` hook next to Avalonia, the Win/Alt masking and `GetAsyncKeyState`
   when an elevated window has focus;
@@ -236,7 +241,7 @@ Only a Windows machine can confirm (compiled and unit-tested here, never run for
 - WASAPI capture and process loopback on real devices, sleep and device changes during a
   meeting, and playback of meeting tracks;
 - the tray icon, the non-activating Flow bar window and the installer;
-- screen recording for real: Windows.Graphics.Capture of the display and of an app's window,
+- screen recording on Windows: Windows.Graphics.Capture of the display and of an app's window,
   the Media Foundation encoder, `screen.mov` in Windows' players, the yellow border, lock,
   unlock and sleep, an app's own sound through process loopback, and Windows N without the
   Media Feature Pack;
