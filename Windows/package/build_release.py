@@ -55,7 +55,8 @@ def main() -> None:
         installer = output / f"{name}-setup.exe"
         subprocess.run([
             executable, f"{define}VERSION={args.version}", f"{define}INSTALLER={installer}",
-            f"{define}PAYLOAD={payload}", f"{define}UNINSTALL_FILES={instructions}",
+            # makensis on Windows finds no files for a "/*" wildcard, so the path uses the native separator.
+            f"{define}PAYLOAD_FILES={payload / '*'}", f"{define}UNINSTALL_FILES={instructions}",
             str(PACKAGE / "slovo.nsi"),
         ], check=True)
 

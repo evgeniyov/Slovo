@@ -58,7 +58,7 @@ Section "Slovo"
     SetRegView 64
     SetOutPath "$INSTDIR"
     SetOverwrite on
-    File /r "${PAYLOAD}/*"
+    File /r "${PAYLOAD_FILES}"
     WriteUninstaller "$INSTDIR\Uninstall Slovo.exe"
     CreateShortcut "$SMPROGRAMS\Slovo.lnk" "$INSTDIR\Slovo.exe"
     WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "Slovo"
